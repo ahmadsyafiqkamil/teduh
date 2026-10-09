@@ -1,0 +1,7 @@
+# Build the API image with the Dockerfile in infra/ against the repo root as context.
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "infra/Dockerfile", "-t", "${_IMAGE}", "."]
+images: ["${_IMAGE}"]
+options:
+  logging: CLOUD_LOGGING_ONLY

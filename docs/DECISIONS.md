@@ -108,4 +108,11 @@
 - **`stations_monthly.csv` kini 32 baris** (16 bulan unik × 2 stasiun, Nov 2024–Feb 2026), naik dari 8.
 - **Bug laten diperbaiki:** `parse_bmkg_bulanan.py` menggandakan 8 baris karena ekspor Jun–Sep 2025 dan 2024-11…2026-02 tumpang tindih, padahal docstring-nya menjanjikan satu baris per station-month. Ditambah `dedupe()` yang melaporkan bila nilai antar-ekspor berbeda (sejauh ini identik) dan assert keunikan di `check()`.
 
+## 2026-10-09 — Artefak data dibakar ke image Docker, bukan diunduh dari GCS
+
+- **Konsep (§11.1):** `TEDUH_DATA_URI=gs://<bucket>/teduh/v1/`, artefak diunduh saat startup.
+- **Keputusan:** `infra/Dockerfile` mem-`COPY` `data/{boundaries,processed,evidence,model}` ke dalam image. Env `TEDUH_DATA_DIR` disediakan untuk menunjuk direktori lain (dipakai tes).
+- **Alasan:** total artefak ~9,3 MB (`grid_features.parquet` 7,0 MB + `kelurahan.geojson` 2,2 MB + sisanya 96 KB). Jalur GCS menambah kredensial, kuota, dan penanganan gagal-unduh ke jalur kritis tepat saat penilaian, hanya untuk menghemat 9 MB ukuran image. Membakar artefak menghapus satu titik gagal dan membuat image bisa direproduksi apa adanya.
+- **Risiko:** setiap pembaruan data butuh build image baru. Dapat diterima karena pipeline offline hanya dijalankan ulang saat sumber data berubah. Kalau artefak tumbuh melewati ~100 MB, kembali ke jalur GCS dan catat di sini.
+
 Rincian semua sumber: `docs/DATA_SOURCES.md`.
