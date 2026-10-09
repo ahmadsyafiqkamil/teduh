@@ -14,6 +14,10 @@ data/processed/grid_features.parquet
 # labels CSV is committed.
 data/roof_test/photos/
 
+# Laporan evaluasi per-jalan. Laporan final yang dikutip di proposal dipaksa commit
+# dengan `git add -f`.
+tests/eval/reports/
+
 # Brief yang dihasilkan saat runtime. Bisa memuat nama wilayah dan angka anggaran.
 data/briefs/
 

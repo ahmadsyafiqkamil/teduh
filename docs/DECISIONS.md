@@ -166,4 +166,12 @@
 - **Alasan:** memperbaiki arah dependensi, bukan gejalanya. `model/` adalah daun dan tidak boleh tahu `teduh_agent` ada. Menambah `import teduh_agent` di `api/main.py` akan menyembunyikan bug ini sekaligus membiarkan `python -m model.train` tetap rusak.
 - **Risiko:** nama modulnya bisa dikira pembaca `config/*.yaml`. Docstring-nya menyatakan ini konvensi konstanta, bukan objek settings.
 
+## 2026-10-09 — Runner golden questions: dua penyesuaian + dua pertanyaan tak teruji penuh
+
+- **Konsep (rencana `m8-eval-deploy.md`):** `run_golden.py` menilai tool domain yang dipanggil per pertanyaan, dalam satu `asyncio.run` per langkah, sesi segar per pertanyaan.
+- **Penyesuaian 1 — saring `transfer_to_agent`:** event ADK mencatat `transfer_to_agent` sebagai `function_call`, padahal itu mekanisme routing koordinator→sub-agen, bukan tool domain. Tanpa disaring, setiap pertanyaan `allow_extra: false` yang sah merutekan ke spesialis gagal secara keliru. Kini `IGNORED_TOOLS = {"transfer_to_agent"}` menyaringnya; routing tetap terlihat lewat `Outcome.agents`.
+- **Penyesuaian 2 — satu event loop:** versi rencana memanggil `asyncio.run()` terpisah untuk `create_session` dan tiap pertanyaan. Pada backend model [OI]-compatible, pool koneksi httpx terikat ke loop yang pertama membuatnya; `asyncio.run` menutup loop itu di bawah klien, sehingga pertanyaan kedua mati dengan `RuntimeError: Event loop is closed`. `main()`/`run_one()` diubah async dan seluruh eval berjalan dalam satu `asyncio.run(main())`.
+- **Batas yang tidak dibungkus diam-diam:** `q16` ("[foto atap terlampir]") tidak bisa lulus karena runner saat ini mengirim teks saja, tidak ada `Part` gambar — agen dengan benar menolak menganalisis foto yang tak ada. `q13` ("tambahkan ke brief tadi") butuh konteks multi-giliran dari q12, tetapi tiap pertanyaan mendapat sesi segar. Keduanya dicatat, bukan dipaksa lulus; target 90% diukur terhadap 18 pertanyaan yang benar-benar teruji oleh runner teks-ini.
+- **Alasan:** menilai yang diklaim (pemilihan tool domain), bukan kebisingan internal ADK, dan tidak melemahkan golden set. Angka final tetap harus diukur di Gemini (`TEDUH_MODEL`), bukan backend dev [OI]-compatible yang lebih lemah.
+
 Rincian semua sumber: `docs/DATA_SOURCES.md`.
