@@ -17,7 +17,7 @@ def costs(fixture_store):
 def test_cell_area_matches_the_pipeline_cell_size():
     # pipeline/build_grid.py reports the WorldPop cell as 92.8 x 92.2 m at Jakarta's
     # latitude, and pipeline/aggregate_kelurahan.py uses the same product for area_km2.
-    assert CELL_AREA_M2 == pytest.approx(8_556.16)
+    assert pytest.approx(8_556.16) == CELL_AREA_M2
 
 
 @pytest.mark.unit
