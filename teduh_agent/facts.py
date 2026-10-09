@@ -14,10 +14,13 @@ policy_writer everything the conversation has already established.
 
 from typing import Any, TypedDict
 
-Fact = TypedDict(
-    "Fact",
-    {"id": str, "label": str, "value": float | int | str, "unit": str, "source": str},
-)
+
+class Fact(TypedDict):
+    id: str
+    label: str
+    value: float | int | str
+    unit: str
+    source: str
 
 # Canonical source tokens. Anything else must go through source_evidence() or
 # source_assumption() so the brief footnotes can resolve the citation.
