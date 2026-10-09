@@ -11,15 +11,17 @@ bytes for a choropleth. Rounding needs no geometry library, which matters becaus
 lives in the pipeline dependency group and is not installed in the runtime image.
 """
 
+import re
 from functools import lru_cache
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 
 from api.schemas import OptimizeRequest, SimulateRequest, fail, ok
 from teduh_agent.store import get_store
 from teduh_agent.tools.areas import directory, explain_drivers, get_area_profile
+from teduh_agent.tools.brief import BRIEF_DIR
 from teduh_agent.tools.optimize import optimize_portfolio
 from teduh_agent.tools.scenario_tools import simulate_intervention
 
@@ -48,6 +50,10 @@ MAP_METRICS: tuple[str, ...] = (
 )
 
 NAME_PROPERTIES = ("kel_id", "kel_name", "kec_id", "kec_name", "kota_id", "kota_name")
+
+# brief_id reaches the filesystem, so it is matched against a strict pattern rather than
+# sanitised. uuid4().hex[:12] is always 12 lowercase hex characters.
+BRIEF_ID_PATTERN = r"^[0-9a-f]{12}$"
 
 
 def _round_coords(node: Any) -> Any:
@@ -182,3 +188,32 @@ def model_card() -> Any:
             detail="Model card belum tersedia. Model belum dilatih.",
         )
     return ok(store.model_card)
+
+
+@router.get("/brief/{brief_id}")
+def brief(brief_id: str, format: str = "md") -> Any:
+    """Serve a rendered brief as Markdown or PDF."""
+    if not re.match(BRIEF_ID_PATTERN, brief_id):
+        return JSONResponse(status_code=404, content=fail("Brief tidak ditemukan."))
+    if format not in {"md", "pdf"}:
+        return JSONResponse(
+            status_code=422, content=fail("Format harus 'md' atau 'pdf'.")
+        )
+
+    path = BRIEF_DIR / f"{brief_id}.{format}"
+    if not path.exists():
+        return JSONResponse(
+            status_code=404,
+            content=fail(
+                "Brief tidak ditemukan. Tautan brief hanya berlaku selama instance "
+                "yang membuatnya masih hidup."
+            ),
+        )
+
+    if format == "pdf":
+        return FileResponse(
+            path,
+            media_type="application/pdf",
+            filename=f"teduh-brief-{brief_id}.pdf",
+        )
+    return PlainTextResponse(path.read_text(encoding="utf-8"), media_type="text/markdown")

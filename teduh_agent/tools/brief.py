@@ -21,6 +21,7 @@ import uuid
 from pathlib import Path
 
 from google.adk.tools import ToolContext
+from markdown_it import MarkdownIt
 
 from teduh_agent.facts import Fact, session_facts
 from teduh_agent.store import get_store
@@ -70,6 +71,26 @@ UNIT_RENDER: dict[str, tuple[str, str]] = {
     "%": ("", "%"),
     "": ("", ""),
 }
+
+# Print styling. Kept inline rather than as a separate .css file so the PDF cannot render
+# unstyled because a file was missing from the container image.
+PDF_CSS = """
+@page { size: A4; margin: 22mm 20mm; }
+body { font-family: "DejaVu Sans", sans-serif; font-size: 10.5pt; line-height: 1.5;
+       color: #1C2321; }
+h1 { font-size: 20pt; color: #1F5C4A; margin: 0 0 4mm; }
+h2 { font-size: 13pt; color: #1F5C4A; margin: 7mm 0 2mm;
+     border-bottom: 0.4mm solid #E3DED4; padding-bottom: 1mm; }
+h3 { font-size: 11pt; margin: 5mm 0 2mm; }
+table { border-collapse: collapse; width: 100%; font-size: 9.5pt; }
+th, td { border: 0.2mm solid #E3DED4; padding: 1.6mm 2mm; text-align: left; }
+th { background: #F7F4EE; }
+sup { font-size: 7.5pt; color: #5E6662; }
+.footnotes { font-size: 8.5pt; color: #5E6662; margin-top: 8mm;
+             border-top: 0.4mm solid #E3DED4; padding-top: 3mm; }
+"""
+
+PDF_RENDERER = MarkdownIt("commonmark").enable("table")
 
 SOURCE_CITATIONS = {
     "data:grid_features@v1": (
@@ -227,6 +248,24 @@ def footnotes(used: list[Fact]) -> str:
     return "\n".join(lines)
 
 
+def to_html(markdown_body: str) -> str:
+    """Markdown to a standalone print-ready HTML document."""
+    return (
+        "<!doctype html><html lang=\"id\"><head><meta charset=\"utf-8\">"
+        f"<style>{PDF_CSS}</style></head><body>"
+        f"{PDF_RENDERER.render(markdown_body)}"
+        "</body></html>"
+    )
+
+
+def to_pdf(markdown_body: str, destination: Path) -> Path:
+    """Render to PDF with WeasyPrint, which needs Pango and Cairo from the system."""
+    from weasyprint import HTML
+
+    HTML(string=to_html(markdown_body)).write_pdf(str(destination))
+    return destination
+
+
 def get_session_facts(tool_context: ToolContext) -> dict:
     """Ambil semua fakta yang sudah terbukti di percakapan ini.
 
@@ -286,6 +325,15 @@ def render_policy_brief(draft_markdown: str, tool_context: ToolContext) -> dict:
     BRIEF_DIR.mkdir(parents=True, exist_ok=True)
     (BRIEF_DIR / f"{brief_id}.md").write_text(body, encoding="utf-8")
 
+    # A missing system library must not lose the brief the agent just produced, so a PDF
+    # failure degrades to Markdown-only and says so instead of raising.
+    pdf_available = False
+    try:
+        to_pdf(body, BRIEF_DIR / f"{brief_id}.pdf")
+        pdf_available = True
+    except Exception as error:  # noqa: BLE001 -- any WeasyPrint/system failure
+        print(f"PERINGATAN: render PDF gagal, brief tetap tersedia sebagai Markdown: {error}")
+
     return {
         "brief_id": brief_id,
         "brief_markdown": body,
@@ -294,4 +342,5 @@ def render_policy_brief(draft_markdown: str, tool_context: ToolContext) -> dict:
         "warnings": report["warnings"],
         "unused_facts": report["unused_facts"],
         "download_path": f"/api/brief/{brief_id}",
+        "pdf_available": pdf_available,
     }
