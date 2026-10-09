@@ -58,7 +58,7 @@
   - `hvi(comp: pd.DataFrame, weights: dict[str, float] | None = None) -> pd.Series` — nama `"hvi"`
   - `rank(hvi_series: pd.Series) -> pd.Series` — nama `"hvi_rank"`, dtype `Int64`, 1 = paling rentan
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 Buat `tests/test_hvi.py`:
 
@@ -208,12 +208,12 @@ def test_kampung_rawa_is_still_rank_one(real_store):
     assert real_store.kelurahan.loc["ID3173040002", "hvi_rank"] == 1
 ```
 
-- [ ] **Step 2: Jalankan tes untuk memastikan gagal**
+- [x] **Step 2: Jalankan tes untuk memastikan gagal**
 
 Run: `uv run pytest tests/test_hvi.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'model.hvi'`
 
-- [ ] **Step 3: Tulis `model/hvi.py`**
+- [x] **Step 3: Tulis `model/hvi.py`**
 
 ```python
 """Heat Vulnerability Index: the IPCC hazard x exposure x vulnerability framing (CONCEPT §7.4).
@@ -294,12 +294,12 @@ def rank(hvi_series: pd.Series) -> pd.Series:
     return hvi_series.rank(ascending=False, method="min").astype("Int64").rename("hvi_rank")
 ```
 
-- [ ] **Step 4: Jalankan tes untuk memastikan lulus**
+- [x] **Step 4: Jalankan tes untuk memastikan lulus**
 
 Run: `uv run pytest tests/test_hvi.py -v`
 Expected: PASS, 15 tes (3 terakhir di-skip kalau `grid_features.parquet` tidak ada).
 
-- [ ] **Step 5: Catat nilai pipeline sebelum refactor**
+- [x] **Step 5: Catat nilai pipeline sebelum refactor**
 
 ```bash
 uv run python -c "
@@ -311,7 +311,7 @@ print(k.nsmallest(5,'hvi_rank')[['kel_name','hvi','hvi_rank']].to_string())
 "
 ```
 
-- [ ] **Step 6: Refactor `pipeline/aggregate_kelurahan.py` agar memakai `model/hvi.py`**
+- [x] **Step 6: Refactor `pipeline/aggregate_kelurahan.py` agar memakai `model/hvi.py`**
 
 Tambahkan import setelah `import yaml` (baris 23):
 
@@ -344,7 +344,7 @@ Ganti blok komponen + HVI + rank (baris 90–97) menjadi:
     kel["hvi_rank"] = rank(kel["hvi"])
 ```
 
-- [ ] **Step 7: Jalankan ulang pipeline dan buktikan nilainya tidak berubah**
+- [x] **Step 7: Jalankan ulang pipeline dan buktikan nilainya tidak berubah**
 
 Run: `uv run python -m pipeline.aggregate_kelurahan`
 Expected: `check ok`, dan tabel 10 kelurahan prioritas masih dipimpin Kampung Rawa dengan HVI 0,931.
@@ -369,7 +369,7 @@ Perbandingan **nilai** yang menentukan, bukan hash file — Parquet bisa menghas
 Run: `uv run pytest tests/test_hvi.py -v`
 Expected: PASS semua, termasuk dua tes regresi terhadap kolom yang di-commit.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add model/hvi.py pipeline/aggregate_kelurahan.py tests/test_hvi.py
@@ -408,7 +408,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `summarise(folds: list[dict]) -> dict` — `{"r2_mean", "r2_min", "rmse_mean", "mae_mean"}`
   - `main()`, `check(booster, frame, folds, baseline) -> None`
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 Buat `tests/test_train.py`:
 
@@ -564,12 +564,12 @@ def test_predict_uses_only_the_declared_feature_columns(fixture_store):
     assert np.allclose(predict(booster, frame.head(5)), predict(booster, noisy))
 ```
 
-- [ ] **Step 2: Jalankan tes untuk memastikan gagal**
+- [x] **Step 2: Jalankan tes untuk memastikan gagal**
 
 Run: `uv run pytest tests/test_train.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'model.train'`
 
-- [ ] **Step 3: Tulis `model/train.py`**
+- [x] **Step 3: Tulis `model/train.py`**
 
 ```python
 """LightGBM heat model with monotonic constraints and spatial block CV (CONCEPT §7.3).
@@ -924,21 +924,21 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 4: Jalankan tes untuk memastikan lulus**
+- [x] **Step 4: Jalankan tes untuk memastikan lulus**
 
 Run: `uv run pytest tests/test_train.py -v`
 Expected: PASS, 15 tes.
 
-- [ ] **Step 5: Latih model sebenarnya**
+- [x] **Step 5: Latih model sebenarnya**
 
 Run: `uv run python -m model.train`
 Expected: tabel 5 lipatan tercetak, `check ok`, dan `data/model/model.txt` + `data/model/model_card.json` terbentuk. Perlu beberapa menit pada 75 ribu baris.
 
-Catat `r2_mean` yang sebenarnya di sini: `__________`. Angka ini yang masuk proposal dan halaman model card — **bukan** 0,78 seperti contoh di `design/README.md`.
+Catat `r2_mean` yang sebenarnya di sini: `0,755`. Angka ini yang masuk proposal dan halaman model card — **bukan** 0,78 seperti contoh di `design/README.md`.
 
 Kalau `check` gagal pada assertion monotonic, jangan lepaskan constraint-nya; periksa bahwa `monotone_constraints` ikut terkirim ke `lgb.Dataset` **dan** ke `lgb.train`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add model/train.py tests/test_train.py
@@ -968,7 +968,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 `top_drivers` dipakai langsung oleh `explain_drivers` di M3-T3, jadi dia tinggal di sini, bukan di lapisan tool.
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 Buat `tests/test_explain.py`:
 
@@ -1052,12 +1052,12 @@ def test_top_drivers_labels_direction_in_indonesian(trained):
         assert driver["feature"] in FEATURES
 ```
 
-- [ ] **Step 2: Jalankan tes untuk memastikan gagal**
+- [x] **Step 2: Jalankan tes untuk memastikan gagal**
 
 Run: `uv run pytest tests/test_explain.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'model.explain'`
 
-- [ ] **Step 3: Tulis `model/explain.py`**
+- [x] **Step 3: Tulis `model/explain.py`**
 
 ```python
 """SHAP attribution, pre-aggregated to one row per kelurahan.
@@ -1198,17 +1198,17 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 4: Jalankan tes untuk memastikan lulus**
+- [x] **Step 4: Jalankan tes untuk memastikan lulus**
 
 Run: `uv run pytest tests/test_explain.py -v`
 Expected: PASS, 7 tes.
 
-- [ ] **Step 5: Hasilkan SHAP sebenarnya**
+- [x] **Step 5: Hasilkan SHAP sebenarnya**
 
 Run: `uv run python -m model.explain`
 Expected: `data/model/shap_by_kel.parquet` terbentuk dengan 264 baris, `check ok`, selisih additivitas di bawah 0,01 °C.
 
-- [ ] **Step 6: Verifikasi store sekarang memuat artefak model**
+- [x] **Step 6: Verifikasi store sekarang memuat artefak model**
 
 Run:
 ```bash
@@ -1222,12 +1222,12 @@ print('R2 CV    :', s.model_card['validation']['summary']['r2_mean'])
 ```
 Expected: `Booster`, `264`, dan nilai R² yang sama dengan hasil latih.
 
-- [ ] **Step 7: Jalankan seluruh suite**
+- [x] **Step 7: Jalankan seluruh suite**
 
 Run: `uv run pytest -q`
 Expected: hijau semua.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add model/explain.py tests/test_explain.py
@@ -1240,11 +1240,11 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ## Definisi M2 selesai
 
-- [ ] `model/hvi.py` mereproduksi kolom `hvi` dan `hvi_rank` yang sudah di-commit, dan `pipeline/aggregate_kelurahan.py` tidak lagi punya duplikat formula.
-- [ ] `uv run python -m model.train` menghasilkan `model.txt` + `model_card.json`, `check ok`, dan LightGBM mengalahkan baseline linear.
-- [ ] Monotonic constraints terbukti terpasang: menaikkan `ndvi`/`tree_frac`/`albedo`/`water_frac` tidak pernah menaikkan prediksi.
-- [ ] R² spatial CV sebenarnya tercatat di `model_card.json`. Kalau < 0,75, peringatan tercetak dan **angka itu** yang dipakai di proposal.
-- [ ] `uv run python -m model.explain` menghasilkan `shap_by_kel.parquet` 264 baris dengan selisih additivitas < 0,01 °C.
-- [ ] `uv run pytest -q` hijau.
+- [x] `model/hvi.py` mereproduksi kolom `hvi` dan `hvi_rank` yang sudah di-commit, dan `pipeline/aggregate_kelurahan.py` tidak lagi punya duplikat formula.
+- [x] `uv run python -m model.train` menghasilkan `model.txt` + `model_card.json`, `check ok`, dan LightGBM mengalahkan baseline linear.
+- [x] Monotonic constraints terbukti terpasang: menaikkan `ndvi`/`tree_frac`/`albedo`/`water_frac` tidak pernah menaikkan prediksi.
+- [x] R² spatial CV sebenarnya tercatat di `model_card.json`. Kalau < 0,75, peringatan tercetak dan **angka itu** yang dipakai di proposal.
+- [x] `uv run python -m model.explain` menghasilkan `shap_by_kel.parquet` 264 baris dengan selisih additivitas < 0,01 °C.
+- [x] `uv run pytest -q` hijau.
 
 **Selanjutnya:** [`m3-scenario-engine.md`](m3-scenario-engine.md) — mesin skenario dan biaya, lalu [`m3-tools.md`](m3-tools.md) dan [`m3-api.md`](m3-api.md).
