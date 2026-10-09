@@ -1,67 +1,68 @@
-"""ADK entry point.
+"""ADK entry point: the coordinator, plus the single-agent escape hatch.
 
-M0 ships exactly one tool so the whole deployment path -- uv sync, adk web, Docker image,
-Cloud Run -- is proven before any domain logic lands. M4 replaces this single agent with
-teduh_coordinator plus four sub-agents; the tool contract does not change, which is what
-makes deferring that swap safe.
+In multi-agent mode the coordinator holds NO analysis tools of its own. That is deliberate:
+a coordinator that can answer directly will sometimes do so, which skips the specialist
+prompt that carries the metric caveats, and the first sign of trouble is a confident answer
+with no "suhu permukaan" qualifier anywhere in it.
 
-Tool docstrings are written in Indonesian on purpose: ADK feeds them to Gemini as the tool
-description, and users ask in Indonesian, so Indonesian descriptions match more reliably.
-Code comments and identifiers stay English per CLAUDE.md rule 7.
+TEDUH_SINGLE_AGENT=1 collapses everything into one LlmAgent holding every tool. CONCEPT §12
+makes this a day-6 decision point, and the tool contract is identical either way, so the
+switch costs nothing but a restart.
 """
 
 import os
 
 from google.adk.agents import LlmAgent
-from google.adk.tools import ToolContext
 
-from .facts import SOURCE_DATA, fact, record
-from .store import get_store
+from teduh_agent.prompts import compose
+from teduh_agent.sub_agents import build_all
+from teduh_agent.tools import ALL_TOOLS
 
-# Never hard-code a model id: the Gemini Flash generation moves, and CONCEPT §11.1 requires
-# this to be swappable without a code change.
 MODEL = os.environ.get("TEDUH_MODEL", "gemini-3.8-flash")
 
-INSTRUCTION = """\
-Kamu adalah TEDUH, asisten perencanaan mitigasi panas perkotaan untuk pemerintah daerah
-di Indonesia.
+SINGLE_AGENT_ENV = "TEDUH_SINGLE_AGENT"
 
-Aturan yang tidak boleh dilanggar:
-- Jawab dalam Bahasa Indonesia yang jelas untuk pegawai pemerintah daerah, kecuali
-  pengguna memakai bahasa lain.
-- JANGAN PERNAH menulis angka yang tidak berasal dari hasil tool. Kalau datanya tidak ada,
-  katakan tidak ada.
-- Sebut sumber angka ketika relevan.
-"""
+NAME = "teduh_coordinator"
 
-
-def count_kelurahan(tool_context: ToolContext) -> dict:
-    """Hitung jumlah kelurahan yang tersedia dalam data TEDUH.
-
-    Gunakan tool ini kalau pengguna bertanya berapa banyak kelurahan yang dicakup TEDUH
-    atau seberapa luas cakupan datanya.
-
-    Returns:
-        dict dengan kunci `facts`: daftar fakta berisi jumlah kelurahan beserta sumbernya.
-    """
-    store = get_store()
-    facts = [
-        fact(
-            "data.kelurahan_count",
-            "Jumlah kelurahan dalam data TEDUH",
-            len(store.kelurahan),
-            "kelurahan",
-            SOURCE_DATA,
-        )
-    ]
-    record(tool_context, facts)
-    return {"facts": facts}
-
-
-root_agent = LlmAgent(
-    name="teduh_coordinator",
-    model=MODEL,
-    description="Koordinator TEDUH untuk analisis panas perkotaan tingkat kelurahan.",
-    instruction=INSTRUCTION,
-    tools=[count_kelurahan],
+DESCRIPTION = (
+    "Koordinator TEDUH untuk perencanaan mitigasi panas perkotaan tingkat kelurahan "
+    "di DKI Jakarta."
 )
+
+
+def is_single_agent() -> bool:
+    """True when the multi-agent routing fallback is active."""
+    return os.environ.get(SINGLE_AGENT_ENV, "0").strip().lower() in {"1", "true", "yes"}
+
+
+def build_root() -> LlmAgent:
+    """The coordinator, in whichever mode the environment asks for."""
+    if is_single_agent():
+        return LlmAgent(
+            name=NAME,
+            model=MODEL,
+            description=DESCRIPTION,
+            # Every specialist instruction folded into one, so no caveat is lost when the
+            # sub-agents are not there to carry it.
+            instruction="\n\n".join(
+                compose(name)
+                for name in (
+                    "heat_analyst",
+                    "intervention_planner",
+                    "policy_writer",
+                    "roof_inspector",
+                )
+            ),
+            tools=ALL_TOOLS,
+        )
+
+    return LlmAgent(
+        name=NAME,
+        model=MODEL,
+        description=DESCRIPTION,
+        instruction=compose("coordinator"),
+        sub_agents=build_all(),
+    )
+
+
+root_agent = build_root()
