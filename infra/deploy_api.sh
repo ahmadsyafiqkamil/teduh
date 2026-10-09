@@ -64,7 +64,7 @@ gcloud run deploy "$SERVICE" \
   --concurrency 20 \
   --min-instances "$MIN_INSTANCES" \
   --max-instances 4 \
-  --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT},GOOGLE_CLOUD_LOCATION=${REGION},GOOGLE_GENAI_USE_ENTERPRISE=True,TEDUH_MODEL=${MODEL}"
+  --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT},GOOGLE_CLOUD_LOCATION=${REGION},GOOGLE_GENAI_USE_ENTERPRISE=True,TEDUH_MODEL=${MODEL},TEDUH_WEB_ORIGIN=${TEDUH_WEB_ORIGIN:-}"
 
 URL="$(gcloud run services describe "$SERVICE" --project "$PROJECT" --region "$REGION" --format 'value(status.url)')"
 echo "==> selesai: $URL"

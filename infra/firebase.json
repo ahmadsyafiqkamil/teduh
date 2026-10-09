@@ -1,0 +1,9 @@
+{
+  "hosting": {
+    "source": "../web",
+    "frameworksBackend": {
+      "region": "asia-southeast1"
+    },
+    "ignore": ["**/.git/**", "**/node_modules/**", "**/.next/cache/**"]
+  }
+}
