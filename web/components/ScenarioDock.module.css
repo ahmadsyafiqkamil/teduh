@@ -1,0 +1,129 @@
+.dock {
+  flex: none;
+  padding: var(--space-7) var(--space-9) var(--space-8);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: var(--text-section);
+  font-weight: 600;
+}
+
+.target {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-pill);
+  background: var(--color-canopy-tint);
+  color: var(--color-canopy);
+  font-size: var(--text-help);
+  font-weight: 600;
+}
+
+.status {
+  font-size: var(--text-help);
+  color: var(--color-ink-secondary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) 196px 132px;
+  align-items: end;
+  gap: var(--space-9);
+}
+
+.field {
+  min-width: 0;
+}
+
+.fieldHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.fieldLabel {
+  font-size: var(--text-control);
+}
+
+.value {
+  font-size: var(--text-control);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-secondary);
+}
+
+.valueActive {
+  color: var(--color-canopy);
+}
+
+.slider {
+  width: 100%;
+  margin: var(--space-4) 0 var(--space-2);
+  accent-color: var(--color-canopy);
+}
+
+.help {
+  font-size: var(--text-kicker);
+  color: var(--color-ink-secondary);
+}
+
+.budgetWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 40px;
+  padding: 0 var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.budgetWrap:focus-within {
+  border-color: var(--color-canopy);
+}
+
+.budgetWrap input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  outline: none;
+}
+
+.simulate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-canopy);
+  color: #fff;
+  font-size: var(--text-control);
+  font-weight: 600;
+}
+
+.simulate:hover:not(:disabled) {
+  background: var(--color-canopy-hover);
+}
+
+.simulate:disabled {
+  background: var(--color-border);
+  color: var(--color-ink-secondary);
+  cursor: not-allowed;
+}
