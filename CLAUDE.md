@@ -37,7 +37,7 @@ Kerjakan berurutan. Setiap milestone selesai = tes lulus + bisa didemokan.
 8. **M7 Frontend** — peta, chat SSE, panel skenario, halaman `/cek-atap`.
 9. **M8 Evaluasi & deploy** — golden questions, `min-instances=1`, halaman sumber data.
 
-## Perintah (isi/rapikan setelah M0)
+## Perintah
 
 ```bash
 uv sync                                   # install
