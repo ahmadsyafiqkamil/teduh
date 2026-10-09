@@ -142,4 +142,28 @@
 - **Alasan:** memungkinkan pengembangan/demo lokal lewat penyedia [OI]-compatible (mis. Kenari/DeepSeek) tanpa kredensial Gemini/Vertex, selagi jalur produksi tetap Gemini.
 - **Risiko:** perilaku tool-calling dan ketelitian angka bergantung pada model pihak ketiga; validator provenance (M5) tetap jadi penjaga angka, jadi angka liar tetap ditolak. Kelas model diimpor lewat `importlib` + base64 supaya nama penyedia tidak bisa diubah lapisan normalisasi teks. Jangan memakai backend ini untuk jalur yang dinilai.
 
+## 2026-10-09 — Foto atap tidak disimpan sama sekali, bukan dihapus setelah 30 hari
+
+- **Konsep (§8.5):** hapus EXIF sebelum disimpan, foto dihapus otomatis dari GCS setelah 30 hari (lifecycle rule).
+- **Keputusan:** `POST /api/roof` menghapus metadata di memori, mengirim piksel ke Gemini, mengembalikan hasilnya, dan **tidak pernah menulis foto ke disk atau GCS**. `pillow` dipindahkan ke dependensi runtime agar penghapusan metadata bisa dilakukan di jalur permintaan.
+- **Alasan:** demo tidak butuh foto itu lagi setelah dianalisis. Tidak menyimpan adalah jaminan privasi yang lebih kuat daripada aturan lifecycle, dan menghilangkan bucket, kredensial, serta aturan retensi yang harus dijelaskan ke juri. Penghapusan metadata dilakukan dengan membongkar piksel ke gambar baru (`Image.frombytes`) lalu menulis wadah baru, bukan menghapus tag: `convert()` dan `copy()` membawa `.info` ikut serta, dan apa pun yang tertinggal di `info["exif"]` akan ditulis ulang saat save. Terverifikasi: 3 tag + GPS IFD → 0 tag, sisanya hanya penanda JFIF.
+- **Urutan guard itu load-bearing:** tipe, ukuran, dan lokasi diperiksa sebelum piksel didekode atau dikirim, jadi unggahan yang ditolak tidak memakai satu pun panggilan Gemini.
+- **Risiko:** fitur P1 "peta laporan warga" butuh titik yang tersimpan. Kalau fitur itu dikerjakan, simpan **hanya** hasil klasifikasi dan `kelurahan`, tetap tanpa foto, dan catat di sini.
+
+## 2026-10-09 — Bukti di Cek Atap disaring `verified=true` dan membawa `metric`
+
+- **Rencana (`m6-roof.md`):** `ACTION_EVIDENCE` memetakan `maintain_shade` → `ev_urban_greening_meta` dan `consult_professional` → `ev_green_curtain_tokyo`, lalu menyajikannya langsung sebagai `evidence`.
+- **Masalah:** kedua entri itu `verified=false`. `interventions.json` menyatakan entri `verified=false` tidak boleh dikutip, dan `teduh_agent/tools/evidence.py` sudah menegakkannya. Mengikuti rencana akan membuat jalur atap jadi satu-satunya tempat angka tak terverifikasi lolos.
+- **Keputusan:** `_cited_evidence()` menyaring `verified=true` **saat baca**, bukan di tabel, supaya entri yang diverifikasi nanti otomatis muncul tanpa menyentuh `ACTION_EVIDENCE`. Setiap entri juga membawa `comparable_to_model` seperti `evidence.py`, dan `metric` masuk ke label fact.
+- **Alasan `metric` di label:** dua entri yang menopang saran atap mengukur **suhu permukaan atap** (−11,58 dan −13,14 °C), sekitar sepuluh kali efek LST per wilayah. Angka tanpa nama besarannya adalah salah-baca 10× yang menunggu masuk brief.
+- **Akibat:** `maintain_shade` dan `consult_professional` kini tidak bersitasi. Itu jujur — rekomendasinya tetap jalan, hanya tanpa klaim angka.
+
+## 2026-10-09 — `config_entry` dan `good_cells` pindah ke `model/config.py`
+
+- **Masalah:** `teduh_agent/__init__.py` wajib `from . import agent` agar ADK menemukan `root_agent`. Itu menarik `teduh_agent.tools` → `model.scenario`/`model.train` saat paket diimpor. Modul di `model/` yang mengimpor `teduh_agent.store` balik memicu graf agen di tengah impor, dan **tiga perintah di CLAUDE.md gagal total**: `uvicorn api.main:app`, `python -m model.train`, dan `import model.*` apa pun sebagai entry.
+- **Kenapa tidak tertangkap 297 tes:** `tests/conftest.py` mengimpor `teduh_agent` lebih dulu, yang memanaskan graf dalam urutan yang kebetulan berhasil. Yang menentukan urutan impor adalah entry point, bukan tes. `adk web` juga selamat karena alasan yang sama.
+- **Keputusan:** `config_entry`, `good_cells`, dan `GOOD_QUALITY` pindah ke `model/config.py`. `teduh_agent/store.py` me-re-export ketiganya, jadi 15 call site tidak berubah.
+- **Alasan:** memperbaiki arah dependensi, bukan gejalanya. `model/` adalah daun dan tidak boleh tahu `teduh_agent` ada. Menambah `import teduh_agent` di `api/main.py` akan menyembunyikan bug ini sekaligus membiarkan `python -m model.train` tetap rusak.
+- **Risiko:** nama modulnya bisa dikira pembaca `config/*.yaml`. Docstring-nya menyatakan ini konvensi konstanta, bukan objek settings.
+
 Rincian semua sumber: `docs/DATA_SOURCES.md`.
