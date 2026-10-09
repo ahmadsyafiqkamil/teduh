@@ -63,6 +63,17 @@ green_roof:
     unit: "albedo"
     source: "ASUMSI"
     note: "Albedo of a planted roof surface; vegetation is darker than coating but transpires."
+  ndvi_green:
+    value: 0.35
+    unit: "ndvi"
+    source: "ASUMSI"
+    note: >
+      NDVI permukaan green roof ekstensif (sedum, rumput, semak rendah) saat tumbuh penuh.
+      Sengaja JAUH di bawah ndvi_tree 0,6450, yang merupakan kanopi pohon penuh: memakai
+      angka pohon untuk atap bersedum akan melebihkan pendinginan green roof hampir dua
+      kali. Tidak ada sumber Indonesia yang bisa diakses untuk NDVI atap hijau tropis, jadi
+      ini tetap ASUMSI sampai ada pengukuran. 0,35 duduk di tengah rentang rumput sehat
+      (0,3-0,5).
 
 # Guard rails, not tunables: if any scenario feature lands beyond this percentile of the
 # training data, the tool returns extrapolation: true (CONCEPT §7.5).

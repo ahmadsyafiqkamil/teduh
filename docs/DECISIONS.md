@@ -115,4 +115,17 @@
 - **Alasan:** total artefak ~9,3 MB (`grid_features.parquet` 7,0 MB + `kelurahan.geojson` 2,2 MB + sisanya 96 KB). Jalur GCS menambah kredensial, kuota, dan penanganan gagal-unduh ke jalur kritis tepat saat penilaian, hanya untuk menghemat 9 MB ukuran image. Membakar artefak menghapus satu titik gagal dan membuat image bisa direproduksi apa adanya.
 - **Risiko:** setiap pembaruan data butuh build image baru. Dapat diterima karena pipeline offline hanya dijalankan ulang saat sumber data berubah. Kalau artefak tumbuh melewati ~100 MB, kembali ke jalur GCS dan catat di sini.
 
+## 2026-10-09 — `green_roof.ndvi_green` = 0,35 adalah ASUMSI baru, bukan pinjaman dari `ndvi_tree`
+
+- **Konsep (§7.5):** "ndvi naik pada porsi atap tersebut" — nilai targetnya tidak disebut.
+- **Keputusan:** entri baru `green_roof.ndvi_green` = 0,35 dengan `source: "ASUMSI"`.
+- **Alasan:** satu-satunya konstanta NDVI yang sudah ada adalah `ndvi_tree` = 0,6450, median sel berkanopi pohon > 80%. Memakainya untuk green roof ekstensif (sedum/rumput) akan melebihkan pendinginan green roof hampir dua kali lipat. Lebih jujur menambah asumsi berlabel daripada diam-diam memakai angka yang salah konteks.
+- **Risiko:** belum terukur. Kalau nanti ada pengukuran NDVI atap hijau tropis, ganti nilainya beserta `source`-nya.
+
+## 2026-10-09 — Flag ekstrapolasi hanya untuk fitur yang benar-benar diubah intervensi
+
+- **Rencana (m3-scenario-engine.md):** `_extrapolated` membandingkan `after[name].max() > train_q99[name]` untuk SEMUA fitur model.
+- **Penyimpangan:** `_extrapolated` hanya meninjau fitur yang nilainya berubah antara `before` dan `after` (`np.array_equal(..., equal_nan=True)`).
+- **Alasan:** sel baseline yang memang duduk di atas persentil-99 (mis. `pop` dan `ndwi` Kampung Rawa pada fixture 173 sel, yang juga merupakan bagian set latih) bukan ekstrapolasi — modelnya sudah dilatih di sel itu. Memakai rumus rencana membuat skenario pohon "low" yang tidak menyentuh `pop`/`ndwi` tetap diberi flag, gagal `test_a_modest_scenario_is_not_flagged`. Membatasi ke fitur yang digerakkan intervensi menjaga sifat keselamatan (skenario absurd tetap diberi flag, mis. albedo 0,65) tanpa false positive.
+
 Rincian semua sumber: `docs/DATA_SOURCES.md`.
