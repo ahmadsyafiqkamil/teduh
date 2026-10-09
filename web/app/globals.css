@@ -1,0 +1,166 @@
+@import 'tailwindcss';
+
+/* Design tokens from design/README.md. Declared as custom properties rather than Tailwind
+   classes because the choropleth palette has to be readable by MapLibre's JavaScript as
+   well as by CSS -- two copies of a palette is how the map and its legend drift apart. */
+:root {
+  /* Brand */
+  --color-canopy: #1f5c4a;
+  --color-canopy-hover: #184a3c;
+  --color-canopy-tint: #eaf2ec;
+  --color-canopy-tint-hover: #f5f9f6;
+  --color-leaf: #8bb59a;
+
+  /* Surfaces */
+  --color-paper: #f7f4ee;
+  --color-surface: #ffffff;
+  --color-surface-soft: #fbfaf7;
+  --color-surface-hover: #f2efe8;
+  --color-map-bg: #efebe3;
+  --color-sea: #dfe6e4;
+
+  /* Ink */
+  --color-ink: #1c2321;
+  --color-ink-secondary: #5e6662;
+  --color-ink-on-dark: #c9cfcc;
+
+  /* Lines */
+  --color-border: #e3ded4;
+  --color-border-strong: #cfc8bb;
+  --color-border-row: #f0ece4;
+  --color-canvas-outline: #d6d0c4;
+  --color-axis: #8a918d;
+
+  /* Data */
+  --color-hot: #e0533d;
+  --color-hot-strong: #b5213a;
+  --color-cold: #2b78a8;
+  --color-hvi: #6b4fa0;
+  --color-hvi-tint: #f2eef7;
+  --color-hvi-dark: #3f1f6b;
+  --color-water: #5fa3cb;
+
+  /* Type scale (design/README.md §Tipografi) */
+  --text-kelurahan: 24px;
+  --text-metric: 22px;
+  --text-logo: 16px;
+  --text-section: 15px;
+  --text-body: 14px;
+  --text-control: 13.5px;
+  --text-secondary: 13px;
+  --text-help: 12.5px;
+  --text-kicker: 11.5px;
+  --text-attribution: 10.5px;
+
+  --leading-body: 1.5;
+  --leading-prose: 1.55;
+  --leading-caption: 1.45;
+  --leading-heading: 1.2;
+
+  /* Spacing scale */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 10px;
+  --space-6: 12px;
+  --space-7: 14px;
+  --space-8: 16px;
+  --space-9: 20px;
+  --space-10: 22px;
+  --space-11: 24px;
+  --panel-padding: 20px;
+
+  /* Radius */
+  --radius-swatch: 3px;
+  --radius-badge: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgba(28, 35, 33, 0.06);
+  --shadow-drawer: -10px 0 28px rgba(28, 35, 33, 0.08);
+  --shadow-tooltip: 0 8px 24px rgba(28, 35, 33, 0.18);
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-drawer: 200ms;
+  --duration-pan: 300ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  --header-height: 60px;
+  --drawer-width: 420px;
+  --agent-panel-header: 52px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Every figure in this product is a number a planner may act on, so they are all tabular
+   and never reflow as values change. */
+.tabular,
+input[type='number'],
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* design/README.md §Interactions: one focus treatment everywhere. */
+:focus-visible {
+  outline: 2px solid var(--color-canopy);
+  outline-offset: 2px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.kicker {
+  font-size: var(--text-kicker);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-secondary);
+}
+
+/* "Data contoh" marker: dashed border, used on every module whose data is not final. */
+.badge-sample {
+  display: inline-flex;
+  align-items: center;
+  border: 1px dashed var(--color-ink-secondary);
+  border-radius: var(--radius-badge);
+  padding: 2px 6px;
+  font-size: var(--text-kicker);
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
