@@ -56,7 +56,7 @@
   - `get_session_facts(tool_context) -> dict`
   - `render_policy_brief(draft_markdown: str, tool_context) -> dict`
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 Buat `tests/test_provenance.py`:
 
@@ -316,12 +316,12 @@ def test_get_session_facts_returns_what_the_tools_recorded(facts):
     assert result["count"] == len(facts)
 ```
 
-- [ ] **Step 2: Jalankan tes untuk memastikan gagal**
+- [x] **Step 2: Jalankan tes untuk memastikan gagal**
 
 Run: `uv run pytest tests/test_provenance.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'teduh_agent.tools.brief'`
 
-- [ ] **Step 3: Tulis `teduh_agent/tools/brief.py`**
+- [x] **Step 3: Tulis `teduh_agent/tools/brief.py`**
 
 ```python
 """Policy brief rendering with a number-provenance validator (CONCEPT §8.4).
@@ -628,14 +628,14 @@ def render_policy_brief(draft_markdown: str, tool_context: ToolContext) -> dict:
     }
 ```
 
-- [ ] **Step 4: Tambahkan `data/briefs/` ke `.gitignore`**
+- [x] **Step 4: Tambahkan `data/briefs/` ke `.gitignore`**
 
 ```gitignore
 # Brief yang dihasilkan saat runtime. Bisa memuat nama wilayah dan angka anggaran.
 data/briefs/
 ```
 
-- [ ] **Step 5: Catat keputusan di `docs/DECISIONS.md`**
+- [x] **Step 5: Catat keputusan di `docs/DECISIONS.md`**
 
 Tambahkan sebelum baris penutup:
 
@@ -648,12 +648,12 @@ Tambahkan sebelum baris penutup:
 - **Risiko:** tautan unduh mati setelah instance Cloud Run diganti, dan dengan beberapa instance tautan hanya hidup di instance yang membuatnya. Dapat diterima untuk hackathon dengan `max-instances` kecil. Kalau brief perlu bertahan, pindahkan ke GCS dengan URL bertanda tangan dan catat di sini.
 ```
 
-- [ ] **Step 6: Jalankan tes untuk memastikan lulus**
+- [x] **Step 6: Jalankan tes untuk memastikan lulus**
 
 Run: `uv run pytest tests/test_provenance.py -v`
 Expected: PASS, 24 tes.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add teduh_agent/tools/brief.py .gitignore docs/DECISIONS.md tests/test_provenance.py
@@ -681,7 +681,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `render_policy_brief` kini juga menulis `<brief_id>.pdf` dan mengembalikan `pdf_available: bool`
   - Di `routes.py`: `GET /api/brief/{brief_id}` dengan query `?format=md|pdf` (default `md`)
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 Buat `tests/test_brief_pdf.py`:
 
@@ -781,12 +781,12 @@ def test_endpoint_rejects_a_path_traversal_attempt(client):
         assert client.get(f"/api/brief/{attempt}").status_code in (404, 422)
 ```
 
-- [ ] **Step 2: Jalankan tes untuk memastikan gagal**
+- [x] **Step 2: Jalankan tes untuk memastikan gagal**
 
 Run: `uv run pytest tests/test_brief_pdf.py -v`
 Expected: FAIL — `ImportError: cannot import name 'to_html' from 'teduh_agent.tools.brief'`
 
-- [ ] **Step 3: Tambah render PDF ke `teduh_agent/tools/brief.py`**
+- [x] **Step 3: Tambah render PDF ke `teduh_agent/tools/brief.py`**
 
 Tambahkan import di atas:
 
@@ -857,7 +857,7 @@ Di `render_policy_brief`, ganti blok penulisan berkas menjadi:
 
 dan tambahkan `"pdf_available": pdf_available,` ke dict yang dikembalikan.
 
-- [ ] **Step 4: Tambah endpoint ke `api/routes.py`**
+- [x] **Step 4: Tambah endpoint ke `api/routes.py`**
 
 Tambahkan import:
 
@@ -909,7 +909,7 @@ def brief(brief_id: str, format: str = "md") -> Any:
     return PlainTextResponse(path.read_text(encoding="utf-8"), media_type="text/markdown")
 ```
 
-- [ ] **Step 5: Jalankan tes untuk memastikan lulus**
+- [x] **Step 5: Jalankan tes untuk memastikan lulus**
 
 Run: `uv run pytest tests/test_brief_pdf.py -v`
 Expected: PASS, 9 tes. Di-skip seluruhnya kalau WeasyPrint tidak bisa diimpor di mesin lokal.
@@ -933,7 +933,7 @@ Tanya berurutan:
 
 Expected: `policy_writer` memanggil `get_session_facts` lalu `render_policy_brief`, dan hasilnya menyebut jumlah fakta terverifikasi. Kalau percobaan pertama gagal validasi, agen harus memperbaiki drafnya sendiri dan mencoba lagi — itu perilaku yang diinginkan dan layak diperhatikan di panel event.
 
-- [ ] **Step 7: Verifikasi brief tidak memuat angka tak bersumber**
+- [x] **Step 7: Verifikasi brief tidak memuat angka tak bersumber**
 
 ```bash
 uv run python -c "
@@ -949,7 +949,7 @@ print('ok')
 "
 ```
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add teduh_agent/tools/brief.py api/routes.py tests/test_brief_pdf.py
@@ -965,13 +965,13 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ## Definisi M5 selesai
 
-- [ ] Angka liar di draf **ditolak**; tahun dan nomor bagian **tidak** ditolak; nomor peraturan diizinkan tetapi dilaporkan sebagai peringatan.
-- [ ] Penanda yang menunjuk fakta tidak dikenal ditolak dengan menyebut id-nya.
-- [ ] Kedelapan bagian wajib diperiksa keberadaan **dan** urutannya.
-- [ ] Brief yang lolos membawa lencana "Semua angka terverifikasi (n fakta)" dan catatan kaki per fakta.
-- [ ] Brief tidak memuat kata "asumsi" (DECISIONS 2026-10-09) tetapi tetap menyitir Kepgub untuk harga bersumber.
-- [ ] PDF terbentuk, dimulai dengan `%PDF`, dan bisa diunduh lewat `/api/brief/{id}?format=pdf`.
-- [ ] `brief_id` dicocokkan ke pola ketat, jadi path traversal tidak mungkin.
-- [ ] `uv run pytest -q` hijau.
+- [x] Angka liar di draf **ditolak**; tahun dan nomor bagian **tidak** ditolak; nomor peraturan diizinkan tetapi dilaporkan sebagai peringatan.
+- [x] Penanda yang menunjuk fakta tidak dikenal ditolak dengan menyebut id-nya.
+- [x] Kedelapan bagian wajib diperiksa keberadaan **dan** urutannya.
+- [x] Brief yang lolos membawa lencana "Semua angka terverifikasi (n fakta)" dan catatan kaki per fakta.
+- [x] Brief tidak memuat kata "asumsi" (DECISIONS 2026-10-09) tetapi tetap menyitir Kepgub untuk harga bersumber.
+- [x] PDF terbentuk, dimulai dengan `%PDF`, dan bisa diunduh lewat `/api/brief/{id}?format=pdf`.
+- [x] `brief_id` dicocokkan ke pola ketat, jadi path traversal tidak mungkin.
+- [x] `uv run pytest -q` hijau.
 
 **Selanjutnya:** [`m6-roof.md`](m6-roof.md) — Cek Atap dengan Gemini vision.

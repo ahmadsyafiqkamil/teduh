@@ -68,7 +68,7 @@ Palet, token, tata letak, dan komponen dipakai **apa adanya**. Hanya angkanya ya
 - Consumes: env `NEXT_PUBLIC_TEDUH_API`.
 - Produces: `npm run dev` menyajikan halaman kosong bertema; `npm test` menjalankan Vitest; semua token desain tersedia sebagai `var(--...)`.
 
-- [ ] **Step 1: Inisialisasi proyek**
+- [x] **Step 1: Inisialisasi proyek**
 
 ```bash
 cd /Users/ahmadsyafiqkamil/Documents/Project/Teduh
@@ -82,7 +82,7 @@ npm install -D typescript @types/react @types/node @types/react-dom \
   @testing-library/react @testing-library/jest-dom @testing-library/user-event
 ```
 
-- [ ] **Step 2: Tulis `web/package.json` scripts**
+- [x] **Step 2: Tulis `web/package.json` scripts**
 
 Ganti bagian `scripts` menjadi:
 
@@ -96,7 +96,7 @@ Ganti bagian `scripts` menjadi:
   },
 ```
 
-- [ ] **Step 3: Tulis berkas konfigurasi**
+- [x] **Step 3: Tulis berkas konfigurasi**
 
 `web/tsconfig.json`:
 
@@ -183,7 +183,7 @@ export default defineConfig({
 import '@testing-library/jest-dom/vitest';
 ```
 
-- [ ] **Step 4: Tulis `web/app/globals.css` dengan token final**
+- [x] **Step 4: Tulis `web/app/globals.css` dengan token final**
 
 Setiap nilai di sini dikutip dari `design/README.md` §Design Tokens. Jangan mengubahnya.
 
@@ -356,7 +356,7 @@ button {
 }
 ```
 
-- [ ] **Step 5: Tulis `web/app/layout.tsx`**
+- [x] **Step 5: Tulis `web/app/layout.tsx`**
 
 ```tsx
 import type { Metadata } from 'next';
@@ -388,7 +388,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-- [ ] **Step 6: Buat halaman sementara dan verifikasi**
+- [x] **Step 6: Buat halaman sementara dan verifikasi**
 
 `web/app/page.tsx` sementara:
 
@@ -404,7 +404,7 @@ Expected: `http://localhost:3000` menampilkan "TEDUH" dengan latar `#F7F4EE` dan
 Run: `npm test`
 Expected: Vitest jalan dan melaporkan tidak ada berkas tes (belum ada).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd /Users/ahmadsyafiqkamil/Documents/Project/Teduh
@@ -429,7 +429,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `format.ts`: `MINUS = '−'`, `formatNumber(value: number | null, decimals?: number): string`, `formatUnit(value: number | null, unit: string, decimals?: number): string`, `formatIdr(value: number | null): string`, `formatPercent(fraction: number | null, decimals?: number): string`, `formatRank(rank: number | null, total: number): string`
   - `layers.ts`: `LayerId = 'lst' | 'hvi' | 'veg' | 'pop'`, `LAYER_ORDER: LayerId[]`, `LayerDefinition` (field: `id, label, swatch, property, title, legendTitle, legendSubtitle, palette, breaks, decimals, unit, format`), `LAYERS: Record<LayerId, LayerDefinition>`, `colorForValue(layer: LayerDefinition, value: number | null): string`, `NO_DATA_COLOR`
 
-- [ ] **Step 1: Hitung ulang batas kelas LST dari data nyata**
+- [x] **Step 1: Hitung ulang batas kelas LST dari data nyata**
 
 Batas di `design/README.md` (31 / 32,5 / 33,5 / 34,5 / 35,5 / 36,5 °C) berasal dari data contoh dengan rata-rata kota 34,3 °C. Rata-rata sebenarnya **41,84 °C**, jadi seluruh 264 kelurahan akan jatuh ke kelas paling merah dan petanya menjadi satu warna rata. Hitung batas nyata:
 
@@ -446,7 +446,7 @@ for col, n in (('lst_c_mean', 6), ('hvi', 4), ('tree_frac_mean', 4), ('pop_densi
 
 Pakai kuantil yang tercetak sebagai `breaks` di Step 3, dibulatkan rapi (misalnya ke 0,5 °C untuk LST). **Catat angka yang kamu pakai di komentar kode** supaya jelas itu berasal dari data, bukan dari desain. Panjang `palette` harus `breaks.length + 1`.
 
-- [ ] **Step 2: Tulis tes yang gagal**
+- [x] **Step 2: Tulis tes yang gagal**
 
 `web/lib/format.test.ts`:
 
@@ -606,12 +606,12 @@ describe('colorForValue', () => {
 });
 ```
 
-- [ ] **Step 3: Jalankan tes untuk memastikan gagal**
+- [x] **Step 3: Jalankan tes untuk memastikan gagal**
 
 Run: `cd web && npm test`
 Expected: FAIL — `Failed to resolve import "./format"`
 
-- [ ] **Step 4: Tulis `web/lib/format.ts`**
+- [x] **Step 4: Tulis `web/lib/format.ts`**
 
 ```ts
 /**
@@ -680,7 +680,7 @@ export function formatRank(rank: number | null | undefined, total: number): stri
 }
 ```
 
-- [ ] **Step 5: Tulis `web/lib/layers.ts`**
+- [x] **Step 5: Tulis `web/lib/layers.ts`**
 
 Ganti nilai `breaks` LST dengan hasil Step 1. Nilai di bawah adalah contoh bentuk, bukan angka final — **hitung sendiri dan catat sumbernya di komentar.**
 
@@ -793,12 +793,12 @@ export function colorForValue(layer: LayerDefinition, value: number | null): str
 
 Catatan: `legendSubtitle` untuk Vegetasi dan Penduduk di `design/README.md` ditandai *"perlu konfirmasi klien"*, dan keduanya menyebut WorldPop **2020**. Teks di atas sudah dikoreksi ke WorldPop 2025 dan ke pemetaan WorldCover yang sebenarnya dipakai (kelas 10 + 95, DECISIONS 2026-10-09).
 
-- [ ] **Step 6: Jalankan tes untuk memastikan lulus**
+- [x] **Step 6: Jalankan tes untuk memastikan lulus**
 
 Run: `cd web && npm test`
 Expected: PASS, 24 tes.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd /Users/ahmadsyafiqkamil/Documents/Project/Teduh
@@ -826,7 +826,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `types.ts`: `Fact`, `KelurahanProperties`, `KelurahanFeature`, `KelurahanCollection`, `Driver`, `AreaProfile`, `ProfileResponse`, `ScenarioResult`, `SimulateResponse`, `PortfolioPackage`, `OptimizeResponse`, `ModelCard`, `RoofAnalysis`, `RoofRecommendation`, `RoofResponse`
   - `api.ts`: `API_BASE`, `ApiError`, `fetchKelurahan()`, `fetchProfile(kelId)`, `postSimulate(body)`, `postOptimize(body)`, `fetchModelCard()`, `postRoof(file, kelurahan?)`, `briefUrl(briefId, format)`
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 `web/lib/api.test.ts`:
 
@@ -903,12 +903,12 @@ describe('briefUrl', () => {
 });
 ```
 
-- [ ] **Step 2: Jalankan tes untuk memastikan gagal**
+- [x] **Step 2: Jalankan tes untuk memastikan gagal**
 
 Run: `cd web && npm test`
 Expected: FAIL — `Failed to resolve import "./api"`
 
-- [ ] **Step 3: Tulis `web/lib/types.ts`**
+- [x] **Step 3: Tulis `web/lib/types.ts`**
 
 ```ts
 /** Shapes the API actually returns. Mirrors api/schemas.py and the tool payloads. */
@@ -1112,7 +1112,7 @@ export interface RoofResponse {
 }
 ```
 
-- [ ] **Step 4: Tulis `web/lib/api.ts`**
+- [x] **Step 4: Tulis `web/lib/api.ts`**
 
 ```ts
 /**
@@ -1231,12 +1231,12 @@ export function briefUrl(briefId: string, format: 'md' | 'pdf' = 'md'): string {
 }
 ```
 
-- [ ] **Step 5: Jalankan tes untuk memastikan lulus**
+- [x] **Step 5: Jalankan tes untuk memastikan lulus**
 
 Run: `cd web && npm test`
 Expected: PASS, 7 tes baru.
 
-- [ ] **Step 6: Verifikasi terhadap API yang hidup**
+- [x] **Step 6: Verifikasi terhadap API yang hidup**
 
 Pastikan `uv run uvicorn api.main:app --port 8080` berjalan, lalu:
 
@@ -1249,7 +1249,7 @@ const { fetchKelurahan, fetchProfile } = await import('./lib/api.ts').catch(() =
 
 Cara paling sederhana: buka `http://localhost:8080/docs` dan panggil `/api/kelurahan` serta `/api/kelurahan/ID3173040002` dari Swagger UI, lalu bandingkan nama fieldnya dengan `web/lib/types.ts`. Setiap selisih nama di sini akan muncul sebagai `undefined` di peta, bukan sebagai error.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd /Users/ahmadsyafiqkamil/Documents/Project/Teduh
@@ -1278,7 +1278,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Spesifikasi lengkap ada di `design/README.md` §Komponen kunci dan `design/SourceChip.dc.html`. Yang mengikat: garis bawah **dotted** 1 px `#5E6662` (**dashed** untuk `asumsi` dan `input`), ikon `info` 11 px, `cursor: help`, `tabIndex=0`, tooltip lebar 252 px dengan `role="tooltip"` yang muncul saat **hover maupun focus**.
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 `web/components/SourceChip.test.tsx`:
 
@@ -1375,12 +1375,12 @@ describe('SourceChip', () => {
 });
 ```
 
-- [ ] **Step 2: Jalankan tes untuk memastikan gagal**
+- [x] **Step 2: Jalankan tes untuk memastikan gagal**
 
 Run: `cd web && npm test`
 Expected: FAIL — `Failed to resolve import "./SourceChip"`
 
-- [ ] **Step 3: Tulis `web/components/SourceChip.module.css`**
+- [x] **Step 3: Tulis `web/components/SourceChip.module.css`**
 
 ```css
 .chip {
@@ -1462,7 +1462,7 @@ Expected: FAIL — `Failed to resolve import "./SourceChip"`
 }
 ```
 
-- [ ] **Step 4: Tulis `web/components/SourceChip.tsx`**
+- [x] **Step 4: Tulis `web/components/SourceChip.tsx`**
 
 ```tsx
 'use client';
@@ -1564,12 +1564,12 @@ export function SourceChip({
 }
 ```
 
-- [ ] **Step 5: Jalankan tes untuk memastikan lulus**
+- [x] **Step 5: Jalankan tes untuk memastikan lulus**
 
 Run: `cd web && npm test`
 Expected: PASS, 13 tes baru.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cd /Users/ahmadsyafiqkamil/Documents/Project/Teduh
@@ -1598,7 +1598,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Spesifikasi presisi di `design/README.md` §1: tinggi 60 px, `bg #FFFFFF`, `border-bottom 1px #E3DED4`, padding `0 20px`, gap 24 px. Logo kotak 32×32 radius 8 `#1F5C4A` dengan ikon Lucide `tree-deciduous` 18 px putih. Segmented control `role="group"` dengan `aria-pressed`. Pencarian 236×38. Toggle ID/EN. Tombol "Tentang & Sumber Data" dengan ikon `book-open`.
 
-- [ ] **Step 1: Tulis tes yang gagal**
+- [x] **Step 1: Tulis tes yang gagal**
 
 `web/components/Header.test.tsx`:
 
@@ -1703,12 +1703,12 @@ describe('Header', () => {
 });
 ```
 
-- [ ] **Step 2: Jalankan tes untuk memastikan gagal**
+- [x] **Step 2: Jalankan tes untuk memastikan gagal**
 
 Run: `cd web && npm test`
 Expected: FAIL — `Failed to resolve import "./Header"`
 
-- [ ] **Step 3: Tulis `web/components/Header.module.css`**
+- [x] **Step 3: Tulis `web/components/Header.module.css`**
 
 ```css
 .header {
@@ -1860,7 +1860,7 @@ Expected: FAIL — `Failed to resolve import "./Header"`
 }
 ```
 
-- [ ] **Step 4: Tulis `web/components/Header.tsx`**
+- [x] **Step 4: Tulis `web/components/Header.tsx`**
 
 ```tsx
 'use client';
@@ -1968,16 +1968,16 @@ export function Header({
 }
 ```
 
-- [ ] **Step 5: Jalankan tes untuk memastikan lulus**
+- [x] **Step 5: Jalankan tes untuk memastikan lulus**
 
 Run: `cd web && npm test`
 Expected: PASS, 10 tes baru.
 
-- [ ] **Step 6: Bandingkan dengan prototipe desain secara visual**
+- [x] **Step 6: Bandingkan dengan prototipe desain secara visual**
 
 Buka `design/TEDUH Layar Utama.dc.html` di browser bersebelahan dengan `http://localhost:3000`. Periksa: tinggi header 60 px, swatch 10×10, tombol lapisan aktif berbingkai hijau, lebar pencarian 236 px, dan jarak antar kelompok 24 px.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd /Users/ahmadsyafiqkamil/Documents/Project/Teduh
@@ -1991,12 +1991,12 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ## Definisi M7a selesai
 
-- [ ] `npm run dev` menyajikan halaman bertema dengan font dan latar dari token desain.
-- [ ] `npm test` hijau (≥ 54 tes).
-- [ ] Setiap token di `design/README.md` §Design Tokens ada sebagai CSS custom property.
-- [ ] Angka diformat gaya `id-ID` dengan tanda minus U+2212 dan `tabular-nums`.
-- [ ] Batas kelas LST dan kepadatan penduduk **dihitung dari data nyata**, bukan dari data contoh desain, dan sumbernya dicatat di komentar.
-- [ ] `SourceChip` menampilkan tooltip saat hover **dan** focus, dengan garis bawah dashed untuk asumsi.
-- [ ] Header menandai lapisan dan bahasa aktif dengan `aria-pressed`.
+- [x] `npm run dev` menyajikan halaman bertema dengan font dan latar dari token desain.
+- [x] `npm test` hijau (≥ 54 tes).
+- [x] Setiap token di `design/README.md` §Design Tokens ada sebagai CSS custom property.
+- [x] Angka diformat gaya `id-ID` dengan tanda minus U+2212 dan `tabular-nums`.
+- [x] Batas kelas LST dan kepadatan penduduk **dihitung dari data nyata**, bukan dari data contoh desain, dan sumbernya dicatat di komentar.
+- [x] `SourceChip` menampilkan tooltip saat hover **dan** focus, dengan garis bawah dashed untuk asumsi.
+- [x] Header menandai lapisan dan bahasa aktif dengan `aria-pressed`.
 
 **Selanjutnya:** [`m7b-web-features.md`](m7b-web-features.md) — peta, drawer, dok skenario, panel agen, dan halaman.
