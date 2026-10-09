@@ -1,0 +1,266 @@
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  width: var(--drawer-width);
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-drawer);
+  animation: slide-in var(--duration-drawer) var(--ease-out);
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.header {
+  flex: none;
+  padding: var(--space-7) var(--space-9);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-secondary);
+}
+
+.close:hover {
+  background: var(--color-surface-hover);
+}
+
+.name {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-kelurahan);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: var(--leading-heading);
+}
+
+.location {
+  margin-top: var(--space-1);
+  font-size: var(--text-control);
+  color: var(--color-ink-secondary);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.pillRank {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 30px;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-pill);
+  background: var(--color-hvi-tint);
+  color: var(--color-hvi-dark);
+  font-size: var(--text-secondary);
+}
+
+.ask {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  width: 100%;
+  height: 42px;
+  margin-top: var(--space-5);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-canopy);
+  color: #fff;
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+
+.ask:hover {
+  background: var(--color-canopy-hover);
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  padding: var(--space-8) var(--space-9) var(--space-11);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+.metricCard {
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: var(--color-ink-secondary);
+}
+
+.metricValue {
+  margin-top: var(--space-2);
+  font-size: var(--text-metric);
+  font-weight: 700;
+  line-height: var(--leading-heading);
+}
+
+.metricSub {
+  margin-top: var(--space-1);
+  font-size: var(--text-kicker);
+  color: var(--color-ink-secondary);
+}
+
+.sectionTitle {
+  font-size: var(--text-section);
+  font-weight: 600;
+}
+
+.sectionSub {
+  margin-top: var(--space-1);
+  font-size: var(--text-help);
+  color: var(--color-ink-secondary);
+}
+
+.formula {
+  margin-top: var(--space-5);
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-help);
+  color: var(--color-ink-secondary);
+  line-height: var(--leading-caption);
+}
+
+.componentRow {
+  display: grid;
+  grid-template-columns: 1fr 64px;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.componentLabel {
+  font-size: var(--text-secondary);
+}
+
+.track {
+  height: 8px;
+  margin-top: var(--space-2);
+  border-radius: 4px;
+  background: var(--color-hvi-tint);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--color-hvi);
+}
+
+.driverRow {
+  display: grid;
+  grid-template-columns: 136px 1fr 64px;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: var(--space-4);
+  font-size: var(--text-secondary);
+}
+
+.driverTrack {
+  position: relative;
+  height: 14px;
+  background: var(--color-paper);
+  border-radius: var(--radius-swatch);
+}
+
+/* Zero axis at 20% of the width, per design/README.md §3. */
+.driverBar {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 2px;
+}
+
+.driverLegend {
+  display: flex;
+  gap: var(--space-6);
+  margin-top: var(--space-5);
+  font-size: var(--text-kicker);
+  color: var(--color-ink-secondary);
+}
+
+.legendWarm {
+  color: var(--color-hot);
+}
+
+.legendCool {
+  color: var(--color-cold);
+}
+
+.mismatch {
+  margin-top: var(--space-5);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  font-size: var(--text-help);
+  color: var(--color-ink-secondary);
+  line-height: var(--leading-caption);
+}
+
+.landcover {
+  display: flex;
+  height: 22px;
+  margin-top: var(--space-5);
+  border-radius: var(--radius-swatch);
+  overflow: hidden;
+}
+
+.footnote {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--text-kicker);
+  color: var(--color-ink-secondary);
+  line-height: var(--leading-caption);
+}
+
+.state {
+  padding: var(--space-11) var(--space-9);
+  font-size: var(--text-secondary);
+  color: var(--color-ink-secondary);
+}
