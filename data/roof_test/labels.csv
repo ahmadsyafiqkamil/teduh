@@ -1,0 +1,2 @@
+photo_id,is_placeholder,roof_form,material,color_tone,condition,shade_from_trees,kelurahan,license,attribution,source_url,notes
+EXAMPLE-00,true,pitched,metal_sheet,dark,worn,none,,CC0,Contoh baris - hapus sebelum evaluasi,,"Baris contoh untuk menunjukkan format. Nilai roof_form/material/color_tone/condition/shade_from_trees HARUS dari enum CONCEPT 8.5 response_schema. is_placeholder=true dikecualikan dari angka akurasi."

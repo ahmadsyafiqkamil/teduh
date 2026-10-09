@@ -1,0 +1,33 @@
+data/raw/
+*.part
+
+# Raw source scan duplicated at repo root; the canonical copy lives in gitignored data/raw/sbm/
+# (CLAUDE.md rule 8: no large raw data in git).
+2025KEPGUB0031811.pdf
+
+# Regenerable from data/raw/ by pipeline/build_grid.py, and 7 MB (CONCEPT §11.2).
+# kelurahan_metrics.parquet (81 KB) and bmkg_ghcn_crosscheck.csv stay committed: they are what
+# the API serves, so the app runs without re-running the pipeline.
+data/processed/grid_features.parquet
+
+# Roof photos carry personal data even after EXIF stripping (CLAUDE.md rule 8). Only the
+# labels CSV is committed.
+data/roof_test/photos/
+
+__pycache__/
+.ruff_cache/
+.DS_Store
+
+# Personal editor/agent local state, not project files.
+.claude/
+.cursor/
+
+# Artefak model, dihasilkan ulang oleh model/train.py dan model/explain.py.
+# .gitkeep tetap di-commit supaya direktorinya ada untuk COPY di infra/Dockerfile.
+data/model/*
+!data/model/.gitkeep
+
+# Rahasia dan dependensi frontend.
+.env
+web/node_modules/
+web/.next/

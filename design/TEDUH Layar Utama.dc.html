@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#E7E3DA;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1C2321;-webkit-font-smoothing:antialiased}
+a{color:#1F5C4A}a:hover{color:#184A3C}
+button,input,textarea{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid #1F5C4A;outline-offset:2px}
+</style>
+</helmet>
+<div style="padding:48px; display:flex; flex-direction:column; gap:14px; align-items:flex-start">
+  <div style="display:flex; align-items:center; gap:10px"><span style="font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#5E6662">Hi-fi · variasi A · keadaan setelah pertanyaan pertama</span></div>
+  <div data-screen-label="Layar utama" style="width:1440px; height:900px; background:#F7F4EE; border:1px solid #D6D0C4; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; font-size:15px; box-shadow:0 1px 2px rgba(28,35,33,.06), 0 16px 40px rgba(28,35,33,.07)">
+
+    <header style="height:60px; flex:none; background:#FFFFFF; border-bottom:1px solid #E3DED4; display:flex; align-items:center; padding:0 20px; gap:24px">
+      <div style="display:flex; align-items:center; gap:10px">
+        <div style="width:32px; height:32px; border-radius:8px; background:#1F5C4A; color:#FFFFFF; display:flex; align-items:center; justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 19a4 4 0 0 1-2.24-7.32A3.5 3.5 0 0 1 9 6.03V6a3 3 0 1 1 6 0v.04a3.5 3.5 0 0 1 3.24 5.65A4 4 0 0 1 16 19Z"></path><path d="M12 19v3"></path></svg></div>
+        <div style="display:flex; flex-direction:column; line-height:1.2"><span style="font-size:16px; font-weight:700; letter-spacing:.14em">TEDUH</span><span style="font-size:11.5px; color:#5E6662">DKI Jakarta · kelurahan</span></div>
+      </div>
+      <div role="group" aria-label="{{ t.layerGroup }}" style="display:flex; gap:2px; padding:3px; border:1px solid #E3DED4; border-radius:10px; background:#FBFAF7">
+        <sc-for list="{{ layers }}" as="l" hint-placeholder-count="4">
+          <button onClick="{{ l.onClick }}" aria-pressed="{{ l.pressed }}" style="height:34px; padding:0 12px; border:1px solid {{ l.border }}; border-radius:8px; background:{{ l.bg }}; color:{{ l.color }}; font-size:13.5px; font-weight:{{ l.weight }}; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:#F2EFE8"><span style="width:10px; height:10px; border-radius:3px; background:{{ l.swatch }}"></span>{{ l.label }}</button>
+        </sc-for>
+      </div>
+      <div style="flex:1"></div>
+      <label style="width:236px; height:38px; border:1px solid #E3DED4; border-radius:10px; background:#FFFFFF; display:flex; align-items:center; gap:8px; padding:0 12px; color:#5E6662" style-focus-within="border-color:#1F5C4A"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; flex:none"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><input placeholder="{{ t.search }}" aria-label="{{ t.search }}" style="border:none; outline:none; background:transparent; font-size:14px; width:100%; min-width:0"></label>
+      <div role="group" aria-label="Bahasa" style="display:flex; padding:3px; border:1px solid #E3DED4; border-radius:10px; gap:2px">
+        <button onClick="{{ setID }}" aria-pressed="{{ idPressed }}" style="height:30px; min-width:38px; border:none; border-radius:7px; background:{{ idBg }}; color:{{ idColor }}; font-size:12.5px; font-weight:700; cursor:pointer">ID</button>
+        <button onClick="{{ setEN }}" aria-pressed="{{ enPressed }}" style="height:30px; min-width:38px; border:none; border-radius:7px; background:{{ enBg }}; color:{{ enColor }}; font-size:12.5px; font-weight:700; cursor:pointer">EN</button>
+      </div>
+      <button style="height:38px; padding:0 14px; border:1px solid #E3DED4; border-radius:10px; background:#FFFFFF; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:#F7F4EE; border-color:#CFC8BB"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>{{ t.about }}</button>
+    </header>
+
+    <div style="flex:1; min-height:0; display:grid; grid-template-columns:65fr 35fr">
+      <div style="display:flex; flex-direction:column; min-width:0; min-height:0">
+        <div style="position:relative; flex:1; min-height:0; background:#EFEBE3; overflow:hidden">
+          {{ mapSvg }}
+          <div style="position:absolute; top:16px; left:16px; background:#FFFFFF; border:1px solid #E3DED4; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column; gap:2px; box-shadow:0 1px 2px rgba(28,35,33,.06)">
+            <span style="font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#5E6662">Jakarta Timur</span>
+            <span style="font-size:14px; font-weight:600">{{ mapTitle }}</span>
+          </div>
+          <div style="position:absolute; top:16px; right:{{ ovRight }}; display:flex; flex-direction:column; align-items:flex-end; gap:10px">
+            <span style="font-size:11.5px; font-weight:600; color:#5E6662; background:#FFFFFF; border:1px dashed #5E6662; border-radius:6px; padding:3px 8px; white-space:nowrap">{{ t.sample }}</span>
+            <div style="display:flex; flex-direction:column; background:#FFFFFF; border:1px solid #E3DED4; border-radius:10px; overflow:hidden">
+              <button aria-label="Perbesar" style="width:36px; height:36px; border:none; border-bottom:1px solid #E3DED4; background:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:#F7F4EE"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:#1C2321; stroke-width:2; stroke-linecap:round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button>
+              <button aria-label="Perkecil" style="width:36px; height:36px; border:none; background:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:#F7F4EE"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:#1C2321; stroke-width:2; stroke-linecap:round"><path d="M5 12h14"></path></svg></button>
+            </div>
+          </div>
+          <sc-if value="{{ hoverInfo }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; top:16px; left:{{ hoverLeft }}; transform:translateX(-50%); background:#1C2321; color:#FFFFFF; border-radius:8px; padding:7px 12px; font-size:13px; display:flex; gap:10px; align-items:baseline; pointer-events:none; white-space:nowrap"><span style="font-weight:600">{{ hoverInfo.name }}</span><span style="color:#C9CFCC">{{ hoverInfo.sub }}</span><span style="font-variant-numeric:tabular-nums; font-weight:600">{{ hoverInfo.value }}</span></div>
+          </sc-if>
+          <div style="position:absolute; right:{{ ovRight }}; bottom:28px; width:312px; background:#FFFFFF; border:1px solid #E3DED4; border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:10px; box-shadow:0 1px 2px rgba(28,35,33,.06)">
+            <div style="display:flex; flex-direction:column; gap:2px"><span style="font-size:13px; font-weight:600">{{ legend.title }}</span><span style="font-size:11.5px; color:#5E6662; line-height:1.4">{{ legend.sub }}</span></div>
+            <div style="display:flex; flex-direction:column; gap:4px">
+              <div style="display:flex; height:14px; border-radius:3px; overflow:hidden; border:1px solid #E3DED4"><sc-for list="{{ legend.colors }}" as="c" hint-placeholder-count="5"><div style="flex:1; background:{{ c }}"></div></sc-for></div>
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:#5E6662; font-variant-numeric:tabular-nums"><sc-for list="{{ legend.ticks }}" as="tk" hint-placeholder-count="6"><span>{{ tk }}</span></sc-for></div>
+            </div>
+            <sc-if value="{{ highlightOn }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:#1C2321; border-top:1px solid #E3DED4; padding-top:8px"><span style="width:20px; height:14px; border:2.5px solid #1F5C4A; border-radius:3px; background:#FFFFFF"></span>5 kelurahan prioritas dari jawaban agen</div>
+            </sc-if>
+          </div>
+          <div style="position:absolute; right:{{ ovRight }}; bottom:8px; font-size:10.5px; color:#5E6662">© OpenFreeMap · © kontributor OpenStreetMap</div>
+          <sc-if value="{{ prof }}" hint-placeholder-val="{{ true }}">
+            <div role="dialog" aria-label="Profil Kelurahan {{ prof.name }}" style="position:absolute; top:0; right:0; bottom:0; width:420px; background:#FFFFFF; border-left:1px solid #E3DED4; box-shadow:-10px 0 28px rgba(28,35,33,.08); display:flex; flex-direction:column; z-index:10">
+              <div style="flex:none; padding:14px 20px 14px; border-bottom:1px solid #E3DED4; display:flex; flex-direction:column; gap:10px">
+                <div style="display:flex; align-items:center; gap:8px">
+                  <span style="font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#5E6662">Profil kelurahan</span>
+                  <span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; padding:1px 6px; white-space:nowrap">{{ t.sample }}</span>
+                  <div style="flex:1"></div>
+                  <button onClick="{{ closeProfile }}" aria-label="Tutup profil" style="width:36px; height:36px; margin-right:-8px; border:none; border-radius:8px; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#1C2321" style-hover="background:#F7F4EE"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px; margin-top:-6px">
+                  <span style="font-size:24px; font-weight:700; letter-spacing:-.015em; line-height:1.2">{{ prof.name }}</span>
+                  <span style="font-size:13.5px; color:#5E6662">{{ prof.loc }}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px">
+                  <span style="display:inline-flex; align-items:center; gap:8px; height:30px; padding:0 12px; border-radius:999px; background:#F2EEF7; font-size:13px; color:#3F1F6B; white-space:nowrap"><span style="font-weight:500">Peringkat HVI</span><span style="font-weight:700"><dc-import name="SourceChip" value="{{ prof.rank }}" kind="model" placement="bottom" align="start" source="Urutan HVI di antara 267 kelurahan DKI Jakarta. Indeks TEDUH, bobot default 0,4 / 0,3 / 0,3." style="display:inline-flex" hint-size="auto,18px"></dc-import></span></span>
+                  <sc-if value="{{ prof.isPriority }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex; align-items:center; gap:6px; height:30px; padding:0 10px; border:1.5px solid #1F5C4A; border-radius:999px; font-size:12.5px; font-weight:600; color:#1F5C4A; white-space:nowrap">{{ prof.prioLabel }}</span></sc-if>
+                </div>
+                <button onClick="{{ askProfile }}" style="height:42px; border:none; border-radius:10px; background:#1F5C4A; color:#FFFFFF; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px" style-hover="background:#184A3C"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>Tanya agen tentang wilayah ini</button>
+              </div>
+
+              <div style="flex:1; min-height:0; overflow-y:auto; padding:18px 20px 20px; display:flex; flex-direction:column; gap:22px">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                  <div style="border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:3px"><span style="font-size:12px; color:#5E6662">LST rata-rata</span><span style="font-size:22px; font-weight:700; letter-spacing:-.01em"><dc-import name="SourceChip" value="{{ prof.lst }}" unit="°C" kind="data" placement="bottom" align="start" source="Landsat 8/9 Collection 2, median musim kemarau (Jun–Sep) 2023–2025, rata-rata seluruh piksel kelurahan" style="display:inline-flex" hint-size="auto,28px"></dc-import></span><span style="font-size:11.5px; color:#5E6662">suhu permukaan</span></div>
+                  <div style="border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:3px"><span style="font-size:12px; color:#5E6662">Selisih dari rata-rata kota</span><span style="font-size:22px; font-weight:700; letter-spacing:-.01em; color:#B5213A"><dc-import name="SourceChip" value="{{ prof.anom }}" unit="°C" kind="data" placement="bottom" align="end" source="LST kelurahan dikurangi rata-rata LST DKI Jakarta 34,3 °C (Landsat 8/9, 2023–2025)" style="display:inline-flex" hint-size="auto,28px"></dc-import></span><span style="font-size:11.5px; color:#5E6662">rata-rata kota 34,3 °C</span></div>
+                  <div style="border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:3px"><span style="font-size:12px; color:#5E6662">Indeks kerentanan (HVI)</span><span style="font-size:22px; font-weight:700; letter-spacing:-.01em; color:#3F1F6B"><dc-import name="SourceChip" value="{{ prof.hvi }}" kind="model" align="start" source="Indeks TEDUH: Bahaya × (0,4 Keterpaparan + 0,3 Kepekaan + 0,3 Kurangnya kapasitas adaptif)" style="display:inline-flex" hint-size="auto,28px"></dc-import></span><span style="font-size:11.5px; color:#5E6662">skala 0–1, makin tinggi makin rentan</span></div>
+                  <div style="border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:3px"><span style="font-size:12px; color:#5E6662">Warga rentan</span><span style="font-size:22px; font-weight:700; letter-spacing:-.01em"><dc-import name="SourceChip" value="{{ prof.rentan }}" unit="jiwa" kind="data" align="end" source="WorldPop 2020, 100 m: jumlah usia di bawah 5 tahun dan 65 tahun ke atas" style="display:inline-flex" hint-size="auto,28px"></dc-import></span><span style="font-size:11.5px; color:#5E6662; font-variant-numeric:tabular-nums">{{ prof.balita }} balita + {{ prof.lansia }} lansia</span></div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:10px">
+                  <div style="display:flex; flex-direction:column; gap:2px"><span style="font-size:15px; font-weight:600">Komponen kerentanan panas</span><span style="font-size:12.5px; color:#5E6662; line-height:1.45">HVI = Bahaya × (0,4 Keterpaparan + 0,3 Kepekaan + 0,3 Kurangnya kapasitas adaptif)</span></div>
+                  <sc-for list="{{ prof.comps }}" as="cp" hint-placeholder-count="4">
+                    <div style="display:flex; flex-direction:column; gap:5px">
+                      <div style="display:flex; align-items:baseline; gap:8px; font-size:13.5px"><span style="font-weight:500">{{ cp.label }}</span><span style="font-size:12px; color:#5E6662">{{ cp.hint }}</span><div style="flex:1"></div><span style="font-weight:600"><dc-import name="SourceChip" value="{{ cp.v }}" kind="{{ cp.kind }}" align="end" source="{{ cp.src }}" style="display:inline-flex" hint-size="auto,18px"></dc-import></span></div>
+                      <div style="height:8px; background:#F2EEF7; border-radius:4px; overflow:hidden"><div style="height:100%; width:{{ cp.w }}; background:#6B4FA0; border-radius:4px"></div></div>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:10px">
+                  <div style="display:flex; flex-direction:column; gap:2px"><span style="font-size:15px; font-weight:600">Apa yang membuat wilayah ini panas?</span><span style="font-size:12.5px; color:#5E6662">Kontribusi tiap faktor terhadap selisih suhu, menurut model (SHAP)</span></div>
+                  <p style="margin:0; font-size:14px; line-height:1.55; background:#F7F4EE; border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; text-wrap:pretty">{{ prof.plain }}</p>
+                  <div style="display:flex; flex-direction:column; gap:2px">
+                    <div style="display:grid; grid-template-columns:136px minmax(0,1fr) 64px; gap:10px; font-size:11px; color:#5E6662; padding-bottom:4px"><span></span><div style="position:relative; height:14px"><span style="position:absolute; left:20%; transform:translateX(-50%)">0</span></div><span></span></div>
+                    <sc-for list="{{ prof.shap }}" as="sh" hint-placeholder-count="6">
+                      <div style="display:grid; grid-template-columns:136px minmax(0,1fr) 64px; gap:10px; align-items:center; min-height:30px">
+                        <span style="font-size:13px; line-height:1.3; color:{{ sh.labelColor }}">{{ sh.label }}</span>
+                        <div style="position:relative; height:16px"><div style="position:absolute; left:20%; top:-7px; bottom:-7px; width:1px; background:#8A918D"></div><div style="position:absolute; top:0; bottom:0; left:{{ sh.left }}; width:{{ sh.w }}; background:{{ sh.color }}; border-radius:3px"></div></div>
+                        <span style="display:flex; justify-content:flex-end; font-size:13px; font-weight:600"><dc-import name="SourceChip" value="{{ sh.v }}" unit="°C" kind="model" align="end" source="{{ sh.src }}" style="display:inline-flex" hint-size="auto,18px"></dc-import></span>
+                      </div>
+                    </sc-for>
+                    <div style="display:grid; grid-template-columns:136px minmax(0,1fr) 64px; gap:10px; align-items:center; border-top:1px solid #E3DED4; padding-top:8px; margin-top:4px"><span style="font-size:13px; font-weight:600">Total selisih</span><span style="display:flex; gap:12px; font-size:12px; color:#5E6662; flex-wrap:wrap"><span style="display:flex; align-items:center; gap:5px"><span style="width:10px; height:10px; border-radius:2px; background:#E0533D"></span>memanaskan</span><span style="display:flex; align-items:center; gap:5px"><span style="width:10px; height:10px; border-radius:2px; background:#2B78A8"></span>mendinginkan</span></span><span style="display:flex; justify-content:flex-end; font-size:13px; font-weight:700"><dc-import name="SourceChip" value="{{ prof.anom }}" unit="°C" kind="data" align="end" source="Jumlah kontribusi faktor = LST kelurahan − rata-rata kota (Landsat 8/9)" style="display:inline-flex" hint-size="auto,18px"></dc-import></span></div>
+                  </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:10px">
+                  <div style="display:flex; flex-direction:column; gap:2px"><span style="font-size:15px; font-weight:600">Tutupan lahan</span><span style="font-size:12.5px; color:#5E6662">Porsi luas kelurahan</span></div>
+                  <div style="display:flex; height:22px; border-radius:6px; overflow:hidden; border:1px solid #E3DED4">
+                    <sc-for list="{{ prof.land }}" as="ld" hint-placeholder-count="4"><div style="width:{{ ld.w }}; background:{{ ld.color }}; border-right:1px solid #FFFFFF"></div></sc-for>
+                  </div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px 16px">
+                    <sc-for list="{{ prof.land }}" as="ld" hint-placeholder-count="4">
+                      <div style="display:flex; align-items:center; gap:8px; font-size:13.5px"><span style="width:12px; height:12px; border-radius:3px; background:{{ ld.color }}; flex:none"></span><span>{{ ld.label }}</span><div style="flex:1"></div><span style="font-weight:600"><dc-import name="SourceChip" value="{{ ld.v }}" unit="%" kind="data" align="{{ ld.align }}" source="{{ ld.src }}" style="display:inline-flex" hint-size="auto,18px"></dc-import></span></div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:8px; font-size:12px; color:#5E6662; line-height:1.5; border-top:1px solid #E3DED4; padding-top:12px"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; flex:none"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><span>Suhu permukaan dari Landsat 8/9, musim kemarau 2023–2025. Bukan suhu udara.</span></div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="flex:none; background:#FFFFFF; border-top:1px solid #E3DED4; padding:14px 20px 16px; display:flex; flex-direction:column; gap:12px">
+          <div style="display:flex; align-items:center; gap:10px">
+            <span style="font-size:15px; font-weight:600">{{ t.scenario }}</span>
+            <span style="display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border:1px solid #E3DED4; border-radius:999px; font-size:12.5px; color:#1C2321; background:#FBFAF7; white-space:nowrap"><span style="width:10px; height:10px; border:2px solid #1F5C4A; border-radius:2px"></span>Target: 5 kelurahan prioritas</span>
+            <span style="font-size:12.5px; color:#5E6662">Belum ada simulasi. Atur intervensi, lalu tekan Simulasikan.</span>
+            <div style="flex:1"></div>
+            <span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; padding:2px 7px; white-space:nowrap">{{ t.sample }}</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) 196px 132px; gap:20px; align-items:end">
+            <sc-for list="{{ sliders }}" as="s" hint-placeholder-count="3">
+              <div style="display:flex; flex-direction:column; gap:4px">
+                <span style="font-size:13.5px; font-weight:600">{{ s.label }}</span>
+                <div style="display:flex; align-items:center; gap:10px"><input type="range" min="0" max="{{ s.max }}" step="{{ s.step }}" value="{{ s.value }}" onChange="{{ s.onChange }}" aria-label="{{ s.label }}" style="flex:1; min-width:0; accent-color:#1F5C4A; height:24px; margin:0"><span style="min-width:52px; text-align:right; font-size:13.5px; font-weight:600; color:{{ s.valColor }}; font-variant-numeric:tabular-nums; white-space:nowrap">{{ s.display }}</span></div>
+                <span style="font-size:12px; color:#5E6662">{{ s.help }}</span>
+              </div>
+            </sc-for>
+            <label style="display:flex; flex-direction:column; gap:6px">
+              <span style="font-size:13.5px; font-weight:600">Anggaran (Rp)</span>
+              <span style="height:40px; border:1px solid #E3DED4; border-radius:10px; display:flex; align-items:center; padding:0 12px; gap:6px; background:#FFFFFF" style-focus-within="border-color:#1F5C4A"><span style="font-size:13.5px; color:#5E6662">Rp</span><input value="{{ budget }}" onChange="{{ onBudget }}" inputMode="numeric" placeholder="2.000.000.000" style="border:none; outline:none; background:transparent; font-size:14px; width:100%; min-width:0; font-variant-numeric:tabular-nums"></span>
+            </label>
+            <button onClick="{{ simulate }}" disabled="{{ simDisabled }}" style="height:40px; border:none; border-radius:10px; background:{{ simBg }}; color:{{ simColor }}; font-size:14px; font-weight:600; cursor:{{ simCursor }}; display:flex; align-items:center; justify-content:center; gap:7px" style-hover="filter:brightness(.94)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>Simulasikan</button>
+          </div>
+        </div>
+      </div>
+
+      <aside style="background:#FFFFFF; border-left:1px solid #E3DED4; display:flex; flex-direction:column; min-height:0; min-width:0">
+        <div style="height:52px; flex:none; border-bottom:1px solid #E3DED4; padding:0 20px; display:flex; align-items:center; gap:10px">
+          <div style="display:flex; flex-direction:column; line-height:1.25"><span style="font-size:15px; font-weight:600">{{ t.agent }}</span><span style="font-size:12px; color:#5E6662">Setiap angka berasal dari data atau model, bukan karangan</span></div>
+          <div style="flex:1"></div>
+          <button aria-label="Percakapan baru" style="width:36px; height:36px; border:1px solid #E3DED4; border-radius:8px; background:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#5E6662" style-hover="background:#F7F4EE"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M12 20h9"></path><path d="M16.38 3.62a1 1 0 0 1 3 3L7.37 18.64a2 2 0 0 1-.85.5l-2.87.84a.5.5 0 0 1-.62-.62l.84-2.87a2 2 0 0 1 .5-.85z"></path></svg></button>
+        </div>
+
+        <div ref="{{ chatRef }}" style="flex:1; min-height:0; overflow-y:auto; padding:12px 20px; display:flex; flex-direction:column; gap:8px">
+          <div style="align-self:flex-end; max-width:88%; background:#F7F4EE; border:1px solid #E3DED4; border-radius:12px 12px 4px 12px; padding:10px 14px; font-size:14px; line-height:1.5">Kelurahan mana di Jakarta Timur yang paling perlu diprioritaskan untuk penanganan panas?</div>
+
+          <div style="border:1px solid #E3DED4; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column; gap:4px; background:#FBFAF7">
+            <div style="display:flex; align-items:center; gap:8px"><div style="width:20px; height:20px; border-radius:6px; background:#1F5C4A; color:#FFFFFF; display:flex; align-items:center; justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 19a4 4 0 0 1-2.24-7.32A3.5 3.5 0 0 1 9 6.03V6a3 3 0 1 1 6 0v.04a3.5 3.5 0 0 1 3.24 5.65A4 4 0 0 1 16 19Z"></path><path d="M12 19v3"></path></svg></div><span style="font-size:12px; font-weight:600; color:#5E6662">3 langkah selesai · 3,8 detik</span></div>
+            <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M20 6 9 17l-5-5"></path></svg>{{ st.label }}<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">{{ st.tool }}</span></div>
+            </sc-for>
+          </div>
+
+          <p style="margin:0; font-size:14px; line-height:1.55; text-wrap:pretty">Suhu permukaan kelima kelurahan ini rata-rata <span tabIndex="0" onMouseEnter="{{ ch.c1.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c1.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; font-weight:600">36,9&#160;°C<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c1.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Data satelit</span><span>Landsat 8/9, median musim kemarau 2023–2025, rata-rata 5 kelurahan</span></span></sc-if></span>, atau <span tabIndex="0" onMouseEnter="{{ ch.c2.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c2.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; font-weight:600">2,6&#160;°C<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c2.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Data satelit</span><span>Selisih terhadap rata-rata LST DKI Jakarta (34,3 °C), Landsat 8/9 2023–2025</span></span></sc-if></span> di atas rata-rata kota. Di sana tinggal <span tabIndex="0" onMouseEnter="{{ ch.c3.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c3.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; font-weight:600">18.420<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c3.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; right:0; bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Data satelit</span><span>WorldPop 2020, 100 m: balita (&lt;5 th) dan lansia (≥65 th) di 5 kelurahan</span></span></sc-if></span> balita dan lansia. Pendorong utama: bangunan rapat, pohon sedikit.</p>
+
+          <div style="border:1px solid #E3DED4; border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; box-shadow:0 1px 2px rgba(28,35,33,.05)">
+            <div style="display:flex; align-items:center; gap:8px"><span style="font-size:15px; font-weight:600">5 kelurahan paling rentan panas</span><div style="flex:1"></div><span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; padding:1px 6px; white-space:nowrap">{{ t.sample }}</span></div>
+            <div role="table" style="display:flex; flex-direction:column">
+              <div role="row" style="display:grid; grid-template-columns:24px minmax(0,1fr) 50px 76px 66px; gap:8px; font-size:11.5px; color:#5E6662; padding-bottom:6px; border-bottom:1px solid #E3DED4; align-items:end"><span role="columnheader">#</span><span role="columnheader">Kelurahan</span><span role="columnheader" style="text-align:right">HVI</span><span role="columnheader" style="text-align:right">LST rata-rata</span><span role="columnheader" style="text-align:right">Warga rentan</span></div>
+              <sc-for list="{{ topList }}" as="k" hint-placeholder-count="5">
+                <div role="row" onMouseEnter="{{ k.enter }}" onMouseLeave="{{ k.leave }}" onClick="{{ k.open }}" style="cursor:pointer; display:grid; grid-template-columns:24px minmax(0,1fr) 50px 76px 66px; gap:8px; align-items:center; font-size:13.5px; padding:5px 0; border-bottom:1px solid #F0ECE4; background:{{ k.bg }}">
+                  <span style="width:20px; height:20px; border-radius:50%; background:#1F5C4A; color:#FFFFFF; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center">{{ k.rank }}</span>
+                  <span style="font-weight:500; line-height:1.3">{{ k.name }}</span>
+                  <span style="display:flex; justify-content:flex-end"><dc-import name="SourceChip" value="{{ k.hvi }}" kind="model" source="Indeks TEDUH: bahaya × (0,4 keterpaparan + 0,3 kepekaan + 0,3 kurangnya kapasitas adaptif). Data contoh." style="display:inline-flex" hint-size="auto,18px"></dc-import></span>
+                  <span style="display:flex; justify-content:flex-end"><dc-import name="SourceChip" value="{{ k.lst }}" unit="°C" kind="data" source="Landsat 8/9 Collection 2, median musim kemarau (Jun–Sep) 2023–2025" style="display:inline-flex" hint-size="auto,18px"></dc-import></span>
+                  <span style="display:flex; justify-content:flex-end"><dc-import name="SourceChip" value="{{ k.rentan }}" kind="data" align="end" source="{{ k.rentanSrc }}" style="display:inline-flex" hint-size="auto,18px"></dc-import></span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px"><span style="flex:1; min-width:0; font-size:12px; color:#5E6662; line-height:1.4">LST = suhu permukaan, bukan suhu udara.</span><button onClick="{{ toggleHighlight }}" aria-pressed="{{ highlightStr }}" style="flex:none; height:36px; padding:0 14px; border:1px solid {{ hlBorder }}; border-radius:10px; background:{{ hlBg }}; color:#1F5C4A; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:#EAF2EC"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>{{ hlLabel }}</button></div>
+          </div>
+
+          <div role="group" aria-label="Pertanyaan lanjutan" style="display:flex; flex-direction:column; gap:6px">
+            <div style="display:flex; flex-wrap:wrap; gap:6px">
+              <sc-for list="{{ followups }}" as="f" hint-placeholder-count="3">
+                <button onClick="{{ f.onClick }}" style="min-height:30px; padding:4px 12px; border:1px solid #E3DED4; border-radius:999px; background:#FFFFFF; font-size:13px; font-weight:500; color:#1C2321; cursor:pointer; display:flex; align-items:center; gap:6px; text-align:left" style-hover="border-color:#1F5C4A; background:#F5F9F6"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>{{ f.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:none; border-top:1px solid #E3DED4; padding:12px 16px 14px">
+          <div style="border:1px solid #E3DED4; border-radius:12px; padding:10px 10px 8px 14px; display:flex; flex-direction:column; gap:6px" style-focus-within="border-color:#1F5C4A">
+            <textarea value="{{ draft }}" onChange="{{ onDraft }}" rows="1" placeholder="{{ t.placeholder }}" aria-label="Pertanyaan untuk agen" style="border:none; outline:none; resize:none; font-size:14px; line-height:1.5; background:transparent; padding:0"></textarea>
+            <div style="display:flex; align-items:center; gap:6px">
+              <button aria-label="Lampirkan foto atap" style="height:34px; padding:0 10px; border:1px solid #E3DED4; border-radius:8px; background:#FFFFFF; cursor:pointer; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; color:#5E6662" style-hover="background:#F7F4EE"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>Foto atap</button>
+              <div style="flex:1"></div>
+              <button aria-label="Kirim" style="width:36px; height:36px; border:none; border-radius:10px; background:#1F5C4A; color:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:#184A3C"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg></button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultLayer&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;hvi&quot;,&quot;lst&quot;,&quot;veg&quot;,&quot;pop&quot;],&quot;default&quot;:&quot;hvi&quot;,&quot;tsType&quot;:&quot;'hvi'|'lst'|'veg'|'pop'&quot;,&quot;section&quot;:&quot;Tampilan&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;id&quot;,&quot;en&quot;],&quot;default&quot;:&quot;id&quot;,&quot;tsType&quot;:&quot;'id'|'en'&quot;,&quot;section&quot;:&quot;Tampilan&quot;},&quot;profileOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Tampilan&quot;}}">
+class Component extends DCLogic {
+  P = {
+    lst: ['#FFF5D6', '#FEE08B', '#FDB863', '#F4845F', '#E0533D', '#B5213A', '#6E0F2B'],
+    hvi: ['#F2EEF7', '#CBBFE0', '#9B86C4', '#6B4FA0', '#3F1F6B'],
+    veg: ['#F1F5EC', '#CFE0C3', '#9DC39A', '#5E9A6E', '#2C6A4C'],
+    pop: ['#F1EFEA', '#D5D0C6', '#A9A396', '#6F6A60', '#3A3833']
+  };
+  T = {
+    id: { layers: ['Suhu Permukaan', 'Kerentanan (HVI)', 'Vegetasi', 'Penduduk Rentan'], layerGroup: 'Lapisan peta', search: 'Cari kelurahan…', about: 'Tentang & Sumber Data', sample: 'Data contoh', scenario: 'Simulasi skenario', agent: 'Agen TEDUH', placeholder: 'Tanyakan tentang panas di wilayah Anda…' },
+    en: { layers: ['Surface Temp.', 'Vulnerability (HVI)', 'Vegetation', 'Vulnerable People'], layerGroup: 'Map layers', search: 'Search kelurahan…', about: 'About & Data Sources', sample: 'Sample data', scenario: 'Scenario simulation', agent: 'TEDUH Agent', placeholder: 'Ask about heat in your area…' }
+  };
+  TOP = [
+    ['Kampung Melayu', 0.93, 37.4, 2140, 3310], ['Bidara Cina', 0.91, 37.1, 1610, 2510], ['Cipinang Besar Utara', 0.89, 36.9, 1490, 2380],
+    ['Rawa Bunga', 0.87, 36.6, 1020, 1590], ['Cawang', 0.86, 36.4, 930, 1440]
+  ];
+  M = this.build();
+  chatRef = React.createRef();
+  state = { profile: -1, layer: null, lang: null, hover: null, rowHover: null, hl: true, chip: null, draft: '', tree: 0, cool: 0, green: 0, budget: '' };
+
+  componentDidMount() { const go = () => { const el = this.chatRef.current; if (el) el.scrollTop = el.scrollHeight; }; [100, 500, 1200].forEach(ms => setTimeout(go, ms)); const el = this.chatRef.current; if (el && window.ResizeObserver) { this.ro = new ResizeObserver(go); Array.from(el.children).forEach(c => this.ro.observe(c)); } }
+  componentWillUnmount() { if (this.ro) this.ro.disconnect(); }
+
+  fmt(v, d = 1) { return v.toFixed(d).replace('.', ','); }
+  fint(n) { return Math.round(n).toLocaleString('id-ID'); }
+
+  build() {
+    const OUT = [[90,120],[180,95],[260,110],[330,80],[420,100],[500,70],[590,95],[680,85],[770,110],[860,100],[920,140],[900,230],[880,320],[850,420],[800,520],[720,590],[620,610],[540,580],[470,600],[400,570],[330,540],[260,470],[200,400],[150,320],[110,230]];
+    const SEA = [[-200,-10],[1200,-10],[1200,150],[920,140],[860,100],[770,110],[680,85],[590,95],[500,70],[420,100],[330,80],[260,110],[180,95],[90,120],[-200,128]];
+    let s = 11; const r = () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+    const inside = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
+    const clip = (poly, a, b) => { const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, nx = b[0] - a[0], ny = b[1] - a[1], f = p => (p[0] - mx) * nx + (p[1] - my) * ny, out = []; for (let i = 0; i < poly.length; i++) { const P = poly[i], Q = poly[(i + 1) % poly.length], fp = f(P), fq = f(Q); if (fp <= 0) out.push(P); if ((fp <= 0) !== (fq <= 0)) { const t = fp / (fp - fq); out.push([P[0] + t * (Q[0] - P[0]), P[1] + t * (Q[1] - P[1])]); } } return out; };
+    const pd = pts => 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L') + 'Z';
+    const seeds = [];
+    for (let row = 0, y = 110; y <= 610; y += 50, row++) for (let x = 100; x <= 920; x += 56) { const p = [x + (row % 2 ? 28 : 0) + (r() - .5) * 36, y + (r() - .5) * 30]; if (inside(p, OUT)) seeds.push(p); }
+    const cells = seeds.map(sd => { let poly = OUT; seeds.forEach(o => { if (o !== sd && Math.hypot(o[0] - sd[0], o[1] - sd[1]) < 180) poly = clip(poly, sd, o); }); return { s: sd, poly }; }).filter(c => c.poly.length > 2);
+    const NAMES = {
+      Utara: ['Penjaringan','Pluit','Kapuk Muara','Kamal Muara','Pejagalan','Ancol','Pademangan Barat','Sunter Agung','Sunter Jaya','Papanggo','Tanjung Priok','Kebon Bawang','Warakas','Koja','Tugu Utara','Lagoa','Rawa Badak Utara','Kelapa Gading Barat','Pegangsaan Dua','Cilincing','Marunda','Semper Barat','Sukapura','Rorotan'],
+      Barat: ['Kamal','Tegal Alur','Cengkareng Barat','Cengkareng Timur','Kapuk','Duri Kosambi','Rawa Buaya','Kalideres','Semanan','Kembangan Utara','Meruya Selatan','Kedoya Selatan','Kebon Jeruk','Sukabumi Utara','Palmerah','Kota Bambu Utara','Jelambar','Grogol','Tambora','Jembatan Lima','Tanjung Duren Utara'],
+      Pusat: ['Gambir','Kebon Kelapa','Petojo Utara','Cideng','Tanah Abang','Kebon Melati','Bendungan Hilir','Menteng','Cikini','Kebon Sirih','Senen','Kramat','Paseban','Johar Baru','Kampung Rawa','Galur','Cempaka Putih Timur','Sumur Batu','Harapan Mulya','Serdang','Gunung Sahari Selatan'],
+      Selatan: ['Tebet Barat','Manggarai','Bukit Duri','Menteng Dalam','Setiabudi','Karet','Kuningan Timur','Mampang Prapatan','Pela Mampang','Kebayoran Lama Utara','Grogol Utara','Pesanggrahan','Bintaro','Cilandak Barat','Lebak Bulus','Pondok Labu','Pasar Minggu','Pejaten Timur','Jagakarsa','Ciganjur','Lenteng Agung','Srengseng Sawah','Pancoran','Kalibata','Duren Tiga','Cipete Utara','Gandaria Selatan','Petogogan'],
+      Timur: ['Kampung Melayu','Bidara Cina','Cipinang Besar Utara','Rawa Bunga','Cawang','Kayu Manis','Cipinang Besar Selatan','Pisangan Baru','Cipinang Cempedak','Cipinang Muara','Balimester','Palmeriam','Utan Kayu Utara','Utan Kayu Selatan','Pulo Gadung','Rawamangun','Jati','Kayu Putih','Klender','Duren Sawit','Pondok Bambu','Pondok Kopi','Malaka Sari','Cakung Barat','Penggilingan','Pulogebang','Ujung Menteng','Kramat Jati','Cililitan','Makasar','Halim Perdana Kusuma','Kebon Pala','Cipayung','Ciracas','Cibubur','Kelapa Dua Wetan','Pasar Rebo','Kalisari','Cijantung','Cipinang Melayu']
+    };
+    cells.forEach((c, i) => {
+      const [x, y] = c.s; c.id = i; c.d = pd(c.poly);
+      c.cx = c.poly.reduce((a, p) => a + p[0], 0) / c.poly.length; c.cy = c.poly.reduce((a, p) => a + p[1], 0) / c.poly.length;
+      c.kota = y < 175 ? 'Utara' : Math.hypot(x - 430, y - 270) < 105 ? 'Pusat' : x >= 560 ? 'Timur' : x < 330 ? 'Barat' : 'Selatan';
+      const hot = Math.exp(-((x - 470) ** 2 / (2 * 200 ** 2) + (y - 250) ** 2 / (2 * 170 ** 2)));
+      const ind = Math.exp(-((x - 800) ** 2 + (y - 230) ** 2) / (2 * 90 ** 2));
+      c.rand = r();
+      c.lst = 31.2 + 4.8 * hot + 1.4 * ind + (r() - .5) * 1.2;
+      c.hvi = Math.max(0.04, Math.min(0.84, ((c.lst - 30.5) / 6.6) * (0.55 + 0.45 * c.rand)));
+      c.veg = Math.max(3, Math.round(6 + (1 - hot) * 34 + c.rand * 8));
+      c.pop = Math.round(400 + c.hvi * 3600 + r() * 900);
+    });
+    const anchors = { Timur: [600, 300], Utara: [500, 130], Barat: [200, 300], Pusat: [430, 270], Selatan: [440, 450] };
+    Object.keys(anchors).forEach(k => {
+      const a = anchors[k];
+      cells.filter(c => c.kota === k).sort((p, q) => Math.hypot(p.s[0] - a[0], p.s[1] - a[1]) - Math.hypot(q.s[0] - a[0], q.s[1] - a[1])).forEach((c, j) => c.name = NAMES[k][j % NAMES[k].length]);
+    });
+    const top = cells.filter(c => c.kota === 'Timur').sort((p, q) => Math.hypot(p.s[0] - 600, p.s[1] - 300) - Math.hypot(q.s[0] - 600, q.s[1] - 300)).slice(0, 5);
+    top.forEach((c, j) => { const T = this.TOP[j]; c.name = T[0]; c.hvi = T[1]; c.lst = T[2]; c.pop = Math.round((T[3] + T[4]) / 1.4); c.veg = 6 + j; c.topRank = j + 1; });
+    return { cells, top: top.map(c => c.id), outline: pd(OUT), sea: pd(SEA) };
+  }
+
+  profile(c) {
+    const f1 = v => this.fmt(v), f2 = v => this.fmt(v, 2), sg = v => (v >= 0 ? '+' : '−') + this.fmt(Math.abs(v));
+    const KEC = ['Jatinegara', 'Jatinegara', 'Jatinegara', 'Jatinegara', 'Kramat Jati'], RK = [3, 4, 6, 8, 9];
+    const T = c.topRank ? this.TOP[c.topRank - 1] : null;
+    const lst = T ? T[2] : c.lst, hvi = T ? T[1] : c.hvi, anom = Math.round((lst - 34.3) * 10) / 10;
+    const balita = T ? T[3] : Math.round(c.pop * 0.36), lansia = T ? T[4] : Math.round(c.pop * 0.54);
+    const others = this.M.cells.filter(x => !x.topRank).sort((a, b) => b.hvi - a.hvi);
+    const rank = T ? RK[c.topRank - 1] : 12 + Math.round(others.indexOf(c) * 255 / Math.max(1, others.length - 1));
+    const cl = v => Math.max(0.02, Math.min(1, v));
+    let ex, se, ad, hz;
+    if (c.topRank === 1) { hz = 0.98; ex = 0.95; se = 0.93; ad = 0.97; }
+    else { ex = cl(0.3 + c.pop / 6000); se = cl(0.4 + 0.45 * c.rand); ad = cl(1 - c.veg / 55); hz = cl(hvi / (0.4 * ex + 0.3 * se + 0.3 * ad)); }
+    const comps = [
+      ['Bahaya', 'panas permukaan', hz, 'data', 'LST ternormalisasi 0–1 terhadap seluruh DKI. Landsat 8/9, 2023–2025.'],
+      ['Keterpaparan', 'kepadatan penduduk', ex, 'data', 'Kepadatan penduduk ternormalisasi. WorldPop 2020, 100 m.'],
+      ['Kepekaan', 'balita & lansia', se, 'data', 'Porsi usia <5 dan ≥65 tahun, ternormalisasi. WorldPop 2020.'],
+      ['Kurangnya kapasitas adaptif', '', ad, 'data', '1 − tutupan pohon dan RTH ternormalisasi. ESA WorldCover v200.']
+    ].map(([label, hint, v, kind, src]) => ({ label, hint, v: f2(v), w: Math.round(v * 100) + '%', kind, src }));
+    let sh;
+    if (c.topRank === 1) sh = [['Fraksi bangunan tinggi', 1.2], ['Tutupan pohon rendah', 0.8], ['Albedo atap rendah', 0.5], ['Kepadatan jalan', 0.4], ['Dekat badan air', -0.3]];
+    else sh = [['Fraksi bangunan tinggi', 0.2 + 0.9 * ad], ['Tutupan pohon rendah', 0.8 * ad - 0.15], ['Albedo atap rendah', 0.15 + 0.3 * c.rand], ['Kepadatan jalan', 0.1 + 0.25 * hz], ['Dekat badan air', -(0.1 + 0.3 * (1 - c.rand))]].map(([l, v]) => [l, Math.round(v * 10) / 10]);
+    const rest = Math.round((anom - sh.reduce((a, x) => a + x[1], 0)) * 10) / 10;
+    sh.push(['Faktor lain (gabungan)', rest]);
+    const MX = 1.6, AX = 20;
+    const shap = sh.map(([label, v], i) => {
+      const w = Math.min(i === sh.length - 1 ? 78 : 78, Math.abs(v) / MX * 78), wn = Math.min(AX, w);
+      return { label, v: sg(v), w: (v >= 0 ? w : wn) + '%', left: (v >= 0 ? AX : AX - wn) + '%',
+        color: i === sh.length - 1 ? '#CFC8BB' : (v >= 0 ? '#E0533D' : '#2B78A8'), labelColor: i === sh.length - 1 ? '#5E6662' : '#1C2321',
+        src: i === sh.length - 1 ? 'Sisa selisih yang tidak dijelaskan 5 faktor utama (jumlah SHAP faktor lain)' : 'Nilai SHAP, model LightGBM v1 (R² validasi silang spasial 0,78)' };
+    });
+    const pos = sh.slice(0, -1).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]);
+    const plain = c.topRank === 1
+      ? 'Kampung Melayu lebih panas terutama karena bangunannya rapat dan pohonnya sedikit. Sungai Ciliwung di dekatnya sedikit membantu mendinginkan.'
+      : c.name + ' lebih panas terutama karena ' + pos[0][0].toLowerCase() + ' dan ' + (pos[1] ? pos[1][0].toLowerCase() : 'faktor lain') + '.';
+    let land;
+    if (c.topRank === 1) land = [78, 6, 4, 12];
+    else { const tree = Math.max(3, Math.round(c.veg * 0.7)), water = 2 + Math.round(c.rand * 4), built = Math.min(86, 92 - c.veg - water); land = [built, tree, water, 100 - built - tree - water]; }
+    const LL = [['Bangunan', '#6F6A60', 'Google Open Buildings Temporal v1, 2023'], ['Pohon', '#5E9A6E', 'ESA WorldCover v200, kelas pohon'], ['Air', '#5FA3CB', 'ESA WorldCover v200, kelas badan air'], ['Lainnya', '#D5D0C6', 'Jalan, tanah terbuka, rumput. ESA WorldCover v200']];
+    return {
+      name: c.name, loc: T ? 'Kec. ' + KEC[c.topRank - 1] + ' · Kota Jakarta Timur' : 'Kota Jakarta ' + c.kota,
+      rank: rank + ' dari 267', isPriority: !!c.topRank, prioLabel: 'Prioritas #' + (c.topRank || 0) + ' Jakarta Timur',
+      lst: f1(lst), anom: sg(anom), hvi: f2(hvi), rentan: this.fint(balita + lansia), balita: this.fint(balita), lansia: this.fint(lansia),
+      comps, shap, plain,
+      land: land.map((v, i) => ({ label: LL[i][0], color: LL[i][1], src: LL[i][2], v: String(v), w: v + '%', align: i % 2 ? 'end' : 'start' }))
+    };
+  }
+
+  cls(c, L) {
+    if (L === 'lst') return [31, 32.5, 33.5, 34.5, 35.5, 36.5].filter(b => c.lst >= b).length;
+    if (L === 'hvi') return Math.min(4, Math.floor(c.hvi * 5));
+    if (L === 'veg') return Math.min(4, Math.floor(c.veg / 10));
+    return Math.min(4, Math.floor(c.pop / 1000));
+  }
+
+  renderVals() {
+    const h = React.createElement, s = this.state, M = this.M, P = this.P;
+    const lang = s.lang || this.props.lang || 'id', t = this.T[lang];
+    const L = s.layer || this.props.defaultLayer || 'hvi';
+    const hl = s.hl;
+    const halo = { paintOrder: 'stroke', stroke: '#FFFFFF', strokeWidth: 3.5, strokeLinejoin: 'round' };
+    const topCells = M.top.map(id => M.cells[id]);
+    const profId = s.profile === -1 ? (this.props.profileOpen === false ? null : M.top[0]) : s.profile;
+    const pc = profId != null ? M.cells[profId] : null;
+    const hov = s.hover != null ? M.cells[s.hover] : (s.rowHover != null ? topCells[s.rowHover] : null);
+
+    const mapSvg = h('svg', { viewBox: '0 0 1000 640', preserveAspectRatio: 'xMidYMid slice', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }, onMouseLeave: () => this.setState({ hover: null }) },
+      h('g', { transform: pc ? 'translate(-250,10)' : 'translate(-30,10)' },
+        h('path', { d: M.sea, fill: '#DFE6E4' }),
+        h('text', { x: 470, y: 42, fill: '#5E6662', fontSize: 13, fontStyle: 'italic', textAnchor: 'middle', letterSpacing: '.06em' }, 'Teluk Jakarta'),
+        M.cells.map(c => h('path', { key: c.id, d: c.d, fill: P[L][this.cls(c, L)], stroke: '#FFFFFF', strokeWidth: 0.9, strokeLinejoin: 'round', style: { cursor: 'pointer' }, onClick: () => this.setState({ profile: c.id }), onMouseEnter: () => this.setState({ hover: c.id }) })),
+        pc ? h('path', { d: pc.d, fill: 'none', stroke: '#1C2321', strokeWidth: 2.4, strokeDasharray: '5 3', strokeLinejoin: 'round', pointerEvents: 'none' }) : null,
+        h('path', { d: M.outline, fill: 'none', stroke: '#8A918D', strokeWidth: 1.2, pointerEvents: 'none' }),
+        hl ? topCells.map(c => h('path', { key: 'w' + c.id, d: c.d, fill: 'none', stroke: '#FFFFFF', strokeWidth: 6, strokeLinejoin: 'round', pointerEvents: 'none' })) : null,
+        hl ? topCells.map(c => h('path', { key: 'g' + c.id, d: c.d, fill: 'none', stroke: '#1F5C4A', strokeWidth: 3.4, strokeLinejoin: 'round', pointerEvents: 'none' })) : null,
+        hov ? h('path', { d: hov.d, fill: 'none', stroke: '#1C2321', strokeWidth: 1.6, pointerEvents: 'none' }) : null,
+        hl ? topCells.map((c, j) => h('g', { key: 'n' + c.id, pointerEvents: 'none' },
+          h('circle', { cx: c.cx, cy: c.cy, r: 11, fill: '#1F5C4A', stroke: '#FFFFFF', strokeWidth: 2 }),
+          h('text', { x: c.cx, y: c.cy + 4, fill: '#FFFFFF', fontSize: 11.5, fontWeight: 700, textAnchor: 'middle' }, String(j + 1)))) : null,
+        hl ? h('text', { x: topCells[0].cx - 16, y: topCells[0].cy + 4, textAnchor: 'end', fill: '#1C2321', fontSize: 12.5, fontWeight: 700, style: halo, pointerEvents: 'none' }, topCells[0].name) : null
+      )
+    );
+
+    const val = c => L === 'lst' ? this.fmt(c.lst) + ' °C' : L === 'hvi' ? 'HVI ' + this.fmt(c.hvi, 2) : L === 'veg' ? 'Vegetasi ' + c.veg + '%' : this.fint(c.pop) + ' jiwa/km²';
+    const hoverInfo = hov ? { name: hov.name, sub: hov.topRank ? 'Prioritas #' + hov.topRank : 'Jakarta ' + hov.kota, value: val(hov) } : null;
+
+    const LK = ['lst', 'hvi', 'veg', 'pop'], SW = ['#E0533D', '#6B4FA0', '#5E9A6E', '#6F6A60'];
+    const layers = LK.map((k, i) => ({ label: t.layers[i], swatch: SW[i], pressed: String(k === L), bg: k === L ? '#FFFFFF' : 'transparent', border: k === L ? '#1F5C4A' : 'transparent', color: k === L ? '#1F5C4A' : '#1C2321', weight: k === L ? 600 : 500, onClick: () => this.setState({ layer: k }) }));
+    const LG = {
+      lst: { title: 'Suhu permukaan tanah (LST), °C', sub: 'Median musim kemarau 2023–2025 · Landsat 8/9 · bukan suhu udara', ticks: ['30', '31', '32,5', '33,5', '34,5', '35,5', '36,5', '38'] },
+      hvi: { title: 'Indeks Kerentanan Panas (HVI), 0–1', sub: 'Bahaya × keterpaparan, kepekaan (balita & lansia), dan kurangnya pohon', ticks: ['0', '0,2', '0,4', '0,6', '0,8', '1'] },
+      veg: { title: 'Tutupan vegetasi, % luas kelurahan', sub: 'ESA WorldCover 10 m · pohon, semak, rumput', ticks: ['0', '10', '20', '30', '40', '50+'] },
+      pop: { title: 'Balita & lansia, jiwa per km²', sub: 'WorldPop 2020, 100 m · usia <5 dan ≥65 tahun', ticks: ['0', '1rb', '2rb', '3rb', '4rb', '5rb+'] }
+    };
+    const legend = Object.assign({ colors: P[L] }, LG[L]);
+    const mapTitle = ['Suhu permukaan per kelurahan', 'Kerentanan panas per kelurahan', 'Tutupan vegetasi per kelurahan', 'Sebaran penduduk rentan'][LK.indexOf(L)];
+
+    const topList = this.TOP.map((T, j) => ({
+      rank: j + 1, name: T[0], hvi: this.fmt(T[1], 2), lst: this.fmt(T[2]), rentan: this.fint(T[3] + T[4]),
+      rentanSrc: 'WorldPop 2020, 100 m: ' + this.fint(T[3]) + ' balita + ' + this.fint(T[4]) + ' lansia',
+      bg: s.rowHover === j ? '#F7F4EE' : 'transparent',
+      open: () => this.setState({ profile: M.top[j] }), enter: () => this.setState({ rowHover: j }), leave: () => this.setState({ rowHover: null })
+    }));
+
+    const sliderDef = [
+      { k: 'tree', label: 'Tambah kanopi pohon', max: 20, step: 1, unit: ' pp', plus: true, help: 'Poin persen lahan terbuka' },
+      { k: 'cool', label: 'Cool roof', max: 100, step: 5, unit: '%', help: 'Porsi atap dicat pemantul panas' },
+      { k: 'green', label: 'Green roof', max: 50, step: 5, unit: '%', help: 'Porsi atap beton datar' }
+    ];
+    const sliders = sliderDef.map(d => ({ label: d.label, max: d.max, step: d.step, value: s[d.k], help: d.help,
+      display: (d.plus && s[d.k] > 0 ? '+' : '') + s[d.k] + d.unit, valColor: s[d.k] > 0 ? '#1F5C4A' : '#5E6662',
+      onChange: e => this.setState({ [d.k]: Number(e.target.value) }) }));
+    const any = s.tree + s.cool + s.green > 0;
+
+    const ids = ['c1', 'c2', 'c3'];
+    const followups = ['Simulasikan cool roof di 2 teratas', 'Apa penyebab panas di Kampung Melayu?', 'Susun paket untuk Rp 2 miliar'].map(label => ({ label, onClick: () => this.setState({ draft: label }) }));
+
+    const prof = pc ? this.profile(pc) : null;
+    return {
+      prof, ovRight: pc ? '436px' : '16px', hoverLeft: pc ? 'calc((100% - 420px) / 2)' : '50%',
+      closeProfile: () => this.setState({ profile: null }),
+      askProfile: () => pc && this.setState({ draft: 'Jelaskan kondisi panas di Kelurahan ' + pc.name + ' dan intervensi yang paling cocok.' }),
+      t, layers, legend, mapSvg, mapTitle, hoverInfo, topList, sliders, followups,
+      steps: [{ label: 'Mencari wilayah “Jakarta Timur”', tool: 'find_area' }, { label: 'Menghitung indeks kerentanan', tool: 'rank_priority_areas' }, { label: 'Menganalisis faktor pendorong', tool: 'explain_drivers' }],
+      ch: Object.fromEntries(ids.map(id => [id, { open: s.chip === id, show: () => this.setState({ chip: id }) }])),
+      hideChip: () => this.setState({ chip: null }),
+      chatRef: this.chatRef,
+      highlightOn: hl, highlightStr: String(hl),
+      hlLabel: hl ? 'Tersorot di peta' : 'Sorot di peta', hlBg: hl ? '#EAF2EC' : '#FFFFFF', hlBorder: hl ? '#1F5C4A' : '#E3DED4',
+      toggleHighlight: () => this.setState({ hl: !hl }),
+      draft: s.draft, onDraft: e => this.setState({ draft: e.target.value }),
+      budget: s.budget, onBudget: e => { const d = e.target.value.replace(/\D/g, ''); this.setState({ budget: d ? Number(d).toLocaleString('id-ID') : '' }); },
+      simulate: () => this.setState({ draft: 'Simulasikan kanopi +' + s.tree + ' pp, cool roof ' + s.cool + '%, green roof ' + s.green + '% di 5 kelurahan prioritas' + (s.budget ? ' dengan anggaran Rp ' + s.budget : '') + '.' }),
+      simDisabled: !any, simBg: any ? '#1F5C4A' : '#E3DED4', simColor: any ? '#FFFFFF' : '#5E6662', simCursor: any ? 'pointer' : 'not-allowed',
+      setID: () => this.setState({ lang: 'id' }), setEN: () => this.setState({ lang: 'en' }),
+      idPressed: String(lang === 'id'), enPressed: String(lang === 'en'),
+      idBg: lang === 'id' ? '#1F5C4A' : 'transparent', idColor: lang === 'id' ? '#FFFFFF' : '#5E6662',
+      enBg: lang === 'en' ? '#1F5C4A' : 'transparent', enColor: lang === 'en' ? '#FFFFFF' : '#5E6662'
+    };
+  }
+}
+</script>
+</body>
+</html>

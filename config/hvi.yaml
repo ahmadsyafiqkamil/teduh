@@ -1,0 +1,32 @@
+# Heat Vulnerability Index weights (CONCEPT §7.4).
+#
+# IPCC risk framing: hazard x exposure x vulnerability. Every component is normalised to a
+# within-city percentile (0-1), so HVI = H * (wE*E + wS*S + wA*A) stays in [0, 1].
+#
+# The weights are a policy choice, not a measurement. They are editable from the UI, and
+# whatever the user picks gets recorded in the brief.
+
+weights:
+  wE:
+    value: 0.4
+    unit: "fraction"
+    source: "CONCEPT §7.4"
+    note: "Exposure: percentile of population density."
+  wS:
+    value: 0.3
+    unit: "fraction"
+    source: "CONCEPT §7.4"
+    note: "Sensitivity: percentile of (pop_u5 + pop_65p) / pop."
+  wA:
+    value: 0.3
+    unit: "fraction"
+    source: "CONCEPT §7.4"
+    note: "Lack of adaptive capacity: 1 - percentile of tree_frac."
+
+# Companion metric: headcount of pop_u5 + pop_65p living in cells at or above this hazard
+# percentile. Reported alongside HVI because a single index hides how many people are behind it.
+exposed_vulnerable:
+  hazard_percentile_min:
+    value: 0.8
+    unit: "percentile"
+    source: "CONCEPT §7.4"

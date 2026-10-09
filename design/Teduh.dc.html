@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#E7E3DA;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1C2321;-webkit-font-smoothing:antialiased}
+a{color:#1F5C4A}a:hover{color:#184A3C}
+button,input,textarea{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid #1F5C4A;outline-offset:2px}
+@keyframes teduhspin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+<section id="putaran-1" data-screen-label="Putaran 1" style="padding:56px 64px 120px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:8px; max-width:900px">
+    <div style="font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#5E6662">Putaran 1 · 7 Oktober 2026</div>
+    <h1 style="margin:0; font-size:28px; font-weight:700; letter-spacing:-.01em">TEDUH — tiga layar inti untuk demo</h1>
+    <p style="margin:0; font-size:15px; line-height:1.6; color:#5E6662; text-wrap:pretty">Ruang kerja perencana (peta, agen, skenario), draf policy brief dengan angka terverifikasi, dan Cek Atap untuk warga. Semua angka adalah data contoh. Arahkan kursor ke angka bergaris titik untuk melihat sumbernya; klik kelurahan di peta dan geser slider skenario.</p>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:56px; align-items:flex-start">
+
+    <div id="1a" style="display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; align-items:center; gap:10px">
+        <a href="#1a" style="display:inline-flex; align-items:center; justify-content:center; height:24px; padding:0 9px; border-radius:6px; background:#1C2321; color:#FFFFFF; font-size:12px; font-weight:700; text-decoration:none">1a</a>
+        <span style="font-size:15px; font-weight:600">Ruang kerja perencana</span>
+        <span style="font-size:13px; color:#5E6662">Desktop · 1440 × 900</span>
+      </div>
+      <div data-screen-label="1a Ruang kerja" style="width:1440px; height:900px; background:#F7F4EE; border:1px solid #D6D0C4; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; font-size:15px; box-shadow:0 1px 2px rgba(28,35,33,.06), 0 16px 40px rgba(28,35,33,.07)">
+
+        <header style="height:60px; flex:none; background:#FFFFFF; border-bottom:1px solid #E3DED4; display:flex; align-items:stretch; padding:0 20px; gap:32px">
+          <div style="display:flex; align-items:center; gap:10px">
+            <div style="width:32px; height:32px; border-radius:8px; background:#1F5C4A; color:#FFFFFF; display:flex; align-items:center; justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 19a4 4 0 0 1-2.24-7.32A3.5 3.5 0 0 1 9 6.03V6a3 3 0 1 1 6 0v.04a3.5 3.5 0 0 1 3.24 5.65A4 4 0 0 1 16 19Z"></path><path d="M12 19v3"></path></svg></div>
+            <div style="display:flex; flex-direction:column; line-height:1.2">
+              <span style="font-size:16px; font-weight:700; letter-spacing:.14em">TEDUH</span>
+              <span style="font-size:11.5px; color:#5E6662">DKI Jakarta · tingkat kelurahan</span>
+            </div>
+          </div>
+          <nav style="display:flex; align-items:stretch; gap:4px">
+            <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4">
+              <a href="{{ n.href }}" style="display:flex; align-items:center; padding:0 12px; font-size:14px; font-weight:{{ n.weight }}; color:{{ n.color }}; text-decoration:none; border-bottom:2px solid {{ n.border }}" style-hover="color:#1F5C4A">{{ n.label }}</a>
+            </sc-for>
+          </nav>
+          <div style="flex:1"></div>
+          <div style="display:flex; align-items:center; gap:12px">
+            <div role="group" aria-label="Bahasa" style="display:flex; padding:3px; border:1px solid #E3DED4; border-radius:10px; gap:2px">
+              <button onClick="{{ setID }}" style="height:30px; min-width:38px; border:none; border-radius:7px; background:{{ idBg }}; color:{{ idColor }}; font-size:12.5px; font-weight:700; cursor:pointer">ID</button>
+              <button onClick="{{ setEN }}" style="height:30px; min-width:38px; border:none; border-radius:7px; background:{{ enBg }}; color:{{ enColor }}; font-size:12.5px; font-weight:700; cursor:pointer">EN</button>
+            </div>
+            <button aria-label="Bantuan dan metodologi" style="width:38px; height:38px; border:1px solid #E3DED4; border-radius:10px; background:#FFFFFF; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#5E6662" style-hover="background:#F7F4EE"><svg width="17" height="17" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg></button>
+            <div style="display:flex; align-items:center; gap:8px; padding-left:4px">
+              <div style="width:32px; height:32px; border-radius:50%; border:1px solid #E3DED4; background:#F7F4EE; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#1F5C4A">BD</div>
+              <div style="display:flex; flex-direction:column; line-height:1.2"><span style="font-size:13px; font-weight:600">Bappeda DKI</span><span style="font-size:11.5px; color:#5E6662">Bidang Prasarana Wilayah</span></div>
+            </div>
+          </div>
+        </header>
+
+        <div style="flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 440px">
+          <div style="display:flex; flex-direction:column; min-width:0; min-height:0">
+            <div style="position:relative; flex:1; min-height:0; background:#EFEBE3; overflow:hidden">
+              {{ mapSvg }}
+
+              <div style="position:absolute; top:16px; left:16px; display:flex; gap:4px; padding:4px; background:#FFFFFF; border:1px solid #E3DED4; border-radius:12px; box-shadow:0 1px 2px rgba(28,35,33,.06)">
+                <sc-for list="{{ layers }}" as="l" hint-placeholder-count="3">
+                  <button onClick="{{ l.onClick }}" aria-pressed="{{ l.pressed }}" style="height:36px; padding:0 14px; border:none; border-radius:8px; background:{{ l.bg }}; color:{{ l.color }}; font-size:13.5px; font-weight:{{ l.weight }}; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:#F2EFE8"><span style="width:10px; height:10px; border-radius:3px; background:{{ l.swatch }}"></span>{{ l.label }}</button>
+                </sc-for>
+              </div>
+
+              <div style="position:absolute; top:16px; right:16px; display:flex; flex-direction:column; align-items:flex-end; gap:10px">
+                <span style="font-size:11.5px; font-weight:600; color:#5E6662; background:#FFFFFF; border:1px dashed #5E6662; border-radius:6px; white-space:nowrap; flex:none; padding:3px 8px">{{ t.sample }}</span>
+                <div style="display:flex; flex-direction:column; background:#FFFFFF; border:1px solid #E3DED4; border-radius:10px; overflow:hidden">
+                  <button aria-label="Perbesar" style="width:36px; height:36px; border:none; border-bottom:1px solid #E3DED4; background:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:#F7F4EE"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:#1C2321; stroke-width:2; stroke-linecap:round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button>
+                  <button aria-label="Perkecil" style="width:36px; height:36px; border:none; background:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:#F7F4EE"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:#1C2321; stroke-width:2; stroke-linecap:round"><path d="M5 12h14"></path></svg></button>
+                </div>
+              </div>
+
+              <sc-if value="{{ hoverInfo }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; top:16px; right:72px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:7px 12px; font-size:13px; display:flex; gap:10px; align-items:baseline; pointer-events:none"><span style="font-weight:600">{{ hoverInfo.name }}</span><span style="color:#C9CFCC">{{ hoverInfo.kota }}</span><span style="font-variant-numeric:tabular-nums; font-weight:600">{{ hoverInfo.value }}</span></div>
+              </sc-if>
+
+              <sc-if value="{{ profileOpen }}" hint-placeholder-val="{{ true }}">
+                <div style="position:absolute; top:68px; left:16px; width:300px; background:#FFFFFF; border:1px solid #E3DED4; border-radius:12px; box-shadow:0 1px 2px rgba(28,35,33,.06), 0 6px 16px rgba(28,35,33,.05); padding:16px; display:flex; flex-direction:column; gap:12px; z-index:5">
+                  <div style="display:flex; align-items:center; gap:8px">
+                    <span style="font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#5E6662; white-space:nowrap">Jakarta {{ p.kota }}</span>
+                    <div style="flex:1"></div>
+                    <span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; white-space:nowrap; flex:none; padding:1px 6px">{{ t.sample }}</span>
+                    <button onClick="{{ closeProfile }}" aria-label="Tutup profil" style="width:28px; height:28px; border:none; background:transparent; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#5E6662" style-hover="background:#F7F4EE"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+                  </div>
+                  <div style="font-size:20px; font-weight:700; letter-spacing:-.01em; margin-top:-6px">{{ p.name }}</div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px 14px">
+                    <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:12px; color:#5E6662">Suhu permukaan</span><span style="font-size:18px; font-weight:600"><dc-import name="SourceChip" value="{{ p.lst }}" unit="°C" kind="data" placement="bottom" align="start" source="Landsat 8/9 Collection 2, median musim kemarau (Jun–Sep) 2023–2025" style="display:inline-flex" hint-size="auto,22px"></dc-import></span></div>
+                    <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:12px; color:#5E6662">Selisih dari rata-rata kota</span><span style="font-size:18px; font-weight:600"><dc-import name="SourceChip" value="{{ p.anom }}" unit="°C" kind="data" placement="bottom" align="end" source="LST kelurahan dikurangi rata-rata LST DKI Jakarta (34,3 °C), Landsat 8/9 2023–2025" style="display:inline-flex" hint-size="auto,22px"></dc-import></span></div>
+                    <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:12px; color:#5E6662">Indeks kerentanan panas</span><span style="font-size:18px; font-weight:600"><dc-import name="SourceChip" value="{{ p.hvi }}" kind="model" placement="bottom" align="start" source="Indeks TEDUH: bahaya × (0,4 keterpaparan + 0,3 kepekaan + 0,3 kurangnya kapasitas adaptif)" style="display:inline-flex" hint-size="auto,22px"></dc-import></span></div>
+                    <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:12px; color:#5E6662">Peringkat di wilayah kota</span><span style="font-size:18px; font-weight:600; font-variant-numeric:tabular-nums">{{ p.rank }}</span></div>
+                  </div>
+                  <div style="height:1px; background:#E3DED4"></div>
+                  <div style="display:flex; flex-direction:column; gap:8px">
+                    <div style="display:flex; align-items:center; gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:#3F1F6B; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span style="font-size:13.5px; font-weight:600">Warga rentan</span><div style="flex:1"></div><span style="font-size:15px; font-weight:600"><dc-import name="SourceChip" value="{{ p.rentan }}" unit="jiwa" kind="data" align="end" source="WorldPop 2020, 100 m: jumlah usia di bawah 5 tahun dan 65 tahun ke atas" style="display:inline-flex" hint-size="auto,20px"></dc-import></span></div>
+                    <div style="display:flex; height:10px; border-radius:5px; overflow:hidden; background:#F2EEF7"><div style="width:{{ p.balitaPct }}; background:#6B4FA0"></div><div style="flex:1; background:#CBBFE0"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:12.5px; color:#5E6662; font-variant-numeric:tabular-nums"><span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:#6B4FA0"></span>Balita (&lt;5 th) {{ p.balita }}</span><span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:#CBBFE0"></span>Lansia (≥65 th) {{ p.lansia }}</span></div>
+                  </div>
+                  <div style="height:1px; background:#E3DED4"></div>
+                  <div style="display:flex; flex-direction:column; gap:8px">
+                    <div style="display:flex; align-items:center; gap:8px"><span style="font-size:13.5px; font-weight:600">Faktor pendorong panas</span><span style="font-size:11.5px; color:#5E6662">kontribusi model (SHAP)</span></div>
+                    <sc-for list="{{ p.drivers }}" as="dr" hint-placeholder-count="4">
+                      <div style="display:grid; grid-template-columns:128px minmax(0,1fr) 62px; align-items:center; gap:8px; font-size:12.5px">
+                        <span style="color:#1C2321">{{ dr.label }}</span>
+                        <div style="height:8px; background:#F7F4EE; border-radius:4px; overflow:hidden"><div style="height:100%; width:{{ dr.w }}; background:{{ dr.color }}; border-radius:4px"></div></div>
+                        <span style="text-align:right; font-weight:600; font-variant-numeric:tabular-nums">{{ dr.v }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <button onClick="{{ askAbout }}" style="height:38px; border:1px solid #E3DED4; border-radius:10px; background:#FFFFFF; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px" style-hover="background:#F7F4EE; border-color:#CFC8BB"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>Tanya agen tentang kelurahan ini</button>
+                </div>
+              </sc-if>
+
+              <div style="position:absolute; right:16px; bottom:30px; width:330px; background:#FFFFFF; border:1px solid #E3DED4; border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; box-shadow:0 1px 2px rgba(28,35,33,.06)">
+                <div style="display:flex; flex-direction:column; gap:2px">
+                  <span style="font-size:13px; font-weight:600">{{ legend.title }}</span>
+                  <span style="font-size:11.5px; color:#5E6662; line-height:1.4">{{ legend.sub }}</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:4px">
+                  <div style="display:flex; height:14px; border-radius:3px; overflow:hidden; border:1px solid #E3DED4">
+                    <sc-for list="{{ legend.colors }}" as="c" hint-placeholder-count="7"><div style="flex:1; background:{{ c }}"></div></sc-for>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:11px; color:#5E6662; font-variant-numeric:tabular-nums">
+                    <sc-for list="{{ legend.ticks }}" as="tk" hint-placeholder-count="8"><span>{{ tk }}</span></sc-for>
+                  </div>
+                </div>
+                <sc-if value="{{ legend.neutral }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; align-items:center; gap:8px; font-size:11.5px; color:#5E6662"><span style="width:14px; height:14px; border-radius:3px; background:#ECE8E1; border:1px solid #D6D0C4"></span>Tidak diintervensi dalam skenario</div>
+                </sc-if>
+              </div>
+              <div style="position:absolute; right:16px; bottom:8px; font-size:10.5px; color:#5E6662">© OpenFreeMap · © kontributor OpenStreetMap</div>
+            </div>
+
+            <div style="flex:none; height:200px; background:#FFFFFF; border-top:1px solid #E3DED4; padding:14px 20px 16px; display:flex; flex-direction:column; gap:12px">
+              <div style="display:flex; align-items:center; gap:10px">
+                <span style="font-size:15px; font-weight:600">{{ t.scenario }}</span>
+                <span style="font-size:13px; color:#5E6662">5 kelurahan prioritas · Jakarta Timur</span>
+                <span style="display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 9px; border:1px solid #8A918D; border-radius:999px; white-space:nowrap; flex:none; font-size:12px; font-weight:500; color:#5E6662"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>{{ t.indicative }}</span>
+                <div style="flex:1"></div>
+                <span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; white-space:nowrap; flex:none; padding:2px 7px">{{ t.sample }}</span>
+                <button onClick="{{ resetScenario }}" style="height:32px; padding:0 12px; border:1px solid #E3DED4; border-radius:8px; background:#FFFFFF; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; flex:none" style-hover="background:#F7F4EE">Atur ulang</button>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(3,minmax(0,0.8fr)) 1px minmax(0,2fr); gap:20px; align-items:start">
+                <div style="display:flex; flex-direction:column; gap:6px">
+                  <div style="display:flex; justify-content:space-between; gap:8px; font-size:13.5px"><span style="font-weight:600">Tambah kanopi pohon</span><span style="font-weight:600; color:#1F5C4A; font-variant-numeric:tabular-nums">{{ sc.treeLabel }}</span></div>
+                  <input type="range" min="0" max="20" step="1" value="{{ sc.tree }}" onChange="{{ onTree }}" aria-label="Tambah kanopi pohon" style="width:100%; accent-color:#1F5C4A; height:24px; margin:0">
+                  <span style="font-size:12px; color:#5E6662; line-height:1.4">Poin persen luas lahan terbuka (bukan bangunan atau air)</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px">
+                  <div style="display:flex; justify-content:space-between; gap:8px; font-size:13.5px"><span style="font-weight:600">Cat atap pemantul panas</span><span style="font-weight:600; color:#1F5C4A; font-variant-numeric:tabular-nums">{{ sc.coolLabel }}</span></div>
+                  <input type="range" min="0" max="100" step="5" value="{{ sc.cool }}" onChange="{{ onCool }}" aria-label="Cat atap pemantul panas" style="width:100%; accent-color:#1F5C4A; height:24px; margin:0">
+                  <span style="font-size:12px; color:#5E6662; line-height:1.4">Cool roof · porsi luas atap yang dicat</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px">
+                  <div style="display:flex; justify-content:space-between; gap:8px; font-size:13.5px"><span style="font-weight:600">Atap hijau</span><span style="font-weight:600; color:#1F5C4A; font-variant-numeric:tabular-nums">{{ sc.greenLabel }}</span></div>
+                  <input type="range" min="0" max="50" step="5" value="{{ sc.green }}" onChange="{{ onGreen }}" aria-label="Atap hijau" style="width:100%; accent-color:#1F5C4A; height:24px; margin:0">
+                  <span style="font-size:12px; color:#5E6662; line-height:1.4">Green roof · porsi atap beton datar</span>
+                </div>
+                <div style="align-self:stretch; background:#E3DED4"></div>
+                <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); gap:16px">
+                  <div style="display:flex; flex-direction:column; gap:4px">
+                    <span style="font-size:12px; color:#5E6662; line-height:1.35">Perubahan suhu permukaan</span>
+                    <span style="font-size:24px; font-weight:700; color:#1D5F8A; letter-spacing:-.01em"><dc-import name="SourceChip" value="{{ sc.dLabel }}" unit="°C" kind="model" source="Model LightGBM v1 (R² CV spasial 0,78), rata-rata tertimbang luas 5 kelurahan" style="display:inline-flex" hint-size="auto,30px"></dc-import></span>
+                    <span style="font-size:12px; color:#5E6662">Literatur: <dc-import name="SourceChip" value="−1,4 s.d. 0,1" unit="°C" kind="literatur" source="Miniandi et al. 2025, Kuala Lumpur: NDVI +25% → −1,4 s.d. 0,1 °C; albedo +25% → −1,2 s.d. 0,1 °C" style="display:inline-flex" hint-size="auto,18px"></dc-import></span>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:4px">
+                    <span style="font-size:12px; color:#5E6662; line-height:1.35">Warga rentan di area turun ≥ 0,5 °C</span>
+                    <span style="font-size:24px; font-weight:700; color:#3F1F6B; letter-spacing:-.01em"><dc-import name="SourceChip" value="{{ sc.protected }}" kind="model" source="Model LightGBM v1 + WorldPop 2020: balita dan lansia di sel dengan ΔLST ≤ −0,5 °C" style="display:inline-flex" hint-size="auto,30px"></dc-import></span>
+                    <span style="font-size:12px; color:#5E6662">dari {{ sc.totalRentan }} balita &amp; lansia</span>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:6px">
+                    <span style="font-size:12px; color:#5E6662; line-height:1.35">Perkiraan biaya</span>
+                    <span style="font-size:20px; font-weight:700"><dc-import name="SourceChip" value="{{ sc.cost }}" kind="asumsi" align="end" source="Harga satuan dari config/costs.yaml. Belum memakai HSPK/SSH DKI." style="display:inline-flex" hint-size="auto,26px"></dc-import></span>
+                    <div style="height:6px; background:#F2EFE8; border-radius:3px; overflow:hidden"><div style="height:100%; width:{{ sc.costPct }}; background:{{ sc.costColor }}"></div></div>
+                    <span style="font-size:12px; color:{{ sc.budgetColor }}; font-weight:{{ sc.budgetWeight }}">{{ sc.budgetNote }}</span>
+                  </div>
+                </div>
+              </div>
+              <sc-if value="{{ sc.extrap }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#1C2321; margin-top:-4px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none; stroke:#1C2321; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>Sebagian skenario di luar rentang data latih model. Perkiraan kurang andal.</div>
+              </sc-if>
+            </div>
+          </div>
+
+          <aside style="background:#FFFFFF; border-left:1px solid #E3DED4; display:flex; flex-direction:column; min-height:0">
+            <div style="height:56px; flex:none; border-bottom:1px solid #E3DED4; padding:0 20px; display:flex; align-items:center; gap:10px">
+              <div style="display:flex; flex-direction:column; line-height:1.25">
+                <span style="font-size:15px; font-weight:600">{{ t.agent }}</span>
+                <span style="font-size:12px; color:#5E6662">Gemini · setiap angka berasal dari tool, bukan karangan</span>
+              </div>
+              <div style="flex:1"></div>
+              <button aria-label="Percakapan baru" style="width:34px; height:34px; border:1px solid #E3DED4; border-radius:8px; background:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#5E6662" style-hover="background:#F7F4EE"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M12 20h9"></path><path d="M16.38 3.62a1 1 0 0 1 3 3L7.37 18.64a2 2 0 0 1-.85.5l-2.87.84a.5.5 0 0 1-.62-.62l.84-2.87a2 2 0 0 1 .5-.85z"></path></svg></button>
+            </div>
+
+            <div style="flex:1; min-height:0; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:18px">
+              <div style="align-self:flex-end; max-width:86%; background:#F7F4EE; border:1px solid #E3DED4; border-radius:12px 12px 4px 12px; padding:10px 14px; font-size:14px; line-height:1.5">Kelurahan mana di Jakarta Timur yang paling perlu diprioritaskan untuk penanganan panas?</div>
+
+              <div style="display:flex; flex-direction:column; gap:10px">
+                <div style="display:flex; align-items:center; gap:8px"><div style="width:22px; height:22px; border-radius:6px; background:#1F5C4A; color:#FFFFFF; display:flex; align-items:center; justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 19a4 4 0 0 1-2.24-7.32A3.5 3.5 0 0 1 9 6.03V6a3 3 0 1 1 6 0v.04a3.5 3.5 0 0 1 3.24 5.65A4 4 0 0 1 16 19Z"></path><path d="M12 19v3"></path></svg></div><span style="font-size:13px; font-weight:600">TEDUH</span></div>
+                <div style="border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:7px; background:#FBFAF7">
+                  <span style="font-size:11.5px; font-weight:600; color:#5E6662">3 langkah selesai · 4,2 detik</span>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:#1C2321"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M20 6 9 17l-5-5"></path></svg>Mencari wilayah “Jakarta Timur”<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">find_area</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:#1C2321"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M20 6 9 17l-5-5"></path></svg>Menghitung indeks kerentanan panas<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">rank_priority_areas</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:#1C2321"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M20 6 9 17l-5-5"></path></svg>Menjelaskan faktor pendorong<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">explain_drivers</span></div>
+                </div>
+                <p style="margin:0; font-size:14px; line-height:1.6; text-wrap:pretty">Lima kelurahan dengan kerentanan panas tertinggi berada di sekitar Jatinegara dan Matraman. Faktor utamanya adalah bangunan yang rapat dan tutupan pohon yang rendah. Di kelima kelurahan ini tinggal banyak balita dan lansia, jadi penanganan di sini paling berdampak bagi warga rentan.</p>
+                <div style="border:1px solid #E3DED4; border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:10px; box-shadow:0 1px 2px rgba(28,35,33,.05)">
+                  <div style="display:flex; align-items:center; gap:8px"><span style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#5E6662">Prioritas · Jakarta Timur</span><div style="flex:1"></div><span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; white-space:nowrap; flex:none; padding:1px 6px">{{ t.sample }}</span></div>
+                  <div style="font-size:15px; font-weight:600">5 kelurahan dengan kerentanan panas tertinggi</div>
+                  <div style="display:flex; flex-direction:column">
+                    <div style="display:grid; grid-template-columns:24px minmax(0,1fr) 58px 76px; gap:8px; font-size:11.5px; color:#5E6662; padding-bottom:6px; border-bottom:1px solid #E3DED4"><span></span><span>Kelurahan</span><span style="text-align:right">HVI</span><span style="text-align:right">Suhu perm.</span></div>
+                    <sc-for list="{{ topList }}" as="k" hint-placeholder-count="5">
+                      <div style="display:grid; grid-template-columns:24px minmax(0,1fr) 58px 76px; gap:8px; align-items:center; font-size:13.5px; padding:7px 0; border-bottom:1px solid #F0ECE4">
+                        <span style="width:20px; height:20px; border-radius:50%; background:#1C2321; color:#FFFFFF; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center">{{ k.rank }}</span>
+                        <span style="font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ k.name }}</span>
+                        <span style="text-align:right"><dc-import name="SourceChip" value="{{ k.hvi }}" kind="model" source="Indeks TEDUH (bobot default 0,4 / 0,3 / 0,3), data contoh" style="display:inline-flex" hint-size="auto,18px"></dc-import></span>
+                        <span style="display:flex; justify-content:flex-end; align-items:center; gap:6px"><span style="width:9px; height:9px; border-radius:2px; background:{{ k.swatch }}; border:1px solid rgba(28,35,33,.15)"></span><dc-import name="SourceChip" value="{{ k.lst }}" unit="°C" kind="data" align="end" source="Landsat 8/9, musim kemarau 2023–2025" style="display:inline-flex" hint-size="auto,18px"></dc-import></span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#3F1F6B; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span><dc-import name="SourceChip" value="18.420" kind="data" source="WorldPop 2020: jumlah balita dan lansia di 5 kelurahan" style="display:inline-flex" hint-size="auto,18px"></dc-import> balita dan lansia tinggal di kelima kelurahan ini</span></div>
+                  <button onClick="{{ hl1.onClick }}" style="align-self:flex-start; height:36px; padding:0 14px; border:1px solid {{ hl1.border }}; border-radius:10px; background:{{ hl1.bg }}; color:#1F5C4A; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; flex:none" style-hover="background:#EAF2EC"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>{{ hl1.label }}</button>
+                </div>
+              </div>
+
+              <div style="align-self:flex-end; max-width:86%; background:#F7F4EE; border:1px solid #E3DED4; border-radius:12px 12px 4px 12px; padding:10px 14px; font-size:14px; line-height:1.5">Kalau di dua teratas kita lakukan cool roof 50% dan tambah kanopi 10%, turun berapa?</div>
+
+              <div style="display:flex; flex-direction:column; gap:10px">
+                <div style="border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:7px; background:#FBFAF7">
+                  <span style="font-size:11.5px; font-weight:600; color:#5E6662">2 langkah selesai · 3,1 detik</span>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M20 6 9 17l-5-5"></path></svg>Menjalankan simulasi skenario<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">simulate_intervention</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M20 6 9 17l-5-5"></path></svg>Mengambil pembanding literatur<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">get_evidence</span></div>
+                </div>
+                <div style="border:1px solid #E3DED4; border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; box-shadow:0 1px 2px rgba(28,35,33,.05)">
+                  <div style="display:flex; align-items:center; gap:8px"><span style="font-size:15px; font-weight:600">Hasil simulasi</span><span style="display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 9px; border:1px solid #8A918D; border-radius:999px; white-space:nowrap; flex:none; font-size:12px; font-weight:500; color:#5E6662"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>Indikatif</span><div style="flex:1"></div><span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; white-space:nowrap; flex:none; padding:1px 6px">{{ t.sample }}</span></div>
+                  <span style="font-size:12.5px; color:#5E6662; margin-top:-6px">Kampung Melayu &amp; Bidara Cina · cool roof 50% + kanopi +10 pp</span>
+                  <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px">
+                    <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:11.5px; color:#5E6662; line-height:1.3">Perkiraan model</span><span style="font-size:19px; font-weight:700; color:#1D5F8A"><dc-import name="SourceChip" value="−0,8" unit="°C" kind="model" align="start" source="Model LightGBM v1, rata-rata ΔLST tertimbang luas" style="display:inline-flex" hint-size="auto,24px"></dc-import></span></div>
+                    <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:11.5px; color:#5E6662; line-height:1.3">Rentang literatur</span><span style="font-size:15px; font-weight:600; padding-top:2px"><dc-import name="SourceChip" value="−1,4 s.d. 0,1" unit="°C" kind="literatur" source="Miniandi et al. 2025, Kuala Lumpur (NDVI +25%)" style="display:inline-flex" hint-size="auto,22px"></dc-import></span></div>
+                    <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:11.5px; color:#5E6662; line-height:1.3">Warga rentan terdampak</span><span style="font-size:19px; font-weight:700; color:#3F1F6B"><dc-import name="SourceChip" value="4.120" kind="model" align="end" source="Balita dan lansia di sel dengan ΔLST ≤ −0,5 °C (model + WorldPop 2020)" style="display:inline-flex" hint-size="auto,24px"></dc-import></span></div>
+                  </div>
+                  <div style="display:flex; gap:8px; font-size:12.5px; color:#5E6662; line-height:1.45; background:#F7F4EE; border:1px solid #E3DED4; border-radius:8px; padding:8px 10px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2; stroke-linecap:round; flex:none; margin-top:2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><span>Ini suhu <b style="color:#1C2321; font-weight:600">permukaan</b> (atap, jalan, tanah), bukan suhu udara yang dirasakan warga. Pakai untuk penyaringan awal.</span></div>
+                  <button onClick="{{ hl2.onClick }}" style="align-self:flex-start; height:36px; padding:0 14px; border:1px solid {{ hl2.border }}; border-radius:10px; background:{{ hl2.bg }}; color:#1F5C4A; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; flex:none" style-hover="background:#EAF2EC"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>{{ hl2.label }}</button>
+                </div>
+              </div>
+
+              <div style="align-self:flex-end; max-width:86%; background:#F7F4EE; border:1px solid #E3DED4; border-radius:12px 12px 4px 12px; padding:10px 14px; font-size:14px; line-height:1.5">Anggaran kami Rp 2 miliar. Susun paketnya dan buatkan brief untuk Bappeda.</div>
+
+              <div style="display:flex; flex-direction:column; gap:10px">
+                <div style="border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:7px; background:#FBFAF7">
+                  <span style="font-size:11.5px; font-weight:600; color:#5E6662">{{ agent.header }}</span>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M20 6 9 17l-5-5"></path></svg>Menyusun portofolio dalam anggaran<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">optimize_portfolio</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; flex:none"><path d="M20 6 9 17l-5-5"></path></svg>Menulis draf brief<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">render_policy_brief</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:{{ agent.lastColor }}">{{ agent.lastIcon }}{{ agent.lastLabel }}<span style="margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#5E6662">provenance_check</span></div>
+                </div>
+                <sc-if value="{{ agent.done }}" hint-placeholder-val="{{ true }}">
+                  <div style="border:1px solid #E3DED4; border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; box-shadow:0 1px 2px rgba(28,35,33,.05)">
+                    <div style="display:flex; align-items:center; gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:#1F5C4A; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg><span style="font-size:15px; font-weight:600">Draf policy brief siap</span><div style="flex:1"></div><span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; white-space:nowrap; flex:none; padding:1px 6px">{{ t.sample }}</span></div>
+                    <span style="display:inline-flex; align-self:flex-start; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:999px; background:#1F5C4A; color:#FFFFFF; font-size:12.5px; font-weight:600"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.8; stroke-linecap:round; stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>23 angka terverifikasi</span>
+                    <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px">
+                      <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:11.5px; color:#5E6662">Paket intervensi</span><span style="font-size:19px; font-weight:700"><dc-import name="SourceChip" value="7" kind="model" align="start" source="Solver OR-Tools CP-SAT: kelurahan × intervensi × level" style="display:inline-flex" hint-size="auto,24px"></dc-import></span></div>
+                      <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:11.5px; color:#5E6662">Total biaya</span><span style="font-size:19px; font-weight:700"><dc-import name="SourceChip" value="Rp 1,96 M" kind="asumsi" source="Harga satuan config/costs.yaml (ASUMSI). Plafon Rp 2 M dari pengguna." style="display:inline-flex" hint-size="auto,24px"></dc-import></span></div>
+                      <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:11.5px; color:#5E6662; line-height:1.3">Ke kelurahan paling rentan</span><span style="font-size:19px; font-weight:700"><dc-import name="SourceChip" value="84" unit="%" kind="model" align="end" source="Porsi anggaran untuk kuintil HVI teratas. Syarat minimal 60% (kendala keadilan)." style="display:inline-flex" hint-size="auto,24px"></dc-import></span></div>
+                    </div>
+                    <div style="display:flex; gap:8px">
+                      <a href="#1b" style="height:38px; padding:0 16px; border-radius:10px; background:#1F5C4A; color:#FFFFFF; font-size:13.5px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:#184A3C; color:#FFFFFF">Buka brief</a>
+                      <button style="height:38px; padding:0 14px; border:1px solid #E3DED4; border-radius:10px; background:#FFFFFF; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; flex:none" style-hover="background:#F7F4EE"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>Unduh PDF</button>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+
+            <div style="flex:none; border-top:1px solid #E3DED4; padding:12px 16px 14px; display:flex; flex-direction:column; gap:8px">
+              <div style="border:1px solid #E3DED4; border-radius:12px; padding:10px 10px 8px 14px; display:flex; flex-direction:column; gap:6px" style-focus-within="border-color:#1F5C4A">
+                <textarea value="{{ draft }}" onChange="{{ onDraft }}" rows="2" placeholder="{{ t.placeholder }}" aria-label="Pertanyaan untuk agen" style="border:none; outline:none; resize:none; font-size:14px; line-height:1.5; background:transparent; padding:0"></textarea>
+                <div style="display:flex; align-items:center; gap:6px">
+                  <button aria-label="Lampirkan foto atap" style="width:34px; height:34px; border:none; border-radius:8px; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#5E6662" style-hover="background:#F7F4EE"><svg width="17" height="17" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button>
+                  <span style="font-size:12px; color:#5E6662">Bobot HVI: default 0,4 / 0,3 / 0,3</span>
+                  <div style="flex:1"></div>
+                  <button aria-label="Kirim" style="width:36px; height:36px; border:none; border-radius:10px; background:#1F5C4A; color:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:#184A3C"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg></button>
+                </div>
+              </div>
+              <span style="font-size:11.5px; color:#5E6662; text-align:center">Hasil adalah draf. Periksa kembali sebelum dipakai dalam dokumen resmi.</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <div id="1b" style="display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; align-items:center; gap:10px">
+        <a href="#1b" style="display:inline-flex; align-items:center; justify-content:center; height:24px; padding:0 9px; border-radius:6px; background:#1C2321; color:#FFFFFF; font-size:12px; font-weight:700; text-decoration:none">1b</a>
+        <span style="font-size:15px; font-weight:600">Draf policy brief</span>
+        <span style="font-size:13px; color:#5E6662">Desktop · 1040 lebar</span>
+      </div>
+      <div data-screen-label="1b Policy brief" style="width:1040px; background:#F7F4EE; border:1px solid #D6D0C4; border-radius:12px; overflow:hidden; font-size:15px; box-shadow:0 1px 2px rgba(28,35,33,.06), 0 16px 40px rgba(28,35,33,.07)">
+        <div style="height:64px; background:#FFFFFF; border-bottom:1px solid #E3DED4; display:flex; align-items:center; gap:14px; padding:0 20px">
+          <a href="#1a" style="height:36px; padding:0 12px 0 8px; border-radius:8px; display:flex; align-items:center; gap:6px; font-size:13.5px; font-weight:600; text-decoration:none; color:#1C2321" style-hover="background:#F7F4EE; color:#1C2321"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="m15 18-6-6 6-6"></path></svg>Kembali ke peta</a>
+          <div style="width:1px; height:24px; background:#E3DED4"></div>
+          <span style="font-size:15px; font-weight:600">Draf policy brief</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 11px; border-radius:999px; background:#1F5C4A; color:#FFFFFF; font-size:12.5px; font-weight:600"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.8; stroke-linecap:round; stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>Semua angka terverifikasi · 23 fakta</span>
+          <div style="flex:1"></div>
+          <button style="height:38px; padding:0 14px; border:1px solid #E3DED4; border-radius:10px; background:#FFFFFF; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; flex:none" style-hover="background:#F7F4EE"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>Salin ringkasan</button>
+          <button style="height:38px; padding:0 16px; border:1px solid #1F5C4A; border-radius:10px; background:#1F5C4A; color:#FFFFFF; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; flex:none" style-hover="background:#184A3C"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>Unduh PDF</button>
+        </div>
+        <div style="padding:40px 0 56px; display:flex; justify-content:center">
+          <article style="width:780px; background:#FFFFFF; border:1px solid #E3DED4; border-radius:12px; padding:56px 64px 48px; display:flex; flex-direction:column; gap:28px; box-shadow:0 1px 2px rgba(28,35,33,.05); line-height:1.65">
+            <div style="display:flex; flex-direction:column; gap:12px">
+              <div style="display:flex; align-items:center; gap:10px"><span style="font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#5E6662">Draf · Untuk Bappeda Provinsi DKI Jakarta</span><div style="flex:1"></div><span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; white-space:nowrap; flex:none; padding:1px 7px">Data contoh</span></div>
+              <h2 style="margin:0; font-size:27px; line-height:1.25; font-weight:700; letter-spacing:-.015em; text-wrap:balance">Penanganan Panas Perkotaan di Lima Kelurahan Prioritas Jakarta Timur</h2>
+              <div style="display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:#5E6662"><span>Disusun oleh Agen TEDUH, 7 Oktober 2026</span><span>Peninjau: belum ditetapkan</span><span>Versi data: grid_features v1 · model lgbm v1</span></div>
+            </div>
+            <div style="display:flex; gap:10px; font-size:13.5px; line-height:1.55; background:#F7F4EE; border:1px solid #E3DED4; border-radius:10px; padding:12px 14px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none; stroke:#1C2321; stroke-width:2; stroke-linecap:round; flex:none; margin-top:2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><span>Brief ini memakai <b style="font-weight:600">suhu permukaan tanah (LST)</b> dari citra satelit, bukan suhu udara. Hasil simulasi bersifat <b style="font-weight:600">indikatif</b> untuk penyaringan awal dan perlu dikaji lanjut sebelum dianggarkan. Biaya satuan masih <b style="font-weight:600">asumsi</b>.</span></div>
+
+            <div style="display:flex; flex-direction:column; gap:10px">
+              <h3 style="margin:0; font-size:17px; font-weight:700">1. Ringkasan eksekutif</h3>
+              <p style="margin:0; text-wrap:pretty">Lima kelurahan di Jakarta Timur memiliki indeks kerentanan panas tertinggi di wilayahnya, dengan suhu permukaan rata-rata <span tabIndex="0" onMouseEnter="{{ ch.c1.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c1.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">36,9 °C<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c1.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Data satelit</span><span>Landsat 8/9, median musim kemarau 2023–2025, rata-rata 5 kelurahan</span></span></sc-if></span>, atau <span tabIndex="0" onMouseEnter="{{ ch.c2.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c2.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">+2,6 °C<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c2.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Data satelit</span><span>Selisih terhadap rata-rata DKI Jakarta (34,3 °C)</span></span></sc-if></span> di atas rata-rata kota. Di wilayah ini tinggal <span tabIndex="0" onMouseEnter="{{ ch.c3.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c3.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">18.420<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c3.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Data satelit</span><span>WorldPop 2020: penduduk usia di bawah 5 dan 65 tahun ke atas</span></span></sc-if></span> balita dan lansia, kelompok yang paling berisiko saat panas ekstrem.</p>
+              <p style="margin:0; text-wrap:pretty">Dengan anggaran <span tabIndex="0" onMouseEnter="{{ ch.c4.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c4.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dashed #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">Rp 1,96 M<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c4.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#E3DED4">ASUMSI · dapat diedit</span><span>Harga satuan config/costs.yaml (ASUMSI)</span></span></sc-if></span> dari plafon <span tabIndex="0" onMouseEnter="{{ ch.c5.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c5.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dashed #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">Rp 2 M<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c5.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Masukan pengguna</span><span>Plafon anggaran yang dimasukkan pengguna dalam percakapan</span></span></sc-if></span>, paket kanopi pohon dan cat atap pemantul panas diperkirakan menurunkan suhu permukaan rata-rata <span tabIndex="0" onMouseEnter="{{ ch.c6.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c6.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">−0,8 °C<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c6.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Model & perhitungan TEDUH</span><span>Model LightGBM v1, rata-rata tertimbang luas</span></span></sc-if></span>. Literatur untuk intervensi serupa menyebut rentang <span tabIndex="0" onMouseEnter="{{ ch.c7.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c7.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">−1,4 s.d. 0,1 °C<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c7.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Literatur</span><span>Miniandi et al. 2025, Kuala Lumpur</span></span></sc-if></span>. Sebanyak <span tabIndex="0" onMouseEnter="{{ ch.c8.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c8.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">84%<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c8.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Model & perhitungan TEDUH</span><span>Porsi anggaran ke kuintil HVI teratas (hasil solver)</span></span></sc-if></span> anggaran diarahkan ke kelurahan paling rentan.</p>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px">
+              <h3 style="margin:0; font-size:17px; font-weight:700">2. Kondisi panas dan kelompok rentan</h3>
+              <div style="border:1px solid #E3DED4; border-radius:10px; overflow:visible">
+                <div style="display:grid; grid-template-columns:minmax(0,1.6fr) 1fr 0.7fr 0.8fr 0.8fr; gap:12px; padding:10px 14px; font-size:12px; font-weight:600; color:#5E6662; border-bottom:1px solid #E3DED4; background:#FBFAF7; border-radius:10px 10px 0 0"><span>Kelurahan</span><span style="text-align:right">Suhu permukaan</span><span style="text-align:right">HVI</span><span style="text-align:right">Balita</span><span style="text-align:right">Lansia</span></div>
+                <sc-for list="{{ briefRows }}" as="b" hint-placeholder-count="5">
+                  <div style="display:grid; grid-template-columns:minmax(0,1.6fr) 1fr 0.7fr 0.8fr 0.8fr; gap:12px; padding:9px 14px; font-size:14px; border-bottom:1px solid #F0ECE4; line-height:1.4">
+                    <span style="font-weight:500">{{ b.name }}</span>
+                    <span style="display:flex; justify-content:flex-end; align-items:center; gap:6px"><span style="width:9px; height:9px; border-radius:2px; background:{{ b.swatch }}; border:1px solid rgba(28,35,33,.15)"></span><dc-import name="SourceChip" value="{{ b.lst }}" unit="°C" kind="data" source="Landsat 8/9, musim kemarau 2023–2025" style="display:inline-flex" hint-size="auto,20px"></dc-import></span>
+                    <span style="text-align:right"><dc-import name="SourceChip" value="{{ b.hvi }}" kind="model" source="Indeks TEDUH, bobot default" style="display:inline-flex" hint-size="auto,20px"></dc-import></span>
+                    <span style="text-align:right"><dc-import name="SourceChip" value="{{ b.balita }}" kind="data" source="WorldPop 2020, usia di bawah 5 tahun" style="display:inline-flex" hint-size="auto,20px"></dc-import></span>
+                    <span style="text-align:right"><dc-import name="SourceChip" value="{{ b.lansia }}" kind="data" align="end" source="WorldPop 2020, usia 65 tahun ke atas" style="display:inline-flex" hint-size="auto,20px"></dc-import></span>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="margin:0; font-size:14px; color:#5E6662; text-wrap:pretty">Faktor pendorong utama menurut model adalah bangunan yang rapat dan tutupan pohon yang rendah. Keduanya dapat diubah lewat kebijakan tata ruang, sehingga relevan untuk RDTR.</p>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px">
+              <h3 style="margin:0; font-size:17px; font-weight:700">3. Opsi intervensi dan perkiraan dampak</h3>
+              <div style="border:1px solid #E3DED4; border-radius:10px">
+                <div style="display:grid; grid-template-columns:minmax(0,1.4fr) 1fr 1.1fr minmax(0,1.5fr); gap:12px; padding:10px 14px; font-size:12px; font-weight:600; color:#5E6662; border-bottom:1px solid #E3DED4; background:#FBFAF7; border-radius:10px 10px 0 0"><span>Intervensi</span><span style="text-align:right">Perkiraan model</span><span style="text-align:right">Rentang literatur</span><span>Catatan</span></div>
+                <div style="display:grid; grid-template-columns:minmax(0,1.4fr) 1fr 1.1fr minmax(0,1.5fr); gap:12px; padding:10px 14px; font-size:14px; border-bottom:1px solid #F0ECE4; line-height:1.45"><span style="font-weight:500">Kanopi pohon +10 pp</span><span style="text-align:right"><dc-import name="SourceChip" value="−0,4" unit="°C" kind="model" source="Model LightGBM v1" style="display:inline-flex" hint-size="auto,20px"></dc-import></span><span style="text-align:right"><dc-import name="SourceChip" value="−1,4 s.d. 0,1" unit="°C" kind="literatur" source="Miniandi et al. 2025, NDVI +25%" style="display:inline-flex" hint-size="auto,20px"></dc-import></span><span style="font-size:13px; color:#5E6662">Pilih spesies lokal seperti angsana dan trembesi; jaga keragaman spesies.</span></div>
+                <div style="display:grid; grid-template-columns:minmax(0,1.4fr) 1fr 1.1fr minmax(0,1.5fr); gap:12px; padding:10px 14px; font-size:14px; border-bottom:1px solid #F0ECE4; line-height:1.45"><span style="font-weight:500">Cat atap pemantul panas 50%</span><span style="text-align:right"><dc-import name="SourceChip" value="−0,4" unit="°C" kind="model" source="Model LightGBM v1" style="display:inline-flex" hint-size="auto,20px"></dc-import></span><span style="text-align:right"><dc-import name="SourceChip" value="−1,2 s.d. 0,1" unit="°C" kind="literatur" source="Miniandi et al. 2025, albedo +25%" style="display:inline-flex" hint-size="auto,20px"></dc-import></span><span style="font-size:13px; color:#5E6662">Cocok untuk atap genteng dan seng. Daya pantul turun karena debu, perlu perawatan.</span></div>
+                <div style="display:grid; grid-template-columns:minmax(0,1.4fr) 1fr 1.1fr minmax(0,1.5fr); gap:12px; padding:10px 14px; font-size:14px; line-height:1.45"><span style="font-weight:500; color:#5E6662">Atap hijau</span><span style="text-align:right; color:#5E6662">Tidak dipilih</span><span style="text-align:right; color:#5E6662">—</span><span style="font-size:13px; color:#5E6662">Porsi atap beton datar kecil; butuh cek struktur.</span></div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px">
+              <h3 style="margin:0; font-size:17px; font-weight:700">4. Rekomendasi portofolio dan anggaran</h3>
+              <div style="border:1px solid #E3DED4; border-radius:10px">
+                <div style="display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) 0.9fr 0.9fr; gap:12px; padding:10px 14px; font-size:12px; font-weight:600; color:#5E6662; border-bottom:1px solid #E3DED4; background:#FBFAF7; border-radius:10px 10px 0 0"><span>Kelurahan</span><span>Paket</span><span style="text-align:right">Biaya (asumsi)</span><span style="text-align:right">Warga rentan</span></div>
+                <sc-for list="{{ portfolio }}" as="q" hint-placeholder-count="7">
+                  <div style="display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) 0.9fr 0.9fr; gap:12px; padding:8px 14px; font-size:14px; border-bottom:1px solid #F0ECE4; line-height:1.4">
+                    <span style="font-weight:500">{{ q.name }}</span><span style="color:#1C2321">{{ q.pkg }}</span>
+                    <span style="text-align:right"><dc-import name="SourceChip" value="{{ q.cost }}" kind="asumsi" source="Luas intervensi × harga satuan config/costs.yaml" style="display:inline-flex" hint-size="auto,20px"></dc-import></span>
+                    <span style="text-align:right"><dc-import name="SourceChip" value="{{ q.rentan }}" kind="model" align="end" source="Balita dan lansia di sel dengan ΔLST ≤ −0,5 °C" style="display:inline-flex" hint-size="auto,20px"></dc-import></span>
+                  </div>
+                </sc-for>
+                <div style="display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) 0.9fr 0.9fr; gap:12px; padding:10px 14px; font-size:14px; font-weight:700"><span>Total</span><span style="font-weight:500; color:#5E6662">7 paket · 84% ke kuintil HVI teratas</span><span style="text-align:right">Rp 1,96 M</span><span style="text-align:right; font-variant-numeric:tabular-nums">11.070</span></div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px">
+              <h3 style="margin:0; font-size:17px; font-weight:700">5. Keterkaitan dengan dokumen perencanaan</h3>
+              <ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:4px; text-wrap:pretty">
+                <li>RDTR: usulan ketentuan koefisien dasar hijau di zona perumahan padat pada kelima kelurahan.</li>
+                <li>RPJMD: dapat masuk program adaptasi perubahan iklim dan peningkatan RTH menuju target 30%.</li>
+                <li>Musrenbang kelurahan: paket kanopi dan cat atap dapat diusulkan sebagai kegiatan padat karya.</li>
+              </ul>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px">
+              <h3 style="margin:0; font-size:17px; font-weight:700">6. Keterbatasan</h3>
+              <ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:4px; text-wrap:pretty">
+                <li>Model memprediksi suhu permukaan, bukan suhu udara di tingkat pejalan kaki.</li>
+                <li>Hubungan dalam model bersifat korelasional; simulasi tidak menggantikan kajian ENVI-met atau CFD.</li>
+                <li>Harga satuan belum memakai HSPK/SSH DKI dan perlu dikonfirmasi.</li>
+              </ul>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid #E3DED4; padding-top:20px">
+              <h3 style="margin:0; font-size:15px; font-weight:700">Sumber</h3>
+              <ol style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:3px; font-size:13px; color:#5E6662; line-height:1.55">
+                <li>USGS Landsat 8/9 Collection 2 Level-2, musim kemarau 2023–2025.</li>
+                <li>WorldPop, populasi per umur dan jenis kelamin, 100 m, 2020.</li>
+                <li>ESA WorldCover v200; Google Open Buildings Temporal v1.</li>
+                <li>Miniandi et al. (2025). Machine Learning in Modeling Urban Heat Islands: Kuala Lumpur.</li>
+                <li>Model TEDUH lgbm v1, validasi silang spasial; lihat model card.</li>
+                <li>ASUMSI: harga satuan intervensi, config/costs.yaml.</li>
+              </ol>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#1F5C4A; font-weight:600"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>Pemeriksaan asal-usul angka: 23 dari 23 angka memiliki sumber. Tahun dan nomor bagian dikecualikan.</div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div id="1c" style="display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; align-items:center; gap:10px">
+        <a href="#1c" style="display:inline-flex; align-items:center; justify-content:center; height:24px; padding:0 9px; border-radius:6px; background:#1C2321; color:#FFFFFF; font-size:12px; font-weight:700; text-decoration:none">1c</a>
+        <span style="font-size:15px; font-weight:600">Cek Atap untuk warga</span>
+        <span style="font-size:13px; color:#5E6662">Ponsel · 390 × 844</span>
+      </div>
+      <div data-screen-label="1c Cek Atap" style="width:390px; height:844px; background:#F7F4EE; border:10px solid #1C2321; border-radius:44px; overflow:hidden; display:flex; flex-direction:column; font-size:16px; box-shadow:0 16px 40px rgba(28,35,33,.12)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 24px; font-size:14px; font-weight:600; background:#FFFFFF"><span style="font-variant-numeric:tabular-nums">13.42</span><span style="width:16px; height:10px; border:1.5px solid #1C2321; border-radius:3px"></span></div>
+        <div style="height:56px; flex:none; background:#FFFFFF; border-bottom:1px solid #E3DED4; display:flex; align-items:center; gap:8px; padding:0 8px 0 4px">
+          <button aria-label="Kembali" style="width:44px; height:44px; border:none; background:transparent; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none; stroke:#1C2321; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="m15 18-6-6 6-6"></path></svg></button>
+          <div style="display:flex; flex-direction:column; line-height:1.2"><span style="font-size:16px; font-weight:700">Cek Atap</span><span style="font-size:12px; color:#5E6662">Saran mendinginkan rumah</span></div>
+          <div style="flex:1"></div>
+          <span style="font-size:11px; font-weight:600; color:#5E6662; border:1px dashed #5E6662; border-radius:6px; white-space:nowrap; flex:none; padding:2px 6px">Data contoh</span>
+        </div>
+        <div style="flex:1; min-height:0; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px">
+          <div style="position:relative; height:188px; border-radius:12px; border:1px solid #E3DED4; overflow:hidden; background:repeating-linear-gradient(135deg,#EAE5DB 0 10px,#E2DCD0 10px 20px); display:flex; align-items:center; justify-content:center">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; color:#5E6662; font-size:13px"><svg width="26" height="26" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>Foto atap yang diunggah</div>
+            <span style="position:absolute; left:10px; bottom:10px; font-size:12px; font-weight:600; background:#FFFFFF; border:1px solid #E3DED4; border-radius:6px; padding:3px 8px">Kel. Kampung Melayu</span>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #E3DED4; border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:10px">
+            <div style="display:flex; align-items:center; gap:8px"><span style="font-size:15px; font-weight:700">Yang terlihat di foto</span><div style="flex:1"></div><span style="font-size:13px; color:#5E6662">Keyakinan <dc-import name="SourceChip" value="0,82" kind="model" align="end" source="Gemini vision, keluaran terstruktur. Di bawah 0,6 diminta foto ulang." style="display:inline-flex" hint-size="auto,20px"></dc-import></span></div>
+            <div style="display:grid; grid-template-columns:auto 1fr; gap:8px 16px; font-size:14.5px; line-height:1.4">
+              <span style="color:#5E6662">Bentuk atap</span><span style="font-weight:600">Miring</span>
+              <span style="color:#5E6662">Bahan</span><span style="font-weight:600">Genteng tanah liat</span>
+              <span style="color:#5E6662">Warna</span><span style="font-weight:600">Gelap</span>
+              <span style="color:#5E6662">Peneduh pohon</span><span style="font-weight:600">Sebagian</span>
+            </div>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #1F5C4A; border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:10px">
+            <div style="display:flex; align-items:center; gap:8px"><span style="font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#1F5C4A">Saran utama</span><div style="flex:1"></div><span style="display:inline-flex; align-items:center; gap:5px; height:24px; padding:0 9px; border:1px solid #8A918D; border-radius:999px; white-space:nowrap; flex:none; font-size:12px; font-weight:500; color:#5E6662"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>Indikatif</span></div>
+            <span style="font-size:19px; font-weight:700; line-height:1.3">Cat atap pemantul panas (cool roof)</span>
+            <p style="margin:0; font-size:15px; line-height:1.55; text-wrap:pretty">Atap genteng berwarna gelap menyerap banyak panas. Cat berwarna terang yang memantulkan sinar matahari cocok untuk atap miring seperti milik Anda.</p>
+            <div style="display:flex; flex-direction:column; gap:4px; background:#F7F4EE; border:1px solid #E3DED4; border-radius:10px; padding:10px 12px; font-size:14px; line-height:1.5">
+              <span style="color:#5E6662; font-size:12.5px">Dari studi atap tropis di Indonesia</span>
+              <span>Suhu permukaan atap turun hingga <span tabIndex="0" onMouseEnter="{{ ch.c9.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c9.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">11,58 °C<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c9.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Literatur</span><span>Studi cool roof vs green roof di daerah tropis Indonesia, Journal UII</span></span></sc-if></span>; hemat energi pendingin <span tabIndex="0" onMouseEnter="{{ ch.c10.show }}" onMouseLeave="{{ hideChip }}" onFocus="{{ ch.c10.show }}" onBlur="{{ hideChip }}" style="position:relative; display:inline; cursor:help; border-bottom:1px dotted #5E6662; font-variant-numeric:tabular-nums; white-space:nowrap; border-radius:2px">36–55%<svg width="11" height="11" viewBox="0 0 24 24" style="fill:none; stroke:#5E6662; stroke-width:2.2; stroke-linecap:round; margin-left:3px; vertical-align:-1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><sc-if value="{{ ch.c10.open }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute; right:0; bottom:calc(100% + 8px); width:240px; background:#1C2321; color:#FFFFFF; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:400; line-height:1.45; white-space:normal; text-align:left; z-index:80; box-shadow:0 8px 24px rgba(28,35,33,.18); display:flex; flex-direction:column; gap:4px; pointer-events:none"><span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:#8BB59A">Sumber · Literatur</span><span>Journal UII, studi atap tropis Indonesia</span></span></sc-if></span>.</span>
+            </div>
+            <span style="font-size:13.5px; color:#5E6662; line-height:1.5">Debu menurunkan daya pantul. Bersihkan atap setidaknya setahun sekali.</span>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #E3DED4; border-radius:12px; padding:14px 16px; display:flex; gap:10px; font-size:14px; line-height:1.5"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none; stroke:#1C2321; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none; margin-top:2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg><span><b style="font-weight:600">Atap asbes?</b> Jangan diamplas, dipotong, atau dibor. Hubungi tenaga profesional. Pilihan yang aman: pohon peneduh atau tanaman rambat.</span></div>
+          <div style="display:flex; flex-direction:column; gap:10px">
+            <button style="height:50px; border:1px solid #1F5C4A; border-radius:12px; background:#1F5C4A; color:#FFFFFF; font-size:16px; font-weight:600; cursor:pointer" style-hover="background:#184A3C">Simpan saran</button>
+            <button style="height:50px; border:1px solid #E3DED4; border-radius:12px; background:#FFFFFF; font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px" style-hover="background:#F2EFE8"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>Foto ulang</button>
+          </div>
+          <span style="font-size:12.5px; color:#5E6662; line-height:1.5; text-align:center; padding:0 8px 8px">Data lokasi dihapus dari foto. Lokasi hanya disimpan sampai tingkat kelurahan, dan foto dihapus otomatis setelah 30 hari.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;id&quot;,&quot;en&quot;],&quot;default&quot;:&quot;id&quot;,&quot;tsType&quot;:&quot;'id'|'en'&quot;,&quot;section&quot;:&quot;Tampilan&quot;},&quot;defaultLayer&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;lst&quot;,&quot;hvi&quot;,&quot;dlst&quot;],&quot;default&quot;:&quot;lst&quot;,&quot;tsType&quot;:&quot;'lst'|'hvi'|'dlst'&quot;,&quot;section&quot;:&quot;Tampilan&quot;},&quot;agentRunning&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Status agen&quot;}}">
+class Component extends DCLogic {
+  C = {
+    LST: ['#FFF5D6', '#FEE08B', '#FDB863', '#F4845F', '#E0533D', '#B5213A', '#6E0F2B'],
+    HVI: ['#F2EEF7', '#CBBFE0', '#9B86C4', '#6B4FA0', '#3F1F6B'],
+    DL: ['#E6F2F8', '#A9D0E6', '#5FA3CB', '#2B78A8', '#1D5F8A'],
+    T: {
+      id: { nav: ['Peta & Analisis', 'Policy Brief', 'Cek Atap', 'Sumber Data'], layers: ['Suhu permukaan', 'Kerentanan (HVI)', 'Simulasi ΔLST'], sample: 'Data contoh', scenario: 'Simulasi skenario', indicative: 'Indikatif', agent: 'Agen TEDUH', placeholder: 'Tanyakan tentang panas di wilayah Anda…' },
+      en: { nav: ['Map & Analysis', 'Policy Brief', 'Roof Check', 'Data Sources'], layers: ['Surface temp.', 'Vulnerability (HVI)', 'ΔLST simulation'], sample: 'Sample data', scenario: 'Scenario simulation', indicative: 'Indicative', agent: 'TEDUH Agent', placeholder: 'Ask about heat in your area…' }
+    }
+  };
+  map = this.build();
+  state = { chip: null, layer: null, sel: this.map.top[0], hover: null, hl: 'top5', tree: 10, cool: 50, green: 0, lang: null, profileOpen: true, draft: '' };
+
+  fmt(v, d = 1) { return v.toFixed(d).replace('.', ','); }
+  fint(n) { return Math.round(n).toLocaleString('id-ID'); }
+  sgn(v, d = 1) { return (v > 0.00001 ? '+' : v < -0.00001 ? '−' : '') + this.fmt(Math.abs(v), d); }
+  lc(v) { return [31, 32.5, 33.5, 34.5, 35.5, 36.5].filter(b => v >= b).length; }
+  hc(v) { return Math.min(4, Math.floor(v * 5)); }
+  dc(v) { const a = -v; return a < 0.2 ? 0 : a < 0.4 ? 1 : a < 0.6 ? 2 : a < 0.8 ? 3 : 4; }
+
+  build() {
+    const OUT = [[90,120],[180,95],[260,110],[330,80],[420,100],[500,70],[590,95],[680,85],[770,110],[860,100],[920,140],[900,230],[880,320],[850,420],[800,520],[720,590],[620,610],[540,580],[470,600],[400,570],[330,540],[260,470],[200,400],[150,320],[110,230]];
+    const SEA = [[-60,-10],[1000,-10],[1000,150],[920,140],[860,100],[770,110],[680,85],[590,95],[500,70],[420,100],[330,80],[260,110],[180,95],[90,120],[-60,128]];
+    const NAMES = {
+      Utara: ['Penjaringan','Pluit','Kapuk Muara','Kamal Muara','Pejagalan','Ancol','Pademangan Barat','Sunter Agung','Sunter Jaya','Papanggo','Tanjung Priok','Kebon Bawang','Warakas','Koja','Tugu Utara','Lagoa','Rawa Badak Utara','Kelapa Gading Barat','Pegangsaan Dua','Cilincing','Marunda','Semper Barat','Sukapura','Rorotan'],
+      Barat: ['Kamal','Tegal Alur','Cengkareng Barat','Cengkareng Timur','Kapuk','Duri Kosambi','Rawa Buaya','Kalideres','Semanan','Kembangan Utara','Meruya Selatan','Kedoya Selatan','Kebon Jeruk','Sukabumi Utara','Palmerah','Kota Bambu Utara','Jelambar','Grogol','Tambora','Jembatan Lima','Tanjung Duren Utara'],
+      Pusat: ['Gambir','Kebon Kelapa','Petojo Utara','Cideng','Tanah Abang','Kebon Melati','Bendungan Hilir','Menteng','Cikini','Kebon Sirih','Senen','Kramat','Paseban','Johar Baru','Kampung Rawa','Galur','Cempaka Putih Timur','Sumur Batu','Harapan Mulya','Serdang','Gunung Sahari Selatan'],
+      Selatan: ['Tebet Barat','Manggarai','Bukit Duri','Menteng Dalam','Setiabudi','Karet','Kuningan Timur','Mampang Prapatan','Pela Mampang','Kebayoran Lama Utara','Grogol Utara','Pesanggrahan','Bintaro','Cilandak Barat','Lebak Bulus','Pondok Labu','Pasar Minggu','Pejaten Timur','Jagakarsa','Ciganjur','Lenteng Agung','Srengseng Sawah','Pancoran','Kalibata','Duren Tiga','Cipete Utara','Gandaria Selatan','Petogogan'],
+      Timur: ['Kampung Melayu','Bidara Cina','Cipinang Besar Utara','Rawa Bunga','Kayu Manis','Cipinang Besar Selatan','Pisangan Baru','Cipinang Cempedak','Cipinang Muara','Balimester','Palmeriam','Utan Kayu Utara','Utan Kayu Selatan','Pulo Gadung','Rawamangun','Jati','Kayu Putih','Klender','Duren Sawit','Pondok Bambu','Pondok Kopi','Malaka Sari','Cakung Barat','Penggilingan','Pulogebang','Ujung Menteng','Cawang','Kramat Jati','Cililitan','Makasar','Halim Perdana Kusuma','Kebon Pala','Cipayung','Ciracas','Cibubur','Kelapa Dua Wetan','Pasar Rebo','Kalisari','Cijantung','Cipinang Melayu']
+    };
+    let s = 11;
+    const r = () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+    const inside = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
+    const clip = (poly, a, b) => {
+      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, nx = b[0] - a[0], ny = b[1] - a[1];
+      const f = p => (p[0] - mx) * nx + (p[1] - my) * ny, out = [];
+      for (let i = 0; i < poly.length; i++) { const P = poly[i], Q = poly[(i + 1) % poly.length], fp = f(P), fq = f(Q); if (fp <= 0) out.push(P); if ((fp <= 0) !== (fq <= 0)) { const t = fp / (fp - fq); out.push([P[0] + t * (Q[0] - P[0]), P[1] + t * (Q[1] - P[1])]); } }
+      return out;
+    };
+    const pd = pts => 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L') + 'Z';
+    const seeds = [];
+    for (let row = 0, y = 110; y <= 610; y += 50, row++) for (let x = 100; x <= 920; x += 56) { const p = [x + (row % 2 ? 28 : 0) + (r() - .5) * 36, y + (r() - .5) * 30]; if (inside(p, OUT)) seeds.push(p); }
+    let cells = seeds.map(sd => { let poly = OUT; seeds.forEach(o => { if (o !== sd && Math.hypot(o[0] - sd[0], o[1] - sd[1]) < 180) poly = clip(poly, sd, o); }); return { s: sd, poly }; }).filter(c => c.poly.length > 2);
+    cells.forEach((c, i) => {
+      const [x, y] = c.s; c.id = i; c.d = pd(c.poly);
+      c.cx = c.poly.reduce((a, p) => a + p[0], 0) / c.poly.length; c.cy = c.poly.reduce((a, p) => a + p[1], 0) / c.poly.length;
+      c.kota = y < 175 ? 'Utara' : Math.hypot(x - 430, y - 270) < 105 ? 'Pusat' : x >= 560 ? 'Timur' : x < 330 ? 'Barat' : 'Selatan';
+      const hot = Math.exp(-((x - 470) ** 2 / (2 * 200 ** 2) + (y - 250) ** 2 / (2 * 170 ** 2)));
+      const ind = Math.exp(-((x - 800) ** 2 + (y - 230) ** 2) / (2 * 90 ** 2));
+      c.hot = hot; c.rand = r(); c.simF = 0.85 + 0.3 * r();
+      c.lst = 30.6 + 5.4 * hot + 1.5 * ind + (r() - .5) * 1.3;
+    });
+    const anchors = { Timur: [600, 300], Utara: [500, 130], Barat: [200, 300], Pusat: [430, 270], Selatan: [440, 450] };
+    const byKota = {};
+    Object.keys(anchors).forEach(k => {
+      const a = anchors[k], list = cells.filter(c => c.kota === k).sort((p, q) => Math.hypot(p.s[0] - a[0], p.s[1] - a[1]) - Math.hypot(q.s[0] - a[0], q.s[1] - a[1]));
+      list.forEach((c, j) => c.name = NAMES[k][j % NAMES[k].length]); byKota[k] = list;
+    });
+    const top = byKota.Timur.slice(0, 5);
+    const TL = [37.4, 37.1, 36.9, 36.6, 36.4], TH = [0.93, 0.91, 0.89, 0.87, 0.86], TR = [[2140, 3310], [1610, 2510], [1490, 2380], [1020, 1590], [930, 1440]], TT = [6, 7, 8, 9, 10], TB = [78, 76, 75, 74, 72];
+    top.forEach((c, j) => { c.isTop = true; c.topRank = j + 1; c.lst = TL[j]; c.hvi = TH[j]; c.balita = TR[j][0]; c.lansia = TR[j][1]; c.tree = TT[j]; c.built = TB[j]; });
+    const others = cells.filter(c => !c.isTop), N = cells.length;
+    const need = 34.3 * N - TL.reduce((a, b) => a + b, 0), cur = others.reduce((a, c) => a + c.lst, 0), sh = (need - cur) / others.length;
+    others.forEach(c => {
+      c.lst += sh;
+      c.hvi = Math.max(0.04, Math.min(0.84, ((c.lst - 30) / 7.2) * (0.55 + 0.45 * c.rand)));
+      const tot = Math.round(700 + c.hvi * 3800 + c.rand * 500); c.balita = Math.round(tot * 0.4); c.lansia = tot - c.balita;
+      c.tree = Math.round(5 + (1 - c.hot) * 26 + c.rand * 6); c.built = Math.min(90, Math.round(50 + c.hot * 30 + c.rand * 8));
+    });
+    Object.keys(byKota).forEach(k => { const l = byKota[k].slice().sort((a, b) => b.hvi - a.hvi); l.forEach((c, j) => { c.rank = j + 1; c.rankOf = l.length; }); });
+    cells.forEach(c => {
+      c.drivers = [
+        { label: 'Bangunan rapat (' + c.built + '%)', v: (c.built - 55) / 16 },
+        { label: 'Pohon sedikit (' + c.tree + '%)', v: (25 - c.tree) / 21 },
+        { label: 'Atap gelap', v: 0.35 + 0.35 * c.hot },
+        { label: 'Badan air terdekat', v: -(0.1 + 0.25 * c.rand) }
+      ];
+    });
+    return { cells, top: top.map(c => c.id), outline: pd(OUT), sea: pd(SEA) };
+  }
+
+  select(id) { this.setState({ sel: id, profileOpen: true }); }
+  slider(k) { return e => this.setState({ [k]: Number(e.target.value), layer: 'dlst' }); }
+
+  renderVals() {
+    const h = React.createElement, M = this.map, s = this.state, C = this.C;
+    const lang = s.lang || this.props.lang || 'id', t = C.T[lang];
+    const layer = s.layer || this.props.defaultLayer || 'lst';
+    const d = -(0.04 * s.tree + 0.008 * s.cool + 0.012 * s.green);
+    const hlIds = s.hl === 'top5' ? M.top : s.hl === 'top2' ? M.top.slice(0, 2) : [];
+    const fillOf = c => layer === 'lst' ? C.LST[this.lc(c.lst)] : layer === 'hvi' ? C.HVI[this.hc(c.hvi)] : (c.isTop ? C.DL[this.dc(d * c.simF)] : '#ECE8E1');
+    const sel = M.cells[s.sel], hov = s.hover != null ? M.cells[s.hover] : null;
+    const halo = { paintOrder: 'stroke', stroke: '#FFFFFF', strokeWidth: 3.5, strokeLinejoin: 'round' };
+
+    const mapSvg = h('svg', { viewBox: '0 0 1000 640', preserveAspectRatio: 'xMidYMid slice', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }, onMouseLeave: () => this.setState({ hover: null }) },
+      h('g', { transform: 'translate(40,0)' },
+        h('path', { d: M.sea, fill: '#DFE6E4' }),
+        h('text', { x: 470, y: 40, fill: '#5E6662', fontSize: 13, fontStyle: 'italic', textAnchor: 'middle', letterSpacing: '.06em' }, 'Teluk Jakarta'),
+        M.cells.map(c => h('path', { key: c.id, d: c.d, fill: fillOf(c), stroke: '#FFFFFF', strokeWidth: 0.9, strokeLinejoin: 'round', style: { cursor: 'pointer' }, onClick: () => this.select(c.id), onMouseEnter: () => this.setState({ hover: c.id }) })),
+        h('path', { d: M.outline, fill: 'none', stroke: '#8A918D', strokeWidth: 1.2, pointerEvents: 'none' }),
+        hlIds.map(id => h('path', { key: 'h' + id, d: M.cells[id].d, fill: 'none', stroke: '#1C2321', strokeWidth: 2.2, strokeLinejoin: 'round', pointerEvents: 'none' })),
+        hov ? h('path', { d: hov.d, fill: 'none', stroke: '#1C2321', strokeWidth: 1.4, pointerEvents: 'none' }) : null,
+        h('path', { d: sel.d, fill: 'none', stroke: '#1F5C4A', strokeWidth: 3.2, strokeLinejoin: 'round', pointerEvents: 'none' }),
+        hlIds.map((id, j) => { const c = M.cells[id]; return h('g', { key: 'm' + id, pointerEvents: 'none' }, h('circle', { cx: c.cx, cy: c.cy, r: 10, fill: '#1C2321', stroke: '#FFFFFF', strokeWidth: 1.5 }), h('text', { x: c.cx, y: c.cy + 4, fill: '#FFFFFF', fontSize: 11, fontWeight: 700, textAnchor: 'middle' }, String(j + 1))); }),
+        h('text', { x: sel.cx, y: sel.cy - 16, fill: '#1C2321', fontSize: 12.5, fontWeight: 700, textAnchor: 'middle', style: halo, pointerEvents: 'none' }, sel.name)
+      )
+    );
+
+    const layerVal = c => layer === 'lst' ? this.fmt(c.lst) + ' °C' : layer === 'hvi' ? 'HVI ' + this.fmt(c.hvi, 2) : (c.isTop ? 'ΔLST ' + this.sgn(d * c.simF) + ' °C' : 'Tidak diintervensi');
+    const hoverInfo = hov ? { name: hov.name, kota: 'Jakarta ' + hov.kota, value: layerVal(hov) } : null;
+
+    const LK = ['lst', 'hvi', 'dlst'], SW = ['#E0533D', '#6B4FA0', '#2B78A8'];
+    const layers = LK.map((k, i) => ({ label: t.layers[i], swatch: SW[i], pressed: String(k === layer), bg: k === layer ? '#EAF2EC' : 'transparent', color: k === layer ? '#1F5C4A' : '#1C2321', weight: k === layer ? 600 : 500, onClick: () => this.setState({ layer: k }) }));
+    const legend = layer === 'lst'
+      ? { title: 'Suhu permukaan tanah (LST), °C', sub: 'Median musim kemarau 2023–2025 · Landsat 8/9 · bukan suhu udara', colors: C.LST, ticks: ['30', '31', '32,5', '33,5', '34,5', '35,5', '36,5', '38'], neutral: false }
+      : layer === 'hvi'
+      ? { title: 'Indeks Kerentanan Panas (0–1)', sub: 'Bahaya × (keterpaparan, kepekaan balita & lansia, kurangnya pohon)', colors: C.HVI, ticks: ['0', '0,2', '0,4', '0,6', '0,8', '1'], neutral: false }
+      : { title: 'Perubahan suhu permukaan (ΔLST), °C', sub: 'Hasil simulasi, indikatif · makin pekat makin turun', colors: C.DL, ticks: ['0', '−0,2', '−0,4', '−0,6', '−0,8', '−1,2'], neutral: true };
+
+    const dvMax = 1.6;
+    const p = {
+      name: sel.name, kota: sel.kota, lst: this.fmt(sel.lst), anom: this.sgn(sel.lst - 34.3), hvi: this.fmt(sel.hvi, 2),
+      rank: sel.rank + ' dari ' + sel.rankOf, rentan: this.fint(sel.balita + sel.lansia), balita: this.fint(sel.balita), lansia: this.fint(sel.lansia),
+      balitaPct: Math.round(100 * sel.balita / (sel.balita + sel.lansia)) + '%',
+      drivers: sel.drivers.map(x => ({ label: x.label, v: this.sgn(x.v) + ' °C', w: Math.min(100, Math.round(100 * Math.abs(x.v) / dvMax)) + '%', color: x.v >= 0 ? '#E0533D' : '#2B78A8' }))
+    };
+
+    const cost = s.tree * 60 + s.cool * 20 + s.green * 45, budget = 2000, total = 18420;
+    const prot = total * (1 - Math.exp(-Math.abs(d) * 1.15));
+    const over = cost > budget;
+    const sc = {
+      tree: s.tree, cool: s.cool, green: s.green,
+      treeLabel: '+' + s.tree + ' pp', coolLabel: s.cool + '%', greenLabel: s.green + '%',
+      dLabel: this.sgn(d), protected: this.fint(prot), totalRentan: this.fint(total),
+      cost: 'Rp ' + this.fmt(cost / 1000, 2) + ' M', costPct: Math.min(100, Math.round(100 * cost / budget)) + '%',
+      costColor: over ? '#1C2321' : '#1F5C4A',
+      budgetNote: over ? 'Melebihi anggaran Rp 2 M' : 'dari anggaran Rp 2 M', budgetColor: over ? '#1C2321' : '#5E6662', budgetWeight: over ? 700 : 400,
+      extrap: s.tree > 15 || s.cool > 80 || s.green > 35
+    };
+
+    const top = M.top.map(id => M.cells[id]);
+    const topList = top.map((c, j) => ({ rank: j + 1, name: c.name, hvi: this.fmt(c.hvi, 2), lst: this.fmt(c.lst), swatch: C.LST[this.lc(c.lst)] }));
+    const briefRows = top.map(c => ({ name: c.name, lst: this.fmt(c.lst), hvi: this.fmt(c.hvi, 2), balita: this.fint(c.balita), lansia: this.fint(c.lansia), swatch: C.LST[this.lc(c.lst)] }));
+    const portfolio = [
+      ['Kampung Melayu', 'Kanopi sedang + cool roof tinggi', 520, 3410], ['Bidara Cina', 'Cool roof tinggi', 380, 2280], ['Cipinang Besar Utara', 'Kanopi sedang', 310, 1890],
+      ['Rawa Bunga', 'Cool roof sedang', 260, 1240], ['Kayu Manis', 'Kanopi rendah', 180, 910], ['Pisangan Baru', 'Cool roof sedang', 170, 760], ['Cipinang Besar Selatan', 'Kanopi rendah', 140, 580]
+    ].map(([name, pkg, c, rr]) => ({ name, pkg, cost: 'Rp ' + c + ' jt', rentan: this.fint(rr) }));
+
+    const hlBtn = key => ({ label: s.hl === key ? 'Tersorot di peta' : 'Sorot di peta', bg: s.hl === key ? '#EAF2EC' : '#FFFFFF', border: s.hl === key ? '#1F5C4A' : '#E3DED4', onClick: () => this.setState({ hl: s.hl === key ? null : key, layer: key === 'top2' ? 'dlst' : s.layer }) });
+
+    const running = !!this.props.agentRunning;
+    const agent = {
+      done: !running,
+      header: running ? '2 dari 3 langkah · berjalan' : '3 langkah selesai · 6,8 detik',
+      lastLabel: running ? 'Memeriksa asal-usul angka…' : 'Memeriksa asal-usul angka (23/23)',
+      lastColor: running ? '#5E6662' : '#1C2321',
+      lastIcon: running
+        ? h('svg', { width: 15, height: 15, viewBox: '0 0 24 24', style: { fill: 'none', stroke: '#1F5C4A', strokeWidth: 2.6, strokeLinecap: 'round', flex: 'none', animation: 'teduhspin .9s linear infinite' } }, h('path', { d: 'M21 12a9 9 0 1 1-6.219-8.56' }))
+        : h('svg', { width: 15, height: 15, viewBox: '0 0 24 24', style: { fill: 'none', stroke: '#1F5C4A', strokeWidth: 2.6, strokeLinecap: 'round', strokeLinejoin: 'round', flex: 'none' } }, h('path', { d: 'M20 6 9 17l-5-5' }))
+    };
+
+    const nav = t.nav.map((label, i) => ({ label, href: ['#1a', '#1b', '#1c', '#putaran-1'][i], weight: i === 0 ? 600 : 500, color: i === 0 ? '#1F5C4A' : '#5E6662', border: i === 0 ? '#1F5C4A' : 'transparent' }));
+
+    return {
+      ch: Object.fromEntries(Array.from({ length: 10 }, (_, i) => { const id = 'c' + (i + 1); return [id, { open: s.chip === id, show: () => this.setState({ chip: id }) }]; })),
+      hideChip: () => this.setState({ chip: null }),
+      t, nav, layers, legend, mapSvg, hoverInfo, p, sc, topList, briefRows, portfolio, agent,
+      profileOpen: s.profileOpen, closeProfile: () => this.setState({ profileOpen: false }),
+      askAbout: () => this.setState({ draft: 'Jelaskan faktor panas di Kelurahan ' + sel.name + ' dan intervensi yang paling cocok.' }),
+      draft: s.draft, onDraft: e => this.setState({ draft: e.target.value }),
+      onTree: this.slider('tree'), onCool: this.slider('cool'), onGreen: this.slider('green'),
+      resetScenario: () => this.setState({ tree: 10, cool: 50, green: 0 }),
+      hl1: hlBtn('top5'), hl2: hlBtn('top2'),
+      setID: () => this.setState({ lang: 'id' }), setEN: () => this.setState({ lang: 'en' }),
+      idBg: lang === 'id' ? '#1F5C4A' : 'transparent', idColor: lang === 'id' ? '#FFFFFF' : '#5E6662',
+      enBg: lang === 'en' ? '#1F5C4A' : 'transparent', enColor: lang === 'en' ? '#FFFFFF' : '#5E6662'
+    };
+  }
+}
+</script>
+</body>
+</html>

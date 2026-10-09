@@ -1,0 +1,98 @@
+# Intervention unit costs (CONCEPT §7.6).
+#
+# Source of record: Keputusan Gubernur DKI Jakarta No. 811 Tahun 2025, "Penyesuaian Standar
+# Harga Satuan Tahun 2025" (adjusts Pergub 24/2024, revokes Kepgub 874/2024).
+#   OCR : data/raw/sbm/2025KEPGUB0031811.md
+#   PDF : the scan it was OCR'd from; `kepgub_page` maps 1:1 to its page number.
+#
+# The OCR carries visible corruption on some rows (803.60ial, 2.214.00l, 7.885.13laa), and its
+# own frontmatter says to check figures against the PDF. So every sourced figure below has been
+# matched against the PDF text layer, and pipeline/verify_costs.py re-checks them on demand.
+#
+# Kepgub 811/2025 is an ADJUSTMENT, not the full catalogue, so it carries only the items that
+# were revised. A sweep of its 2005 pages found NO reflective roof coating and NO green roof or
+# growing-medium line item at all. Those stay "ASUMSI" (CLAUDE.md rule 4). The nearest tempting
+# proxies were deliberately rejected: item 28.290 is natural-stone waterproofing
+# (Rp 460.000/litre, not a roof and not reflective) and item 6.3 is floor coating.
+
+tree_planting:
+  tree_unit_idr:
+    value: 2702703
+    unit: "IDR per tree"
+    source: "Kepgub DKI 811/2025, item 696.19, hlm 1262"
+    kepgub_item: "696.19"
+    kepgub_page: 1262
+    note: >
+      Tabebuya Pink, trunk diameter > 20 cm, height 3-5 m, nursery-held and already rooted.
+      This is a mature shade tree, which is what DKI greening programmes actually plant, not a
+      seedling. The only shade-tree line item in the whole document.
+  planting_unit_idr:
+    value: 1950000
+    unit: "IDR per tree"
+    source: "Kepgub DKI 811/2025, item 660.91, hlm 1034"
+    kepgub_item: "660.91"
+    kepgub_page: 1034
+    note: >
+      PROXY. The item is "Relokasi Pohon (Metode Rootball)" -- moving an existing mature tree,
+      not planting a new one. It is used here because it is the only sourced price for a
+      heavy-tree handling operation, and SHS material prices exclude installation. Relocation
+      is plausibly dearer than planting, so this biases total cost upward (conservative).
+  maintenance_idr_per_month:
+    value: 5396761
+    unit: "IDR per person-month"
+    source: "Kepgub DKI 811/2025, item 728.19, hlm 1518"
+    kepgub_item: "728.19"
+    kepgub_page: 1518
+    note: >
+      Garden-and-tree keeper (PJLP), minimum primary education. Operating cost, not capital.
+      Not used by optimize_portfolio, which budgets capital only; kept so that a future
+      total-cost-of-ownership view has a sourced figure to reach for.
+  canopy_m2_per_tree:
+    value: 12.0
+    unit: "m2 per tree"
+    source: "ASUMSI"
+    note: >
+      The bridge between a per-tree price and CONCEPT §7.5's canopy_increase_pp, which is in
+      percentage points of cell area. Deliberately a SEPARATE assumption rather than folded
+      into the sourced price, so it stays obvious which half is official and which is guessed.
+      12 m2 is roughly a 3.9 m crown, i.e. the canopy of a 3-5 m tree AT PLANTING. A mature
+      Tabebuya spreads 6-8 m (28-50 m2), so cost per m2 of canopy here is pessimistic by 3-4x
+      against a ten-year horizon. Needs a local crown-diameter measurement.
+
+cool_roof:
+  cost_idr_per_m2:
+    value: 95000
+    unit: "IDR per m2"
+    source: "ASUMSI"
+    note: >
+      Reflective roof coating, material plus labour, two coats. NOT in Kepgub 811/2025 -- its
+      paint section (6) holds only duco, 2K epoxy, floor coating and zinc chromate, none of
+      them reflective roof products. Pending a vendor quote or the SHS 2026 annex.
+
+green_roof:
+  cost_idr_per_m2:
+    value: 600000
+    unit: "IDR per m2"
+    source: "ASUMSI"
+    note: >
+      Extensive green roof: waterproofing, drainage layer, growing medium, planting. NOT in
+      Kepgub 811/2025 -- growing medium appears only inside potted-plant specification text,
+      never as its own priced item. Pending a vendor quote.
+
+# Reference only, for the P1 cool-pavement option (CONCEPT §7.7). Not a reflective product.
+cool_pavement:
+  paving_block_idr_per_m2:
+    value: 197006
+    unit: "IDR per m2"
+    source: "Kepgub DKI 811/2025, item 11.3, hlm 6"
+    kepgub_item: "11.3"
+    kepgub_page: 6
+    note: "Paving Block Classic, natural colour, 8 cm. Baseline paving, no reflective coating."
+
+# Equity constraint on the optimiser: minimum share of budget that must land in the top HVI
+# quintile of kelurahan (CONCEPT §7.6).
+optimizer:
+  equity_share_min:
+    value: 0.6
+    unit: "fraction of budget"
+    source: "CONCEPT §7.6"

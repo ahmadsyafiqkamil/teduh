@@ -1,0 +1,78 @@
+# Scenario engine constants (CONCEPT §7.5).
+#
+# Interventions are translated into feature changes, then the model predicts a new LST. Every
+# constant here carries a `source`, which is either a citation, "data:grid_features@v1" when it
+# was calibrated from our own grid, or the literal "ASUMSI" (CLAUDE.md rule 4).
+#
+# ASUMSI entries are the honest state of things: no accessible Indonesian source publishes aged
+# cool-roof albedo or a Jakarta flat-roof share. They are deliberately easy to edit, and the
+# scenario tool flags extrapolation separately when a scenario leaves the training envelope.
+
+tree_planting:
+  ndvi_tree:
+    value: 0.6450
+    unit: "ndvi"
+    source: "data:grid_features@v1"
+    note: >
+      Median NDVI of the 2282 cells with tree_frac > 0.8, computed by pipeline/build_grid.py
+      over the Jun-Sep 2023-2025 Sentinel-2 median. Used as the NDVI a cell approaches as its
+      canopy fills in: ndvi += delta_canopy * (ndvi_tree - ndvi). Re-derive if the grid changes.
+  canopy_frac_threshold:
+    value: 0.8
+    unit: "fraction"
+    source: "CONCEPT §7.5"
+    note: "tree_frac above which a cell counts as fully wooded, for the ndvi_tree calibration."
+  plantable_classes:
+    value: ["grassland", "cropland", "bare", "shrubland"]
+    unit: "worldcover class names"
+    source: "CONCEPT §7.5"
+    note: >
+      Canopy gain is capped by non-built, non-water land in the cell, so planting cannot be
+      simulated on top of buildings or open water.
+
+cool_roof:
+  albedo_cool:
+    value: 0.65
+    unit: "albedo"
+    source: "ASUMSI"
+    note: >
+      Broadband albedo of a reflective roof coating AFTER ageing. Fresh white coatings read
+      0.80-0.85 but lose a large share to dust and biofilm within a year or two, which the
+      tropical cool-roof literature in data/evidence/interventions.json notes explicitly.
+      Needs a measured tropical value; treat as pending.
+  albedo_roof_base:
+    value: 0.15
+    unit: "albedo"
+    source: "ASUMSI"
+    note: >
+      Albedo of an untreated Jakarta roof (clay tile, dark metal sheet, bare concrete). The
+      citywide mean albedo in grid_features is 0.130 across all surfaces combined, which is
+      consistent with this order of magnitude but is not a roof-only measurement.
+
+green_roof:
+  flat_roof_share:
+    value: 0.2
+    unit: "fraction of roof area"
+    source: "ASUMSI"
+    note: >
+      Share of roof area flat enough to carry a green roof. Open Buildings gives footprint and
+      height but not roof form, so this cannot be derived from the current data. The Cek Atap
+      feature (CONCEPT §8.5) classifies roof_form per photo and could eventually inform it.
+  albedo_green:
+    value: 0.2
+    unit: "albedo"
+    source: "ASUMSI"
+    note: "Albedo of a planted roof surface; vegetation is darker than coating but transpires."
+
+# Guard rails, not tunables: if any scenario feature lands beyond this percentile of the
+# training data, the tool returns extrapolation: true (CONCEPT §7.5).
+extrapolation:
+  feature_percentile_max:
+    value: 99
+    unit: "percentile"
+    source: "CONCEPT §7.5"
+  min_cooling_for_benefit_c:
+    value: -0.5
+    unit: "degC"
+    source: "CONCEPT §7.5"
+    note: "Cooling a cell must reach before its vulnerable residents count as benefiting."

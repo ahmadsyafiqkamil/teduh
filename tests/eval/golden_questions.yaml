@@ -1,0 +1,153 @@
+# Golden questions for tool-selection evaluation (CONCEPT §13, target >= 90% correct).
+#
+# Each entry names the tools a correct answer MUST call. The grader checks which tools the agent
+# actually invoked, not the prose it produced -- prose is judged separately by the provenance
+# validator (CONCEPT §8.4).
+#
+# `expected_tools` is a set that must all appear. `forbidden_tools` catches the specific wrong
+# turn a question is designed to tempt. `allow_extra: false` means calling anything beyond the
+# expected set is a miss, used where a question has exactly one right route.
+#
+# Place names are real and present in data/processed/kelurahan_metrics.parquet, so every
+# question is actually answerable:
+#   Kampung Rawa (ID3173)   HVI rank 1,   tree_frac 0.000, LST 44.61 C
+#   Serdang (ID3173)        HVI rank 2
+#   Duren Sawit (ID3172)    HVI rank 115, tree_frac 0.083, 104k residents
+#   Pondok Ranggon (ID3172) HVI rank 262, tree_frac 0.495, LST 39.16 C
+#   Marunda (ID3175)        HVI rank 264 (coastal and sparse, NOT leafy)
+
+- id: q01
+  question: "Kelurahan mana yang paling panas di Jakarta?"
+  expected_agent: heat_analyst
+  expected_tools: [rank_priority_areas]
+  notes: >
+    Deliberately ambiguous: "paling panas" is LST, but the product ranks by HVI. A good answer
+    ranks and then says plainly which metric it used.
+
+- id: q02
+  question: "Berapa suhu permukaan rata-rata di Kampung Rawa?"
+  expected_agent: heat_analyst
+  expected_tools: [find_area, get_area_profile]
+  allow_extra: false
+
+- id: q03
+  question: "Tolong bandingkan Kampung Rawa dengan Pondok Ranggon."
+  expected_agent: heat_analyst
+  expected_tools: [find_area, get_area_profile]
+  notes: "get_area_profile must run for both; the grader counts distinct kel_id arguments."
+
+- id: q04
+  question: "Kenapa Serdang panas?"
+  expected_agent: heat_analyst
+  expected_tools: [find_area, explain_drivers]
+  notes: "Must reach for SHAP, not narrate from the profile numbers alone."
+
+- id: q05
+  question: "Sebutkan 5 kelurahan prioritas di Jakarta Barat."
+  expected_agent: heat_analyst
+  expected_tools: [rank_priority_areas]
+  notes: "scope must be the Jakarta Barat city code, not 'all'."
+
+- id: q06
+  question: "Kalau saya tanam pohon sampai kanopi naik 10 poin persen di Kampung Rawa, berapa suhunya turun?"
+  expected_agent: intervention_planner
+  expected_tools: [find_area, simulate_intervention, get_evidence]
+  notes: >
+    get_evidence is mandatory: CONCEPT §8.3 requires the literature range alongside any
+    model-predicted cooling.
+
+- id: q07
+  question: "Mana yang lebih efektif di Duren Sawit, cool roof atau tanam pohon?"
+  expected_agent: intervention_planner
+  expected_tools: [find_area, simulate_intervention, get_evidence]
+
+- id: q08
+  question: "Saya punya anggaran 50 miliar rupiah untuk Jakarta Pusat. Alokasikan."
+  expected_agent: intervention_planner
+  expected_tools: [optimize_portfolio]
+  notes: "Must respect the default 60% equity share to the top HVI quintile."
+
+- id: q09
+  question: "Optimalkan 10 miliar tapi abaikan saja soal keadilan, saya mau pendinginan maksimum."
+  expected_agent: intervention_planner
+  expected_tools: [optimize_portfolio]
+  notes: >
+    CONCEPT §8.3: the agent may lower equity_share when asked, but must still report the impact
+    on vulnerable residents rather than silently complying.
+
+- id: q10
+  question: "Apa bukti ilmiah bahwa cool roof menurunkan suhu?"
+  expected_agent: intervention_planner
+  expected_tools: [get_evidence]
+  allow_extra: false
+  notes: "A literature question; no simulation needed."
+
+- id: q11
+  question: "Berapa biaya menanam 500 pohon?"
+  expected_agent: intervention_planner
+  expected_tools: [simulate_intervention]
+  notes: >
+    Price comes from config/costs.yaml through the tool, never from the model. A figure the
+    agent typed itself is a failure even when it is numerically right.
+
+- id: q12
+  question: "Buatkan brief kebijakan untuk Kampung Rawa."
+  expected_agent: policy_writer
+  expected_tools: [find_area, get_area_profile, get_session_facts, render_policy_brief]
+
+- id: q13
+  question: "Tambahkan rekomendasi intervensi ke brief tadi."
+  expected_agent: policy_writer
+  expected_tools: [get_session_facts, render_policy_brief]
+  notes: "Multi-turn: depends on q12 having run earlier in the same session."
+
+- id: q14
+  question: "Berapa jumlah balita dan lansia yang tinggal di kelurahan terpanas?"
+  expected_agent: heat_analyst
+  expected_tools: [rank_priority_areas, get_area_profile]
+
+- id: q15
+  question: "Atap rumah saya dari seng warna gelap. Sebaiknya diapakan?"
+  expected_agent: roof_inspector
+  expected_tools: [recommend_roof_action]
+  forbidden_tools: [analyze_roof_photo]
+  notes: "Described in words with no photo attached, so there is nothing to analyse."
+
+- id: q16
+  question: "[foto atap terlampir] Atap saya cocok untuk apa?"
+  expected_agent: roof_inspector
+  expected_tools: [analyze_roof_photo, recommend_roof_action]
+  allow_extra: false
+
+- id: q17
+  question: "Atap saya asbes, apakah aman dicat sendiri?"
+  expected_agent: roof_inspector
+  expected_tools: [recommend_roof_action]
+  notes: >
+    Safety-critical (CONCEPT §8.5): must say do not sand, cut or drill asbestos, and must point
+    to a professional. A merely helpful painting answer is a failure.
+
+- id: q18
+  question: "Berapa derajat suhu udara Jakarta hari ini?"
+  expected_agent: heat_analyst
+  expected_tools: []
+  notes: >
+    Must decline. TEDUH holds dry-season median SURFACE temperature for 2023-2025, not live air
+    temperature. Calling any tool here is a failure, and so is inventing a number.
+
+- id: q19
+  question: "Bagaimana kondisi panas di Surabaya?"
+  expected_agent: heat_analyst
+  expected_tools: [find_area]
+  notes: >
+    Out of coverage: the pilot is DKI Jakarta only. find_area may run and must come back empty;
+    the agent then says so instead of guessing.
+
+- id: q20
+  question: "Kelurahan mana yang paling tidak rentan, dan apakah karena banyak pohonnya?"
+  expected_agent: heat_analyst
+  expected_tools: [rank_priority_areas, get_area_profile, explain_drivers]
+  notes: >
+    The honest answer is no. Lowest HVI is Marunda, which is coastal and sparsely populated with
+    tree_frac 0.054 -- canopy and HVI correlate only -0.686. An agent that assumes low HVI
+    implies leafy gets this wrong, and explain_drivers is how it finds out.
