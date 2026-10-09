@@ -3,6 +3,8 @@
 Unduh semua data tanpa login (batas, WorldPop, WorldCover, DEM, Pergub) ke `data/raw/` + `data/boundaries/`:
 `uv run --no-project --python 3.12 --with geopandas --with pyogrio --with rasterio python pipeline/fetch_public.py` (~1,5 GB diunduh, ~220 MB disimpan).
 
+Ringkasan apa yang sudah ada vs belum ada: `docs/DATA_STATUS.md`.
+
 Katalog dataset untuk M1 (pipeline) dan halaman "Tentang & Sumber Data". Diriset 8 Okt 2026, diperbarui 9 Okt 2026. Kolom **Peran**: `fitur` = masuk `grid_features.parquet`, `batas` = unit kebijakan, `validasi` = pembanding saja, `config` = konstanta di `config/*.yaml`.
 
 ## Artefak olahan (sudah ada, M1 selesai)
