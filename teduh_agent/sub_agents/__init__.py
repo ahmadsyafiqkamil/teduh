@@ -8,11 +8,11 @@ policy_writer and roof_inspector are skipped while their tools (M5, M6) do not e
 the agent can be run and demoed at every stage of the build rather than only at the end.
 """
 
-import os
-
 from google.adk.agents import LlmAgent
 
-MODEL = os.environ.get("TEDUH_MODEL", "gemini-3.8-flash")
+from teduh_agent.llm import model_name
+
+MODEL = model_name()
 
 
 def build_all() -> list[LlmAgent]:

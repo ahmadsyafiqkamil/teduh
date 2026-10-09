@@ -1,9 +1,8 @@
 """Policy brief writing with number provenance markers."""
 
-import os
-
 from google.adk.agents import LlmAgent
 
+from teduh_agent.llm import resolve_model
 from teduh_agent.prompts import compose
 from teduh_agent.tools.brief import get_session_facts, render_policy_brief
 
@@ -18,7 +17,7 @@ DESCRIPTION = (
 def build() -> LlmAgent:
     return LlmAgent(
         name=NAME,
-        model=os.environ.get("TEDUH_MODEL", "gemini-3.8-flash"),
+        model=resolve_model(),
         description=DESCRIPTION,
         instruction=compose("policy_writer"),
         tools=[get_session_facts, render_policy_brief],

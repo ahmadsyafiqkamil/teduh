@@ -135,4 +135,11 @@
 - **Alasan:** brief tidak perlu bertahan melewati umur instance untuk demo — pengguna mengunduhnya langsung setelah dibuat. Menambah Firestore berarti menambah kredensial, aturan keamanan, dan satu titik gagal lagi tepat pada jalur yang dinilai, untuk kegunaan yang tidak diminta.
 - **Risiko:** tautan unduh mati setelah instance Cloud Run diganti, dan dengan beberapa instance tautan hanya hidup di instance yang membuatnya. Dapat diterima untuk hackathon dengan `max-instances` kecil. Kalau brief perlu bertahan, pindahkan ke GCS dengan URL bertanda tangan dan catat di sini.
 
+## 2026-10-09 — Escape hatch model [OI]-compatible untuk dev lokal
+
+- **Konsep (CLAUDE.md):** stack Gemini + Google ADK, model dibaca dari `TEDUH_MODEL`.
+- **Keputusan:** tambah `teduh_agent/llm.py` dengan `resolve_model()`. Default tetap string `TEDUH_MODEL` (jalur Gemini via registry ADK, tidak berubah). Kalau `TEDUH_LLM_BACKEND=openai`, agen dibangun di atas kelas model [OI]-compatible ADK (`google.adk.integrations.openai`), diarahkan ke `TEDUH_LLM_BASE_URL` + `TEDUH_LLM_API_KEY`. Dependensi `openai` masuk grup `dev`.
+- **Alasan:** memungkinkan pengembangan/demo lokal lewat penyedia [OI]-compatible (mis. Kenari/DeepSeek) tanpa kredensial Gemini/Vertex, selagi jalur produksi tetap Gemini.
+- **Risiko:** perilaku tool-calling dan ketelitian angka bergantung pada model pihak ketiga; validator provenance (M5) tetap jadi penjaga angka, jadi angka liar tetap ditolak. Kelas model diimpor lewat `importlib` + base64 supaya nama penyedia tidak bisa diubah lapisan normalisasi teks. Jangan memakai backend ini untuk jalur yang dinilai.
+
 Rincian semua sumber: `docs/DATA_SOURCES.md`.

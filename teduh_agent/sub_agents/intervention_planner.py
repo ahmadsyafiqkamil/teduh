@@ -1,9 +1,8 @@
 """Scenario simulation and budget portfolio."""
 
-import os
-
 from google.adk.agents import LlmAgent
 
+from teduh_agent.llm import resolve_model
 from teduh_agent.prompts import compose
 from teduh_agent.tools.evidence import get_evidence
 from teduh_agent.tools.optimize import optimize_portfolio
@@ -21,7 +20,7 @@ DESCRIPTION = (
 def build() -> LlmAgent:
     return LlmAgent(
         name=NAME,
-        model=os.environ.get("TEDUH_MODEL", "gemini-3.8-flash"),
+        model=resolve_model(),
         description=DESCRIPTION,
         instruction=compose("intervention_planner"),
         tools=[simulate_intervention, optimize_portfolio, get_evidence],

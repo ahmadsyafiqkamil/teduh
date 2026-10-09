@@ -1,9 +1,8 @@
 """Citizen-facing roof check."""
 
-import os
-
 from google.adk.agents import LlmAgent
 
+from teduh_agent.llm import resolve_model
 from teduh_agent.prompts import compose
 from teduh_agent.tools.roof import analyze_roof_photo, recommend_roof_action
 
@@ -18,7 +17,7 @@ DESCRIPTION = (
 def build() -> LlmAgent:
     return LlmAgent(
         name=NAME,
-        model=os.environ.get("TEDUH_MODEL", "gemini-3.8-flash"),
+        model=resolve_model(),
         description=DESCRIPTION,
         instruction=compose("roof_inspector"),
         tools=[analyze_roof_photo, recommend_roof_action],

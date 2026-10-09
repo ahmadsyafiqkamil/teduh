@@ -27,6 +27,7 @@ dev = [
     "pytest-cov>=5.0",
     "httpx>=0.27",
     "ruff>=0.5",
+    "openai>=3.26.1",
 ]
 # Offline only. Never imported by teduh_agent/, model/, or api/ (CLAUDE.md rule 6).
 pipeline = [

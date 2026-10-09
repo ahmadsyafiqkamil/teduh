@@ -24,6 +24,7 @@ __pycache__/
 # Personal editor/agent local state, not project files.
 .claude/
 .cursor/
+.adk/
 
 # Artefak model, dihasilkan ulang oleh model/train.py dan model/explain.py.
 # .gitkeep tetap di-commit supaya direktorinya ada untuk COPY di infra/Dockerfile.

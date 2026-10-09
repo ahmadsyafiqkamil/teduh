@@ -14,11 +14,12 @@ import os
 
 from google.adk.agents import LlmAgent
 
+from teduh_agent.llm import resolve_model
 from teduh_agent.prompts import compose
 from teduh_agent.sub_agents import build_all
 from teduh_agent.tools import ALL_TOOLS
 
-MODEL = os.environ.get("TEDUH_MODEL", "gemini-3.8-flash")
+MODEL = resolve_model()
 
 SINGLE_AGENT_ENV = "TEDUH_SINGLE_AGENT"
 

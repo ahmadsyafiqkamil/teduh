@@ -1,9 +1,8 @@
 """Heat and vulnerability analysis."""
 
-import os
-
 from google.adk.agents import LlmAgent
 
+from teduh_agent.llm import resolve_model
 from teduh_agent.prompts import compose
 from teduh_agent.tools.areas import (
     explain_drivers,
@@ -24,7 +23,7 @@ DESCRIPTION = (
 def build() -> LlmAgent:
     return LlmAgent(
         name=NAME,
-        model=os.environ.get("TEDUH_MODEL", "gemini-3.8-flash"),
+        model=resolve_model(),
         description=DESCRIPTION,
         instruction=compose("heat_analyst"),
         tools=[find_area, get_area_profile, rank_priority_areas, explain_drivers],
