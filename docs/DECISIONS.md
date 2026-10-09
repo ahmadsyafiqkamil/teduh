@@ -128,4 +128,11 @@
 - **Penyimpangan:** `_extrapolated` hanya meninjau fitur yang nilainya berubah antara `before` dan `after` (`np.array_equal(..., equal_nan=True)`).
 - **Alasan:** sel baseline yang memang duduk di atas persentil-99 (mis. `pop` dan `ndwi` Kampung Rawa pada fixture 173 sel, yang juga merupakan bagian set latih) bukan ekstrapolasi — modelnya sudah dilatih di sel itu. Memakai rumus rencana membuat skenario pohon "low" yang tidak menyentuh `pop`/`ndwi` tetap diberi flag, gagal `test_a_modest_scenario_is_not_flagged`. Membatasi ke fitur yang digerakkan intervensi menjaga sifat keselamatan (skenario absurd tetap diberi flag, mis. albedo 0,65) tanpa false positive.
 
+## 2026-10-09 — Brief disimpan di disk, bukan Firestore
+
+- **Konsep (§6.1):** Firestore menyimpan sesi, brief, dan laporan atap.
+- **Keputusan:** `render_policy_brief` menulis Markdown dan PDF ke `data/briefs/<brief_id>.{md,pdf}` di dalam container. Sesi ADK tetap memakai penyimpanan default ADK.
+- **Alasan:** brief tidak perlu bertahan melewati umur instance untuk demo — pengguna mengunduhnya langsung setelah dibuat. Menambah Firestore berarti menambah kredensial, aturan keamanan, dan satu titik gagal lagi tepat pada jalur yang dinilai, untuk kegunaan yang tidak diminta.
+- **Risiko:** tautan unduh mati setelah instance Cloud Run diganti, dan dengan beberapa instance tautan hanya hidup di instance yang membuatnya. Dapat diterima untuk hackathon dengan `max-instances` kecil. Kalau brief perlu bertahan, pindahkan ke GCS dengan URL bertanda tangan dan catat di sini.
+
 Rincian semua sumber: `docs/DATA_SOURCES.md`.
