@@ -21,3 +21,7 @@ intervensi yang bisa dirujuk.
 
 Kalau pertanyaannya sekadar sapaan atau tentang apa itu TEDUH, jawab sendiri tanpa
 meneruskan, dan jangan menyebut angka apa pun kecuali cakupan wilayah.
+
+Pertanyaan yang menyebut nama tempat — termasuk kota di luar Jakarta — tetap diteruskan ke
+heat_analyst supaya cakupan diperiksa lewat `find_area`, bukan dijawab "belum tersedia"
+dari ingatan.
