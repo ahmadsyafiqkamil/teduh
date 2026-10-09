@@ -22,6 +22,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from model.hvi import components, hvi, load_weights, percentile, rank
+
 ROOT = Path(__file__).resolve().parents[1]
 GRID = ROOT / "data" / "processed" / "grid_features.parquet"
 HVI_CONFIG = ROOT / "config" / "hvi.yaml"
@@ -39,11 +41,6 @@ AREA_MEANS = ["lst_c", "albedo", "ndvi", "ndbi", "ndwi",
 POP_SUMS = ["pop", "pop_u5", "pop_65p"]
 
 
-def _percentile(series: pd.Series) -> pd.Series:
-    """Within-city percentile rank in [0, 1]. NaN stays NaN rather than becoming a middling 0.5."""
-    return series.rank(pct=True, na_option="keep")
-
-
 def _pop_weighted_lst(good: pd.DataFrame) -> pd.Series:
     """Mean LST weighted by residents: what the average person feels, not the average hectare."""
     frame = good.dropna(subset=["lst_c", "pop"]).copy()
@@ -54,17 +51,15 @@ def _pop_weighted_lst(good: pd.DataFrame) -> pd.Series:
 
 def main() -> None:
     cfg = yaml.safe_load(HVI_CONFIG.read_text())
-    weights = {k: cfg["weights"][k]["value"] for k in ("wE", "wS", "wA")}
+    weights = load_weights(cfg)
     hazard_min = cfg["exposed_vulnerable"]["hazard_percentile_min"]["value"]
-    if abs(sum(weights.values()) - 1.0) > 1e-9:
-        print(f"PERINGATAN: bobot HVI berjumlah {sum(weights.values()):.3f}, bukan 1,0")
 
     grid = pd.read_parquet(GRID)
     good = grid[grid["lst_quality"] == "good"]
     print(f"grid      : {len(grid)} sel, {len(grid) - len(good)} dibuang dari statistik termal")
 
     # Cell-level hazard percentile, for the headcount metric CONCEPT §7.4 defines on cells.
-    grid["cell_h"] = _percentile(grid["lst_c"].where(grid["lst_quality"] == "good"))
+    grid["cell_h"] = percentile(grid["lst_c"].where(grid["lst_quality"] == "good"))
     grid["vulnerable"] = grid["pop_u5"] + grid["pop_65p"]
     exposed = (
         grid.loc[grid["cell_h"] >= hazard_min]
@@ -87,14 +82,10 @@ def main() -> None:
     kel["lst_anomaly_c"] = kel["lst_c_mean"] - city_lst
     print(f"kota      : LST rata-rata {city_lst:.2f} C")
 
-    kel["H"] = _percentile(kel["lst_c_mean"])
-    kel["E"] = _percentile(kel["pop_density"])
-    kel["S"] = _percentile(kel["vulnerable_share"])
-    kel["A"] = 1.0 - _percentile(kel["tree_frac_mean"])
-    kel["hvi"] = kel["H"] * (
-        weights["wE"] * kel["E"] + weights["wS"] * kel["S"] + weights["wA"] * kel["A"]
-    )
-    kel["hvi_rank"] = kel["hvi"].rank(ascending=False, method="min").astype("Int64")
+    comp = components(kel)
+    kel[list(comp.columns)] = comp
+    kel["hvi"] = hvi(comp, weights)
+    kel["hvi_rank"] = rank(kel["hvi"])
 
     out = kel.reset_index()
     OUT.parent.mkdir(parents=True, exist_ok=True)
