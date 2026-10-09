@@ -24,13 +24,26 @@ import lightgbm as lgb
 import pandas as pd
 import yaml
 
+# Re-exported, not defined here. Both helpers moved to model/config.py to break an import
+# cycle that stopped `uvicorn api.main:app` and `python -m model.train` from starting at
+# all; see that module's docstring. Importing them from teduh_agent.store still works.
+from model.config import GOOD_QUALITY, config_entry, good_cells
+
 ROOT = Path(__file__).resolve().parents[1]
+
+__all__ = [
+    "CITY_LST_FALLBACK",
+    "GOOD_QUALITY",
+    "Store",
+    "config_entry",
+    "get_store",
+    "good_cells",
+    "load",
+]
 
 # Mean LST over good cells on the 2026-10-09 grid. Used only when the grid is absent, so a
 # profile request can still state the city baseline instead of returning NaN.
 CITY_LST_FALLBACK = 41.8376
-
-GOOD_QUALITY = "good"
 
 
 @dataclass(frozen=True)
@@ -65,33 +78,6 @@ def _read_yaml(path: Path) -> dict:
     if not path.exists():
         raise FileNotFoundError(f"config wajib {path} tidak ada")
     return yaml.safe_load(path.read_text())
-
-
-def good_cells(grid: pd.DataFrame) -> pd.DataFrame:
-    """Cells with enough clean observations to trust thermally (DECISIONS 2026-10-09).
-
-    Low-quality cells stay on the map and keep their residents, but they are excluded from
-    every thermal statistic and from model training.
-    """
-    return grid[grid["lst_quality"] == GOOD_QUALITY]
-
-
-def config_entry(cfg: dict, *path: str) -> tuple[Any, str]:
-    """Read one config constant as (value, source).
-
-    Enforces CLAUDE.md rule 4 at read time: an entry without a `source` raises instead of
-    quietly becoming an unattributed number in a policy brief.
-    """
-    node: Any = cfg
-    for key in path:
-        if not isinstance(node, dict) or key not in node:
-            raise KeyError(f"config path {'.'.join(path)} tidak ada")
-        node = node[key]
-    if not isinstance(node, dict) or "value" not in node:
-        raise KeyError(f"config entry {'.'.join(path)} tidak punya value")
-    if "source" not in node:
-        raise KeyError(f"config entry {'.'.join(path)} tidak punya source (CLAUDE.md aturan 4)")
-    return node["value"], node["source"]
 
 
 def _load_booster(path: Path) -> Any | None:

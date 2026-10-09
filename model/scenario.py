@@ -28,9 +28,9 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
+from model.config import config_entry
 from model.costs import CELL_AREA_M2, intervention_cost
 from model.train import FEATURES, predict
-from teduh_agent.store import config_entry
 
 TREE = "tree_planting"
 COOL_ROOF = "cool_roof"

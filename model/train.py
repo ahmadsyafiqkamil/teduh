@@ -33,7 +33,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import GroupKFold
 
-from teduh_agent.store import good_cells
+from model.config import good_cells
 
 ROOT = Path(__file__).resolve().parents[1]
 GRID = ROOT / "data" / "processed" / "grid_features.parquet"

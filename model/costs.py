@@ -12,7 +12,7 @@ intervention_cost(), so importing back would be a cycle. The intervention type n
 therefore repeated here as literals, and tests/test_costs.py asserts the two sets stay equal.
 """
 
-from teduh_agent.store import config_entry
+from model.config import config_entry
 
 # WorldPop cell size at Jakarta's latitude, from pipeline/build_grid.py. Matches the
 # CELL_AREA_KM2 used by pipeline/aggregate_kelurahan.py.
