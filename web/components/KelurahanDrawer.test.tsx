@@ -45,23 +45,36 @@ function mockProfile(payload = PROFILE) {
   );
 }
 
+function renderDrawer(overrides: Partial<React.ComponentProps<typeof KelurahanDrawer>> = {}) {
+  const props = {
+    kelId: 'ID3173040002' as string | null,
+    onClose: vi.fn(),
+    onAskAgent: vi.fn(),
+    width: null,
+    onResize: vi.fn(),
+    ...overrides,
+  };
+  render(<KelurahanDrawer {...props} />);
+  return props;
+}
+
 afterEach(() => vi.unstubAllGlobals());
 
 describe('KelurahanDrawer', () => {
   it('renders nothing when no kelurahan is selected', () => {
-    render(<KelurahanDrawer kelId={null} onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer({ kelId: null });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('is a labelled dialog', async () => {
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
   });
 
   it('shows the name and the administrative location', async () => {
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     await screen.findByText('Kampung Rawa');
     expect(screen.getByText(/Johar Baru/)).toBeInTheDocument();
     expect(screen.getByText(/Jakarta Pusat/)).toBeInTheDocument();
@@ -70,20 +83,20 @@ describe('KelurahanDrawer', () => {
   it('states the HVI rank out of the real total', async () => {
     // Never 267: that was the design's sample figure.
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     expect(await screen.findByText(/1 dari 264/)).toBeInTheDocument();
   });
 
   it('shows the anomaly with an explicit sign', async () => {
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     expect(await screen.findByText(/\+2,77/)).toBeInTheDocument();
   });
 
   it('renders every number inside a source chip', async () => {
     // design/README.md: "Wajib dipakai untuk setiap angka di UI."
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     await screen.findByText('Kampung Rawa');
     const chips = screen.getAllByRole('button').filter((node) => node.className.includes('chip'));
     expect(chips.length).toBeGreaterThanOrEqual(8);
@@ -91,7 +104,7 @@ describe('KelurahanDrawer', () => {
 
   it('shows all four HVI components with the formula', async () => {
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     await screen.findByText('Bahaya (panas permukaan)');
     expect(screen.getByText('Keterpaparan (kepadatan penduduk)')).toBeInTheDocument();
     expect(screen.getByText('Kepekaan (balita & lansia)')).toBeInTheDocument();
@@ -101,7 +114,7 @@ describe('KelurahanDrawer', () => {
 
   it('lists the SHAP drivers with their direction', async () => {
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     expect(await screen.findByText('Fraksi lahan terbangun')).toBeInTheDocument();
     expect(screen.getByText(/memanaskan/)).toBeInTheDocument();
     expect(screen.getByText(/mendinginkan/)).toBeInTheDocument();
@@ -111,19 +124,19 @@ describe('KelurahanDrawer', () => {
     // design/README.md: "Jumlah kontribusi harus = selisih LST (validasi di backend)."
     // 1.2 + 0.8 - 0.3 = 1.7, not 2.768, so the drawer must say so rather than imply it adds up.
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     expect(await screen.findByText(/tidak menjumlah/i)).toBeInTheDocument();
   });
 
   it('says plainly when SHAP is unavailable', async () => {
     mockProfile({ ...PROFILE, drivers: [], drivers_unavailable: 'Artefak SHAP belum dibuat.' });
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     expect(await screen.findByText(/belum dibuat/i)).toBeInTheDocument();
   });
 
   it('carries the surface-temperature footnote', async () => {
     mockProfile();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer();
     expect(await screen.findByText(/bukan suhu udara/i)).toBeInTheDocument();
   });
 
@@ -131,7 +144,7 @@ describe('KelurahanDrawer', () => {
     mockProfile();
     const user = userEvent.setup();
     const onAskAgent = vi.fn();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={vi.fn()} onAskAgent={onAskAgent} />);
+    renderDrawer({ onAskAgent });
 
     await user.click(await screen.findByRole('button', { name: /tanya agen/i }));
 
@@ -142,7 +155,7 @@ describe('KelurahanDrawer', () => {
     mockProfile();
     const user = userEvent.setup();
     const onClose = vi.fn();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={onClose} onAskAgent={vi.fn()} />);
+    renderDrawer({ onClose });
 
     await user.click(await screen.findByRole('button', { name: /tutup/i }));
 
@@ -153,7 +166,7 @@ describe('KelurahanDrawer', () => {
     mockProfile();
     const user = userEvent.setup();
     const onClose = vi.fn();
-    render(<KelurahanDrawer kelId="ID3173040002" onClose={onClose} onAskAgent={vi.fn()} />);
+    renderDrawer({ onClose });
     await screen.findByRole('dialog');
 
     await user.keyboard('{Escape}');
@@ -170,7 +183,7 @@ describe('KelurahanDrawer', () => {
         json: async () => ({ success: false, data: null, error: 'Kelurahan tidak ada.' }),
       }),
     );
-    render(<KelurahanDrawer kelId="ID9999999999" onClose={vi.fn()} onAskAgent={vi.fn()} />);
+    renderDrawer({ kelId: "ID9999999999" });
     expect(await screen.findByText(/tidak ada/i)).toBeInTheDocument();
   });
 });

@@ -89,6 +89,7 @@ export function parseSseChunk(buffer: string): { events: unknown[]; rest: string
 
 interface RawPart {
   text?: string;
+  thought?: boolean;
   functionCall?: { name: string; args?: Record<string, unknown> };
   functionResponse?: { name: string; response?: Record<string, unknown> };
 }
@@ -96,6 +97,38 @@ interface RawPart {
 function partsOf(event: unknown): RawPart[] {
   const content = (event as { content?: { parts?: RawPart[] } })?.content;
   return content?.parts ?? [];
+}
+
+/** Whether an event carries a tool call, i.e. the model acted rather than answered. */
+function hasFunctionCall(event: unknown): boolean {
+  return partsOf(event).some((part) => part.functionCall);
+}
+
+/**
+ * Whether this event is a streaming delta rather than a finished turn.
+ *
+ * ADK emits one `partial: true` event per token delta and then repeats the whole turn once
+ * with the flag absent. Collecting both renders every answer twice and turns a single tool
+ * call into one step per delta -- fifteen "Mencari wilayah" rows for one find_area. A
+ * backend that does not stream never sets the flag, so it is unaffected.
+ */
+export function isPartial(event: unknown): boolean {
+  return (event as { partial?: boolean })?.partial === true;
+}
+
+/**
+ * The failure message carried by an ADK error frame, or null for an ordinary event.
+ *
+ * ADK reports a failed invocation as HTTP 200 with an error frame inside the stream, so
+ * `response.ok` says nothing. Such frames carry no `content.parts`, so without reading them
+ * the panel renders nothing at all and the user is left with no explanation.
+ */
+export function errorOf(event: unknown): string | null {
+  if (!event || typeof event !== 'object') return null;
+  const frame = event as { errorMessage?: unknown; error?: unknown };
+  if (typeof frame.errorMessage === 'string' && frame.errorMessage) return frame.errorMessage;
+  if (typeof frame.error === 'string' && frame.error) return frame.error;
+  return null;
 }
 
 export function eventsToSteps(raw: unknown[]): AgentStep[] {
@@ -129,8 +162,9 @@ export function eventsToSteps(raw: unknown[]): AgentStep[] {
 
 export function textOf(raw: unknown[]): string {
   return raw
+    .filter((event) => !hasFunctionCall(event))
     .flatMap(partsOf)
-    .map((part) => part.text ?? '')
+    .map((part) => (part.thought ? '' : part.text ?? ''))
     .join('');
 }
 
@@ -164,6 +198,12 @@ export async function* streamAgent(options: {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+
+  // Only finished turns are collected. Streaming deltas are dropped because the aggregated
+  // event repeats the whole turn anyway, and because a delta cannot tell us whether the
+  // text flowing past is the answer or the model narrating what it is about to do -- that
+  // only becomes clear once the function call that follows it arrives. Collecting final
+  // events alone lets textOf drop the preamble and show only real answers.
   const collected: unknown[] = [];
 
   while (true) {
@@ -173,14 +213,22 @@ export async function* streamAgent(options: {
     buffer += decoder.decode(value, { stream: true });
     const { events, rest } = parseSseChunk(buffer);
     buffer = rest;
+    if (!events.length) continue;
 
-    if (events.length) {
-      collected.push(...events);
-      const text = textOf(collected);
-      if (text) yield { kind: 'text', text };
-      const steps = eventsToSteps(collected);
-      if (steps.length) yield { kind: 'steps', steps };
+    for (const event of events) {
+      const failure = errorOf(event);
+      if (failure) {
+        yield { kind: 'error', message: failure };
+        return;
+      }
+      if (isPartial(event)) continue;
+      collected.push(event);
     }
+
+    const text = textOf(collected);
+    if (text) yield { kind: 'text', text };
+    const steps = eventsToSteps(collected);
+    if (steps.length) yield { kind: 'steps', steps };
   }
   yield { kind: 'done' };
 }

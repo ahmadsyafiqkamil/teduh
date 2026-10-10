@@ -26,7 +26,7 @@ from model.scenario import (
 )
 from model.train import prepare
 from teduh_agent.facts import SOURCE_MODEL, fact, record, source_assumption
-from teduh_agent.store import get_store
+from teduh_agent.store import config_entry, get_store
 from teduh_agent.tools.evidence import evidence_for
 
 INDICATIVE_NOTE = (
@@ -43,8 +43,16 @@ def training_frame() -> pd.DataFrame:
 
 @lru_cache(maxsize=1)
 def quantiles() -> pd.Series:
-    """99th percentile of each training feature, for the extrapolation flag."""
-    return training_quantiles(training_frame())
+    """Upper bound of the training envelope, for the extrapolation flag.
+
+    The percentile comes from config/scenario.yaml (extrapolation.feature_percentile_max,
+    CONCEPT §7.5), not a hard-coded number -- editing the YAML must actually change the
+    guard, or CLAUDE.md rule 4 is violated silently.
+    """
+    percentile, _ = config_entry(
+        get_store().scenario_cfg, "extrapolation", "feature_percentile_max"
+    )
+    return training_quantiles(training_frame(), percentile=percentile)
 
 
 def _parse(raw: dict) -> Intervention:

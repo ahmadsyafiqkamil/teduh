@@ -14,9 +14,9 @@
 
 import { formatNumber, formatPercent, formatUnit } from './format';
 
-export type LayerId = 'lst' | 'hvi' | 'veg' | 'pop';
+export type LayerId = 'lst' | 'hvi' | 'veg' | 'pop' | 'dlst';
 
-export const LAYER_ORDER: LayerId[] = ['lst', 'hvi', 'veg', 'pop'];
+export const LAYER_ORDER: LayerId[] = ['lst', 'hvi', 'veg', 'pop', 'dlst'];
 
 /** Kelurahan with no value for the active metric. Visibly absent, never a real class. */
 export const NO_DATA_COLOR = '#D6D0C4';
@@ -37,6 +37,12 @@ export interface LayerDefinition {
   /** Ascending thresholds; palette.length === breaks.length + 1. */
   breaks: number[];
   format: (value: number | null) => string;
+  /**
+   * True when a HIGHER value maps to the LIGHTER palette end instead of the darker one.
+   * ΔLST is the only such layer: more negative (stronger cooling) is deeper blue, so it is
+   * stored with descending breaks and painted with the palette reversed.
+   */
+  descending?: boolean;
 }
 
 export const LAYERS: Record<LayerId, LayerDefinition> = {
@@ -95,10 +101,32 @@ export const LAYERS: Record<LayerId, LayerDefinition> = {
     breaks: [15_000, 18_000, 22_000, 25_000],
     format: (value) => formatNumber(value, 0),
   },
+  dlst: {
+    id: 'dlst',
+    label: 'ΔLST Simulasi',
+    swatch: '#2B78A8',
+    property: 'delta_lst_c',
+    title: 'Perubahan suhu permukaan (ΔLST)',
+    legendTitle: 'Perubahan suhu permukaan (ΔLST), °C',
+    legendSubtitle: 'Hasil simulasi, indikatif · makin pekat makin turun',
+    palette: ['#E6F2F8', '#A9D0E6', '#5FA3CB', '#2B78A8', '#1D5F8A'],
+    // Stored in display (descending) order: 0 on the left, stronger cooling to the right.
+    breaks: [-0.2, -0.4, -0.6, -0.8],
+    format: (value) => formatUnit(value, 'degC', 1),
+    descending: true,
+  },
 };
 
 export function colorForValue(layer: LayerDefinition, value: number | null): string {
   if (value === null || value === undefined || Number.isNaN(value)) return NO_DATA_COLOR;
+
+  if (layer.descending) {
+    const ascending = [...layer.breaks].sort((a, b) => a - b);
+    for (let index = 0; index < ascending.length; index += 1) {
+      if (value < ascending[index]) return layer.palette[layer.palette.length - 1 - index];
+    }
+    return layer.palette[0];
+  }
 
   for (let index = 0; index < layer.breaks.length; index += 1) {
     if (value < layer.breaks[index]) return layer.palette[index];

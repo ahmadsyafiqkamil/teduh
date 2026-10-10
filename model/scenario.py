@@ -57,6 +57,11 @@ PERCENTAGE_POINTS = 100.0
 # Features clipped back into their physical range after the deltas land.
 BOUNDED_FEATURES = ("tree_frac", "built_frac", "water_frac", "roof_frac", "albedo", "ndvi")
 
+# Land-cover fractions are bounded to [0,1] by definition, and the training grid already
+# covers that whole range (max = 1,0 for all four). q99 is not a meaningful envelope here:
+# a cell planted to the brim sits inside the training data, not beyond it.
+FRACTION_FEATURES = ("tree_frac", "built_frac", "water_frac", "roof_frac")
+
 
 @dataclass(frozen=True)
 class Intervention:
@@ -206,22 +211,29 @@ def training_quantiles(frame: pd.DataFrame, percentile: float | None = None) -> 
 def _extrapolated(
     after: pd.DataFrame, before: pd.DataFrame, train_q99: pd.Series
 ) -> tuple[str, ...]:
-    """Features the intervention moved beyond the training envelope.
+    """Features the intervention pushed beyond the training envelope.
 
-    Only features the intervention actually changed are considered. A cell that already sits
-    above the 99th percentile before any intervention is a baseline outlier the model was
-    trained on, not a scenario pushing it somewhere new -- flagging it would cry wolf on every
-    modest scenario in a dense kelurahan.
+    The comparison is per cell, not per feature-frame. Only cells whose value actually moved
+    may trip the flag; a cell that already sat above the 99th percentile before any
+    intervention is a baseline outlier the model was trained on, not a scenario pushing it
+    somewhere new -- flagging it would cry wolf on every modest scenario in a dense
+    kelurahan.
+
+    Land-cover fractions are skipped entirely: they saturate at 1,0 inside the training
+    range, so q99 is a meaningless envelope for them.
     """
-    changed = {
-        name for name in FEATURES
-        if name in after.columns and name in before.columns
-        and not np.array_equal(after[name].to_numpy(), before[name].to_numpy(), equal_nan=True)
-    }
-    return tuple(
-        name for name in FEATURES
-        if name in train_q99.index and name in changed and after[name].max() > train_q99[name]
-    )
+    flagged: list[str] = []
+    for name in FEATURES:
+        if name not in after.columns or name not in before.columns:
+            continue
+        if name not in train_q99.index or name in FRACTION_FEATURES:
+            continue
+        a = after[name].to_numpy(dtype=float)
+        b = before[name].to_numpy(dtype=float)
+        moved = ~((a == b) | (np.isnan(a) & np.isnan(b)))
+        if moved.any() and a[moved].max() > train_q99[name]:
+            flagged.append(name)
+    return tuple(flagged)
 
 
 def _population_weighted(delta: np.ndarray, pop: pd.Series) -> float:

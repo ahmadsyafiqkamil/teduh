@@ -29,6 +29,11 @@ export interface KelurahanProperties {
   pop: number | null;
   pop_density: number | null;
   exposed_vulnerable: number | null;
+  /**
+   * Injected client-side by the scenario dock after a simulation, not part of the API
+   * payload. Drives the ΔLST map layer; null means the kelurahan was not simulated.
+   */
+  delta_lst_c?: number | null;
 }
 
 export interface KelurahanFeature {

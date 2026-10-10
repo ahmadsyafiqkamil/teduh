@@ -11,6 +11,8 @@
 
 import { Camera, Check, Loader2, Pencil, Send } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { AgentStep } from '@/lib/agent';
 import { ResultTable } from './ResultTable';
 import styles from './AgentPanel.module.css';
@@ -111,7 +113,19 @@ export function AgentPanel({
                 <StepBlock steps={message.steps} elapsedMs={message.elapsedMs} />
               )}
               {message.error && <div className={styles.error}>{message.error}</div>}
-              {message.text && <div className={styles.prose}>{message.text}</div>}
+              {message.text && (
+                <div className={styles.prose}>
+                  {/*
+                    The agent answers in Markdown, so it has to be rendered as Markdown --
+                    otherwise a table arrives on screen as raw `| Indikator | Nilai |`.
+                    react-markdown builds React elements rather than setting innerHTML, so
+                    model output can never inject markup; raw HTML in the stream stays
+                    inert, which is what we want from text an LLM produced. GFM is needed
+                    for the tables themselves.
+                  */}
+                  <Markdown remarkPlugins={[remarkGfm]}>{message.text}</Markdown>
+                </div>
+              )}
               {message.steps
                 .filter((step) => step.status === 'done' && step.response)
                 .map((step, index) => (

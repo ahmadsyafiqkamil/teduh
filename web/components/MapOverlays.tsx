@@ -69,9 +69,11 @@ export function MapOverlays({
         </div>
 
         <div className={styles.ticks}>
-          {definition.breaks.map((threshold) => (
-            <span key={threshold}>{definition.format(threshold)}</span>
-          ))}
+          {(definition.descending ? [0, ...definition.breaks] : definition.breaks).map(
+            (threshold) => (
+              <span key={threshold}>{definition.format(threshold)}</span>
+            ),
+          )}
         </div>
 
         {priorityCount > 0 && (

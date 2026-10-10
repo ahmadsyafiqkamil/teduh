@@ -19,7 +19,9 @@ import { MessageCircle, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { fetchProfile } from '@/lib/api';
 import { MINUS, formatNumber, formatPercent, formatRank, formatUnit } from '@/lib/format';
+import { DRAWER_MAX_PX, DRAWER_MIN_PX, DRAWER_WIDTH_DEFAULT } from '@/lib/resize';
 import type { Driver, ProfileResponse } from '@/lib/types';
+import { ResizeHandle } from './ResizeHandle';
 import { SourceChip, kindForSource } from './SourceChip';
 import styles from './KelurahanDrawer.module.css';
 
@@ -82,9 +84,17 @@ interface KelurahanDrawerProps {
   kelId: string | null;
   onClose: () => void;
   onAskAgent: (prompt: string) => void;
+  width: number | null;
+  onResize: (next: number | null) => void;
 }
 
-export function KelurahanDrawer({ kelId, onClose, onAskAgent }: KelurahanDrawerProps) {
+export function KelurahanDrawer({
+  kelId,
+  onClose,
+  onAskAgent,
+  width,
+  onResize,
+}: KelurahanDrawerProps) {
   const [data, setData] = useState<ProfileResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -120,9 +130,26 @@ export function KelurahanDrawer({ kelId, onClose, onAskAgent }: KelurahanDrawerP
 
   if (!kelId) return null;
 
+  const drawerStyle = {
+    '--drawer-w': width ? `${width}px` : undefined,
+  } as React.CSSProperties;
+  const resizeHandle = (
+    <div className={styles.drawerHandle}>
+      <ResizeHandle
+        axis="vertical"
+        getSize={() => width ?? DRAWER_WIDTH_DEFAULT}
+        min={DRAWER_MIN_PX}
+        max={DRAWER_MAX_PX}
+        onResize={onResize}
+        label="Ubah lebar panel profil"
+      />
+    </div>
+  );
+
   if (error) {
     return (
-      <aside className={styles.drawer} role="dialog" aria-label="Profil kelurahan">
+      <aside className={styles.drawer} style={drawerStyle} role="dialog" aria-label="Profil kelurahan">
+        {resizeHandle}
         <div className={styles.state}>{error}</div>
       </aside>
     );
@@ -130,7 +157,8 @@ export function KelurahanDrawer({ kelId, onClose, onAskAgent }: KelurahanDrawerP
 
   if (!data) {
     return (
-      <aside className={styles.drawer} role="dialog" aria-label="Profil kelurahan">
+      <aside className={styles.drawer} style={drawerStyle} role="dialog" aria-label="Profil kelurahan">
+        {resizeHandle}
         <div className={styles.state}>Memuat profil kelurahan…</div>
       </aside>
     );
@@ -146,7 +174,13 @@ export function KelurahanDrawer({ kelId, onClose, onAskAgent }: KelurahanDrawerP
   );
 
   return (
-    <aside className={styles.drawer} role="dialog" aria-label={`Profil ${profile.kel_name}`}>
+    <aside
+      className={styles.drawer}
+      style={drawerStyle}
+      role="dialog"
+      aria-label={`Profil ${profile.kel_name}`}
+    >
+      {resizeHandle}
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <span className="kicker">PROFIL KELURAHAN</span>

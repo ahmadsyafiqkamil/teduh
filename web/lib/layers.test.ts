@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { LAYERS, LAYER_ORDER, NO_DATA_COLOR, colorForValue } from './layers';
 
 describe('layer definitions', () => {
-  it('declares exactly the four layers the header offers', () => {
-    expect(LAYER_ORDER).toEqual(['lst', 'hvi', 'veg', 'pop']);
+  it('declares exactly the layers the header offers', () => {
+    expect(LAYER_ORDER).toEqual(['lst', 'hvi', 'veg', 'pop', 'dlst']);
   });
 
   it('gives every layer a palette one longer than its breaks', () => {
@@ -14,10 +14,15 @@ describe('layer definitions', () => {
     }
   });
 
-  it('keeps every break list ascending', () => {
+  it('keeps every break list ascending, except the descending ΔLST layer', () => {
     for (const id of LAYER_ORDER) {
-      const { breaks } = LAYERS[id];
-      expect([...breaks].sort((a, b) => a - b)).toEqual(breaks);
+      const { breaks, descending } = LAYERS[id];
+      const sorted = [...breaks].sort((a, b) => a - b);
+      if (descending) {
+        expect(sorted).toEqual([...breaks].reverse());
+      } else {
+        expect(sorted).toEqual(breaks);
+      }
     }
   });
 
@@ -53,6 +58,14 @@ describe('layer definitions', () => {
       expect(LAYERS[id].legendSubtitle.length).toBeGreaterThan(20);
     }
   });
+
+  it('paints the ΔLST layer from the simulation delta, not an API column', () => {
+    expect(LAYERS.dlst.property).toBe('delta_lst_c');
+    expect(LAYERS.dlst.descending).toBe(true);
+    expect(LAYERS.dlst.palette).toEqual([
+      '#E6F2F8', '#A9D0E6', '#5FA3CB', '#2B78A8', '#1D5F8A',
+    ]);
+  });
 });
 
 describe('colorForValue', () => {
@@ -75,5 +88,15 @@ describe('colorForValue', () => {
     // 28 low-quality cells and any unmatched kelurahan must be visibly absent, not
     // painted as if they were the coolest.
     expect(colorForValue(LAYERS.lst, null)).toBe(NO_DATA_COLOR);
+  });
+
+  it('paints stronger cooling (more negative) with a deeper blue', () => {
+    expect(colorForValue(LAYERS.dlst, 0)).toBe(LAYERS.dlst.palette[0]);
+    expect(colorForValue(LAYERS.dlst, -0.5)).toBe(LAYERS.dlst.palette[2]);
+    expect(colorForValue(LAYERS.dlst, -1.0)).toBe(LAYERS.dlst.palette[4]);
+  });
+
+  it('paints a not-simulated ΔLST kelurahan as no-data', () => {
+    expect(colorForValue(LAYERS.dlst, null)).toBe(NO_DATA_COLOR);
   });
 });

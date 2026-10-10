@@ -29,6 +29,14 @@ describe('fillColorExpression', () => {
       expect(encoded).toContain(String(threshold));
     }
   });
+
+  it('defaults the ΔLST layer to its deepest blue for strong cooling', () => {
+    // Below the lowest break (-0.8) the step falls back to its default, which must be the
+    // deepest palette entry, not the lightest: more negative is deeper, not hotter.
+    const expression = fillColorExpression(LAYERS.dlst) as unknown[];
+    const step = expression[3] as unknown[];
+    expect(step[2]).toBe(LAYERS.dlst.palette[LAYERS.dlst.palette.length - 1]);
+  });
 });
 
 describe('centroidOf', () => {

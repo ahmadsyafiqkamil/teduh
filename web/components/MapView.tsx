@@ -9,7 +9,7 @@
  * layers, which avoids needing a glyph server for five numbers.
  */
 
-import { Map as MapLibreMap } from 'maplibre-gl';
+import { Map as MapLibreMap, setWorkerUrl, type GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { LAYERS, type LayerId } from '@/lib/layers';
@@ -25,10 +25,13 @@ import {
 import type { KelurahanCollection, KelurahanProperties } from '@/lib/types';
 import styles from './MapView.module.css';
 
-const PAN_DURATION_MS = 300;
+// MapLibre v6 derives its worker URL from `import.meta.url`, which under Turbopack points
+// at /_next/static/chunks/ — a directory the worker file is never emitted into, so the
+// worker 404s and nothing is ever rendered. The copy in public/ is kept in sync with the
+// installed version by the predev/prebuild script in package.json.
+setWorkerUrl('/maplibre-gl-worker.mjs');
 
-/** Half the drawer width, so the selected kelurahan ends up centred in the visible map. */
-const DRAWER_PAN_OFFSET_PX = 210;
+const PAN_DURATION_MS = 300;
 
 interface MapViewProps {
   collection: KelurahanCollection | null;
@@ -38,6 +41,8 @@ interface MapViewProps {
   priorityIds: string[];
   showPriority: boolean;
   drawerOpen: boolean;
+  /** Current drawer width in px; the map pans by half of it so the selection stays visible. */
+  drawerWidth: number;
   onHover: (kelId: string | null) => void;
   onSelect: (kelId: string) => void;
 }
@@ -50,6 +55,7 @@ export function MapView({
   priorityIds,
   showPriority,
   drawerOpen,
+  drawerWidth,
   onHover,
   onSelect,
 }: MapViewProps) {
@@ -189,6 +195,15 @@ export function MapView({
     });
   }, [ready, collection, definition, onHover, onSelect]);
 
+  // The scenario dock injects `delta_lst_c` into a fresh collection object after each
+  // simulation; the source holds the original reference, so push the new data in.
+  useEffect(() => {
+    const map = mapRef.current;
+    const source = map?.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+    if (!map || !ready || !source || !collection) return;
+    source.setData(collection as never);
+  }, [collection, ready]);
+
   // Repaint when the layer changes.
   useEffect(() => {
     const map = mapRef.current;
@@ -237,10 +252,10 @@ export function MapView({
     if (!target) return;
     map.easeTo({
       center: target,
-      offset: drawerOpen ? [-DRAWER_PAN_OFFSET_PX, 0] : [0, 0],
+      offset: drawerOpen ? [-drawerWidth / 2, 0] : [0, 0],
       duration: PAN_DURATION_MS,
     });
-  }, [selectedId, drawerOpen, centroids, ready]);
+  }, [selectedId, drawerOpen, drawerWidth, centroids, ready]);
 
   // Project priority centroids into screen space for the numbered HTML markers.
   useEffect(() => {
@@ -252,10 +267,13 @@ export function MapView({
         setMarkers([]);
         return;
       }
+      const seen = new Set<string>();
       setMarkers(
         priorityIds.flatMap((id, index) => {
+          if (seen.has(id)) return [];
           const centre = centroids.get(id);
           if (!centre) return [];
+          seen.add(id);
           const point = map.project(centre);
           return [{ id, x: point.x, y: point.y, rank: index + 1 }];
         }),

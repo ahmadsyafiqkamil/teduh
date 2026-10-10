@@ -15,11 +15,17 @@ manager.
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# .env is loaded before any teduh_agent import because the model resolution
+# (teduh_agent/agent.py) runs at import time and must see TEDUH_LLM_BACKEND.
+load_dotenv(ROOT / ".env")
+
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import map_payload, router
-
-ROOT = Path(__file__).resolve().parents[1]
 
 # ADK scans this directory for packages exposing root_agent; teduh_agent lives at the root.
 AGENTS_DIR = str(ROOT)

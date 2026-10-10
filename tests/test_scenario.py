@@ -279,6 +279,59 @@ def test_a_modest_scenario_is_not_flagged(trained, cells, cfg, costs):
 
 
 @pytest.mark.integration
+def test_a_baseline_outlier_cell_the_intervention_did_not_move_is_not_flagged(
+    trained, cells, cfg, costs
+):
+    # The invariant the docstring claims: a cell whose ndvi already sits above q99 before any
+    # intervention is a baseline outlier the model was trained on, not a scenario pushing it
+    # somewhere new. Only cells the intervention actually moves may trip the flag.
+    booster, frame = trained
+    q99 = training_quantiles(frame).copy()
+    q99["ndvi"] = 0.40  # planted cell lands well below this; the outlier sits above it
+
+    outlier = cells.iloc[[0]].copy()
+    outlier["ndvi"] = 0.45
+    outlier["built_frac"] = 1.0  # zero plantable headroom, so tree planting cannot move it
+    outlier["water_frac"] = 0.0
+    outlier["tree_frac"] = 0.0
+
+    plantable = cells.iloc[[0]].copy()
+    plantable["ndvi"] = 0.20
+    plantable["built_frac"] = 0.5
+    plantable["water_frac"] = 0.0
+    plantable["tree_frac"] = 0.0
+
+    mixed = pd.concat([outlier, plantable], ignore_index=True)
+    result = simulate(mixed, [from_level(TREE, "low")], booster, cfg, costs, q99)
+
+    assert "ndvi" not in result.extrapolated_features
+
+
+@pytest.mark.integration
+def test_a_land_cover_fraction_at_one_is_not_flagged(trained, cells, cfg, costs):
+    # tree_frac saturates at 1,0 inside the training range, so planting a cell to the brim
+    # is inside the data, not beyond it -- q99 must not cry wolf on it.
+    booster, frame = trained
+    q99 = training_quantiles(frame)
+
+    planted = cells.copy()
+    planted["tree_frac"] = 0.98
+    planted["built_frac"] = 0.0
+    planted["water_frac"] = 0.0
+
+    result = simulate(
+        planted,
+        [Intervention(TREE, {"canopy_increase_pp": 2.0})],
+        booster,
+        cfg,
+        costs,
+        q99,
+    )
+
+    assert "tree_frac" not in result.extrapolated_features
+
+
+@pytest.mark.integration
 def test_training_quantiles_cover_every_model_feature(trained):
     _, frame = trained
     assert set(training_quantiles(frame).index) == set(FEATURES)

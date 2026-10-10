@@ -1,0 +1,23 @@
+.handle {
+  touch-action: none;
+  background: var(--color-border);
+  transition: background 0.15s ease;
+  outline-offset: -1px;
+}
+
+.handle:hover,
+.handle:focus-visible {
+  background: var(--color-canopy);
+}
+
+.vertical {
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+}
+
+.horizontal {
+  width: 100%;
+  height: 6px;
+  cursor: row-resize;
+}

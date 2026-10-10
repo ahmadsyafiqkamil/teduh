@@ -3,3 +3,6 @@ node_modules/
 out/
 next-env.d.ts
 *.tsbuildinfo
+
+# Disalin dari node_modules oleh script copy-map-worker.
+public/maplibre-gl-worker.mjs

@@ -86,10 +86,40 @@ describe('ResultTable', () => {
     expect(screen.getByText(/−1,4/)).toBeInTheDocument();
   });
 
-  it('flags an extrapolated scenario', () => {
-    const extrapolated = { ...SIM_RESPONSE, results: [{ ...SIM_RESPONSE.results[0], extrapolation: true }] };
-    render(<ResultTable tool="simulate_intervention" response={extrapolated} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+  it('flags an extrapolated scenario and names the feature', () => {
+    const extrapolated = {
+      ...SIM_RESPONSE,
+      results: [
+        {
+          ...SIM_RESPONSE.results[0],
+          extrapolation: true,
+          extrapolated_features: ['albedo'],
+        },
+      ],
+    };
+    render(
+      <ResultTable tool="simulate_intervention" response={extrapolated} onHighlight={vi.fn()} onSelect={vi.fn()} />,
+    );
     expect(screen.getByText(/di luar rentang data latih/i)).toBeInTheDocument();
+    expect(screen.getByText(/pantulan permukaan/i)).toBeInTheDocument();
+  });
+
+  it('does not tell a cool-roof scenario to lower intensity', () => {
+    const extrapolated = {
+      ...SIM_RESPONSE,
+      results: [
+        {
+          ...SIM_RESPONSE.results[0],
+          extrapolation: true,
+          extrapolated_features: ['albedo'],
+        },
+      ],
+    };
+    render(
+      <ResultTable tool="simulate_intervention" response={extrapolated} onHighlight={vi.fn()} onSelect={vi.fn()} />,
+    );
+    expect(screen.queryByText(/turunkan intensitas/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/belum pernah terpantau/i)).toBeInTheDocument();
   });
 
   it('shows the portfolio total against the budget', () => {

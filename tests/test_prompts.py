@@ -56,10 +56,28 @@ def test_shared_rules_require_indonesian():
 
 
 @pytest.mark.unit
+def test_shared_rules_forbid_a_note_before_a_tool_call():
+    # Observed in the browser: the model narrated what it was about to do ("I'll look up
+    # Kelurahan Rawa Buaya first.") in the same turn as the functionCall, and that aside
+    # reached the screen. The rule must tell it to go straight to the tool and write only
+    # the final answer.
+    text = load(SHARED).lower()
+    assert "jangan menulis catatan" in text
+    assert "langsung panggil tool" in text
+
+
+@pytest.mark.unit
 def test_shared_rules_require_the_surface_temperature_caveat():
     text = load(SHARED).lower()
     assert "permukaan" in text
     assert "indikatif" in text
+
+
+@pytest.mark.unit
+def test_shared_rules_tell_the_agent_to_name_the_extrapolated_feature():
+    # The flag alone is misleading: the planner must be told WHICH feature left the envelope.
+    text = load(SHARED).lower()
+    assert "extrapolated_features" in text
 
 
 @pytest.mark.unit

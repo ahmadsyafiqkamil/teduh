@@ -19,10 +19,10 @@ function setup(overrides = {}) {
 }
 
 describe('Header', () => {
-  it('offers all four layers', () => {
+  it('offers all five layers', () => {
     setup();
     const group = screen.getByRole('group', { name: /lapisan/i });
-    expect(group.querySelectorAll('button')).toHaveLength(4);
+    expect(group.querySelectorAll('button')).toHaveLength(5);
   });
 
   it('marks the active layer with aria-pressed', () => {

@@ -53,6 +53,21 @@ export const BASE_STYLE: StyleSpecification = {
  * 0 and painted as the lowest class.
  */
 export function fillColorExpression(layer: LayerDefinition): unknown[] {
+  if (layer.descending) {
+    // Stronger cooling is more negative but deeper in colour, so the default is the deepest
+    // palette entry and each ascending stop steps back toward the lightest.
+    const ascending = [...layer.breaks].sort((a, b) => a - b);
+    const step: unknown[] = [
+      'step',
+      ['get', layer.property],
+      layer.palette[layer.palette.length - 1],
+    ];
+    ascending.forEach((threshold, index) => {
+      step.push(threshold, layer.palette[layer.palette.length - 2 - index]);
+    });
+    return ['case', ['==', ['get', layer.property], null], NO_DATA_COLOR, step];
+  }
+
   const step: unknown[] = ['step', ['get', layer.property], layer.palette[0]];
   layer.breaks.forEach((threshold, index) => {
     step.push(threshold, layer.palette[index + 1]);

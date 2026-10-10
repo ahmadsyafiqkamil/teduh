@@ -18,6 +18,22 @@ const DATA_SOURCE = 'Data TEDUH v1 (Landsat 8/9, WorldPop 2025, ESA WorldCover v
 const MODEL_SOURCE = 'Model panas TEDUH LightGBM v1, spatial block CV.';
 const LST_FOOTNOTE = 'LST = suhu permukaan, bukan suhu udara.';
 
+/** Indonesian label for a feature the extrapolation guard can flag. */
+const FEATURE_LABELS: Record<string, string> = {
+  albedo: 'pantulan permukaan (cool roof)',
+  ndvi: 'kehijauan (vegetasi)',
+  ndbi: 'indeks bangunan (NDBI)',
+  ndwi: 'indeks kelembapan (NDWI)',
+  tree_frac: 'tutupan pohon',
+  built_frac: 'luas terbangun',
+  water_frac: 'luas perairan',
+  roof_frac: 'luas atap',
+  bldg_h_mean: 'tinggi bangunan',
+  elev_m: 'ketinggian lahan',
+  dist_coast_km: 'jarak ke pantai',
+  pop: 'jumlah penduduk',
+};
+
 interface RankedArea {
   rank: number;
   kel_id: string;
@@ -91,6 +107,24 @@ function RankCard({ areas, onHighlight, onSelect }: {
   );
 }
 
+function ExtrapolationWarning({ features }: { features: string[] }) {
+  const labels = features.map((feature) => FEATURE_LABELS[feature] ?? feature);
+  const hasAlbedo = features.includes('albedo');
+  const hasOther = features.some((feature) => feature !== 'albedo');
+
+  return (
+    <>
+      Skenario ini <strong>di luar rentang data latih</strong> model untuk{' '}
+      {labels.join(', ')}.{' '}
+      {hasAlbedo &&
+        'Pantulan permukaan setinggi ini belum pernah terpantau di Jakarta — belum ada atap ' +
+          'reflektif di data latih — jadi angkanya ekstrapolasi fisika, bukan analog dari ' +
+          'pengukuran.'}{' '}
+      {hasOther && 'Turunkan intensitas intervensi agar hasilnya lebih dapat diandalkan.'}
+    </>
+  );
+}
+
 function SimulateCard({ response }: { response: Record<string, unknown> }) {
   const results = response.results as {
     kel_id: string;
@@ -100,7 +134,10 @@ function SimulateCard({ response }: { response: Record<string, unknown> }) {
     area_m2: number;
     cost_idr: number;
     extrapolation: boolean;
+    extrapolated_features?: string[];
+    area_by_type?: Record<string, number>;
   }[];
+  const interventions = (response.interventions ?? []) as { type: string }[];
   const evidence = (response.evidence ?? []) as {
     id: string;
     source_title: string;
@@ -111,7 +148,18 @@ function SimulateCard({ response }: { response: Record<string, unknown> }) {
     comparable_to_model: boolean;
     url_or_doi: string;
   }[];
-  const extrapolated = results.some((result) => result.extrapolation);
+  const flaggedFeatures = [
+    ...new Set(results.flatMap((result) => result.extrapolated_features ?? [])),
+  ];
+
+  // A tree scenario on fully built (or water) cells plants zero square metres. The number
+  // is honest, but a planner needs to be told WHY it is zero rather than left to read it
+  // as a silent failure.
+  const treeRequested = interventions.some((item) => item.type === 'tree_planting');
+  const treeArea = results.reduce(
+    (total, result) => total + (result.area_by_type?.tree_planting ?? 0),
+    0,
+  );
 
   return (
     <div className={styles.card}>
@@ -162,11 +210,17 @@ function SimulateCard({ response }: { response: Record<string, unknown> }) {
         </div>
       ))}
 
-      {extrapolated && (
+      {treeRequested && treeArea <= 0 && (
         <div className={styles.warn}>
-          Skenario ini <strong>di luar rentang data latih</strong> model, jadi angkanya
-          kurang bisa dipercaya. Turunkan intensitas intervensi untuk hasil yang lebih
-          dapat diandalkan.
+          Tidak ada lahan untuk menanam pohon di wilayah ini — hampir seluruh areanya sudah
+          terbangun atau tertutup air. Coba intervensi <strong>cool roof</strong> atau{' '}
+          <strong>green roof</strong>, yang bekerja di atas bangunan.
+        </div>
+      )}
+
+      {flaggedFeatures.length > 0 && (
+        <div className={styles.warn}>
+          <ExtrapolationWarning features={flaggedFeatures} />
         </div>
       )}
 
