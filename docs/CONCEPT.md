@@ -35,7 +35,7 @@ Warga juga bisa ikut lewat fitur **Cek Atap**: unggah foto atap rumah, lalu Gemi
 
 | Syarat | Implementasi TEDUH |
 |---|---|
-| Model Google AI (Gemini atau Gemma) | Gemini Flash terbaru (saat ini `gemini-3.8-flash`, GA 2 Sep 2026) untuk agen dan vision. Model ID disimpan di env var, cek ulang di AI Studio sebelum build. |
+| Model Google AI (Gemini atau Gemma) | Gemini Flash (`gemini-2.5-flash`) untuk agen dan vision. Model ID disimpan di env var (`TEDUH_MODEL`), cek ulang ketersediaannya di Vertex AI sebelum build. |
 | Platform agentic: Agent Platform, Antigravity, atau AI Studio | **Agent Development Kit (ADK)** sebagai bagian dari Gemini Enterprise Agent Platform. Prototipe prompt di AI Studio. Antigravity boleh dipakai sebagai IDE. |
 | Deploy di Cloud Run atau Firebase | Backend agen + API di **Cloud Run**. Frontend Next.js di **Firebase App Hosting** atau Cloud Run. |
 | Proyek baru selama hackathon | Repo dibuat dari nol mulai 8 Okt 2026. Literatur dan data publik boleh dipakai. |
@@ -431,7 +431,7 @@ Env var penting (sesuai dokumentasi ADK terbaru, cek ulang saat setup):
 GOOGLE_CLOUD_PROJECT=...
 GOOGLE_CLOUD_LOCATION=...
 GOOGLE_GENAI_USE_ENTERPRISE=True   # dokumentasi lama: GOOGLE_GENAI_USE_VERTEXAI
-TEDUH_MODEL=gemini-3.8-flash
+TEDUH_MODEL=gemini-2.5-flash
 TEDUH_DATA_URI=gs://<bucket>/teduh/v1/
 ```
 

@@ -33,23 +33,13 @@ if ! curl -fsS "${API_URL}/api/health" > /dev/null; then
 fi
 
 cd web
-NEXT_PUBLIC_TEDUH_API="$API_URL" npm run build
 
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPO}/${WEB_SERVICE}:$(date +%Y%m%d-%H%M%S)"
 
-cat > Dockerfile.deploy <<'DOCKERFILE'
-FROM node:22-slim
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
-COPY . .
-ENV NODE_ENV=production PORT=8080
-EXPOSE 8080
-CMD ["npx", "next", "start", "-H", "0.0.0.0", "-p", "8080"]
-DOCKERFILE
-
-gcloud builds submit . --project "$PROJECT" --tag "$IMAGE"
-rm -f Dockerfile.deploy
+gcloud builds submit . \
+  --project "$PROJECT" \
+  --config cloudbuild.yaml \
+  --substitutions "_IMAGE=${IMAGE},_API_URL=${API_URL}"
 
 gcloud run deploy "$WEB_SERVICE" \
   --project "$PROJECT" \

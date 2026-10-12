@@ -28,7 +28,7 @@ from teduh_agent.facts import SOURCE_MODEL, Fact, fact, record, source_evidence
 from teduh_agent.store import get_store
 from teduh_agent.tools.evidence import COMPARABLE_METRIC
 
-MODEL = os.environ.get("TEDUH_MODEL", "gemini-3.8-flash")
+MODEL = os.environ.get("TEDUH_MODEL", "gemini-2.5-flash")
 
 ROOF_FORMS = ("flat", "pitched", "mixed", "unknown")
 MATERIALS = (

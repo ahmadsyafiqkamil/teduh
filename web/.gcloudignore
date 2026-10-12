@@ -1,0 +1,11 @@
+# Build context for the Next.js web image (deploy_web.sh). The image builds with
+# `npm ci` inside Cloud Build, so nothing from node_modules or .next needs to be uploaded.
+.gcloudignore
+.git
+.gitignore
+node_modules
+.next
+out
+*.tsbuildinfo
+next-env.d.ts
+public/maplibre-gl-worker.mjs

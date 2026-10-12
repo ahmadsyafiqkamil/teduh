@@ -1,0 +1,44 @@
+# Build context for `gcloud builds submit` (deploy_api.sh / deploy_web.sh).
+# Keep it lean and never upload secrets. NOTE: this file overrides .gitignore for
+# upload purposes, so the gitignored runtime artifacts below (grid_features.parquet,
+# data/model/*) are intentionally NOT listed here — they must reach the Docker build.
+
+.gcloudignore
+.git
+.gitignore
+.gitmodules
+.dockerignore
+.gitattributes
+
+# Secrets and local dev config — never upload.
+.env
+.env.*
+*.pem
+
+# Python / tooling caches and venvs.
+.venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+
+# Frontend is deployed separately (deploy_web.sh).
+web/node_modules
+web/.next
+
+# Personal editor/agent local state.
+.claude
+.cursor
+.adk
+
+# Large / regenerable inputs not needed in the runtime image.
+data/raw
+data/roof_test/photos
+data/briefs
+docs
+design
+tests
+*.pdf
+
+.DS_Store

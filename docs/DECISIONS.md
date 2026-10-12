@@ -182,4 +182,17 @@
 - **Efek pada `feature_percentile_max`:** angka 99 sebelumnya hanya hidup sebagai default hardcoded di `model/scenario.py`; `config/scenario.yaml` mendeklarasikannya tapi tidak ada kode yang membacanya. `quantiles()` di `teduh_agent/tools/scenario_tools.py` kini membaca nilai itu lewat `config_entry`, menutup pelanggaran halus aturan 4 (mengedit YAML tidak berefek apa-apa).
 - **Risiko:** `cool_roof.albedo_cool = 0,65` (ASUMSI, "treat as pending") tetap membuat tiap skenario cool roof ekstrapolasi di hampir semua kelurahan. Perbaikan kode tidak bisa menghilangkannya — yang dibutuhkan adalah pengukuran albedo atap reflektif tropis. Perubahan ini hanya membuat peringatannya jujur: menyebut fitur yang keluar amplop, bukan menyuruh menurunkan angka yang tidak bisa diturunkan.
 
+## 2026-10-12 — Model Gemini aktual `gemini-2.5-flash`, dan region Vertex `asia-southeast1`
+
+- **Konsep (CONCEPT §2, CLAUDE.md):** model `gemini-3.8-flash` (disebut "GA 2 Sep 2026"), region default `asia-southeast2` (Jakarta).
+- **Keputusan:** default `TEDUH_MODEL` di semua titik (kode, `deploy_api.sh`, `.env.example`) diubah ke `gemini-2.5-flash`. Deploy API pindah ke region `asia-southeast1` (Singapura).
+- **Alasan:** terverifikasi langsung ke Vertex AI saat deploy pertama: `asia-southeast2` (Jakarta) mengembalikan `400 FAILED_PRECONDITION` untuk SEMUA model Gemini (`gemini-2.5-flash`, `gemini-1.5-flash`, dst.), artinya region itu tidak melayani Gemini. Di `asia-southeast1`, `us-central1`, `asia-northeast1` Gemini berfungsi. Dan `gemini-3.8-flash` mengembalikan `404 NOT_FOUND` ("Publisher model ... was not found") — ID itu tidak pernah ada. Satu-satunya model Gemini yang tersedia dan teruji adalah `gemini-2.5-flash` (multimodal, dipakai juga untuk Cek Atap).
+- **Risiko:** pilihan model dikunci pada flash generasi 2.5, bukan "terbaru". Kalau ada model flash lebih baru yang tersedia di Vertex, ganti nilai `TEDUH_MODEL` saja (env) — tidak ada yang hard-coded di luar default.
+
+## 2026-10-12 — `.gcloudignore` dibuat agar artefak gitignored ikut ke build
+
+- **Masalah:** `gcloud builds submit` mengikuti `.gitignore` bila tidak ada `.gcloudignore`. `data/model/*` dan `data/processed/grid_features.parquet` sengaja gitignored (CLAUDE.md aturan 8), tapi wajib ikut ke image karena `infra/Dockerfile` meng-`COPY`-nya. Tanpa `.gcloudignore`, build akan berjalan "sukses" dengan `model.txt` dan grid kosong — deploy rusak diam-diam.
+- **Keputusan:** tambah `.gcloudignore` yang mengecualikan `.env` (API key), `.venv` (581 MB), `web/node_modules` (551 MB), `docs`/`tests`/`design`/`data/raw`, dan **tidak** menyebut `data/model`/`data/processed` sehingga artefak runtime tetap ter-upload (125 file, 14,2 MiB).
+- **Risiko:** siapa pun yang menambah artefak runtime baru yang gitignored wajib memastikan `.gcloudignore` tidak menyaringnya.
+
 Rincian semua sumber: `docs/DATA_SOURCES.md`.

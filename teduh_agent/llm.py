@@ -17,7 +17,7 @@ import importlib
 import os
 from typing import Any
 
-DEFAULT_GEMINI = "gemini-3.8-flash"
+DEFAULT_GEMINI = "gemini-2.5-flash"
 
 BACKEND_ENV = "TEDUH_LLM_BACKEND"
 BASE_URL_ENV = "TEDUH_LLM_BASE_URL"

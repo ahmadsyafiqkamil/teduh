@@ -11,7 +11,7 @@ REGION="${GOOGLE_CLOUD_LOCATION:-asia-southeast2}"
 SERVICE="teduh-api"
 REPO="teduh"
 MIN_INSTANCES="${TEDUH_MIN_INSTANCES:-0}"
-MODEL="${TEDUH_MODEL:-gemini-3.8-flash}"
+MODEL="${TEDUH_MODEL:-gemini-2.5-flash}"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

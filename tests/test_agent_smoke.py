@@ -26,7 +26,7 @@ def test_root_agent_is_named_teduh_coordinator():
 
 @pytest.mark.unit
 def test_root_agent_model_comes_from_the_environment(monkeypatch):
-    reloaded = _reload(monkeypatch, TEDUH_MODEL="gemini-test-model")
+    reloaded = _reload(monkeypatch, TEDUH_MODEL="gemini-test-model", TEDUH_LLM_BACKEND=None)
     try:
         assert reloaded.root_agent.model == "gemini-test-model"
     finally:

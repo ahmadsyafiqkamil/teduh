@@ -71,8 +71,11 @@ def test_every_sub_agent_has_a_description_the_coordinator_can_route_on(agents):
 
 
 @pytest.mark.unit
-def test_every_sub_agent_uses_the_model_from_the_environment(agents, monkeypatch):
-    from teduh_agent.sub_agents import MODEL
+def test_every_sub_agent_uses_the_model_from_the_environment(monkeypatch):
+    from teduh_agent.llm import model_name
 
-    for agent in agents.values():
-        assert agent.model == MODEL
+    monkeypatch.delenv("TEDUH_LLM_BACKEND", raising=False)
+    monkeypatch.setenv("TEDUH_MODEL", "gemini-test-model")
+
+    for agent in build_all():
+        assert agent.model == model_name()

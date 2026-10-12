@@ -1,0 +1,7 @@
+# Build the Next.js web image against web/ as the build context.
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_IMAGE}", "--build-arg", "NEXT_PUBLIC_TEDUH_API=${_API_URL}", "."]
+images: ["${_IMAGE}"]
+options:
+  logging: CLOUD_LOGGING_ONLY

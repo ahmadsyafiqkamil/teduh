@@ -20,7 +20,7 @@ Sumber kebenaran desain: `docs/CONCEPT.md`. Baca bagian yang relevan sebelum men
 - Python 3.12 + `uv`. Paket: `google-adk`, `google-genai`, `fastapi`, `lightgbm`, `shap`, `scikit-learn`, `ortools`, `geopandas`, `pyarrow`, `earthengine-api` (pipeline saja), `weasyprint`.
 - Frontend: Next.js (App Router) + TypeScript + Tailwind + MapLibre GL JS, di `web/`.
 - Deploy: Cloud Run (`teduh-api`), Firebase App Hosting atau Cloud Run (`teduh-web`), GCS, Firestore, Secret Manager.
-- Model Gemini dibaca dari env `TEDUH_MODEL` (default `gemini-3.8-flash`). Jangan hard-code model ID.
+- Model Gemini dibaca dari env `TEDUH_MODEL` (default `gemini-2.5-flash`). Jangan hard-code model ID.
 - Paket agen ADK ada di `teduh_agent/` dengan `root_agent` di `agent.py` dan `from . import agent` di `__init__.py`.
 
 ## Urutan build (milestone)
