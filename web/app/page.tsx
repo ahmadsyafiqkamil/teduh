@@ -35,7 +35,7 @@ import {
   readSize,
   writeSize,
 } from '@/lib/resize';
-import type { KelurahanCollection, SimulateResponse } from '@/lib/types';
+import type { KelurahanCollection, ScenarioResult, SimulateResponse } from '@/lib/types';
 import styles from './page.module.css';
 
 const USER_ID = 'perencana';
@@ -163,6 +163,21 @@ export default function Home() {
             if (highlight.length) {
               setPriorityIds([...new Set(highlight)]);
               setShowPriority(true);
+            }
+
+            // The agent's simulate_intervention also produces per-kelurahan ΔLST. Paint it
+            // onto the `dlst` layer exactly like the slider path does, so a scenario asked
+            // in chat colours the map instead of leaving it blank.
+            const simulated = event.steps
+              .filter(
+                (step) => step.status === 'done' && step.tool === 'simulate_intervention',
+              )
+              .flatMap((step) => (step.response?.results as ScenarioResult[]) ?? []);
+            if (simulated.length) {
+              const deltas: Record<string, number> = {};
+              for (const row of simulated) deltas[row.kel_id] = row.delta_lst_c;
+              setSimulationDeltas(deltas);
+              setLayer('dlst');
             }
           }
         }
