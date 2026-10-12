@@ -16,7 +16,9 @@ citation without anyone seeing it.
 Briefs are written to data/briefs/ rather than Firestore; see docs/DECISIONS.md.
 """
 
+import os
 import re
+import sys
 import uuid
 from pathlib import Path
 
@@ -28,6 +30,8 @@ from teduh_agent.store import get_store
 
 ROOT = Path(__file__).resolve().parents[2]
 BRIEF_DIR = ROOT / "data" / "briefs"
+
+HOMEBREW_LIB = Path("/opt/homebrew/lib")
 
 MARKER_PATTERN = re.compile(r"\[\[F:([A-Za-z0-9_.\-]+)\]\]")
 
@@ -258,8 +262,26 @@ def to_html(markdown_body: str) -> str:
     )
 
 
+def ensure_pdf_libraries() -> None:
+    """Arahkan dyld ke Pango/Cairo Homebrew sebelum WeasyPrint diimpor (dev macOS saja).
+
+    macOS SIP membuang DYLD_* dari environment proses anak, jadi cffi tidak menemukan
+    libgobject walau Homebrew sudah memasangnya. Linux dan container tidak terpengaruh:
+    infra/Dockerfile memasang pustakanya ke lokasi standar.
+    """
+    if sys.platform != "darwin" or not HOMEBREW_LIB.is_dir():
+        return
+    existing = os.environ.get("DYLD_FALLBACK_LIBRARY_PATH", "")
+    if str(HOMEBREW_LIB) in existing:
+        return
+    os.environ["DYLD_FALLBACK_LIBRARY_PATH"] = (
+        f"{HOMEBREW_LIB}:{existing}" if existing else str(HOMEBREW_LIB)
+    )
+
+
 def to_pdf(markdown_body: str, destination: Path) -> Path:
     """Render to PDF with WeasyPrint, which needs Pango and Cairo from the system."""
+    ensure_pdf_libraries()
     from weasyprint import HTML
 
     HTML(string=to_html(markdown_body)).write_pdf(str(destination))
@@ -328,10 +350,12 @@ def render_policy_brief(draft_markdown: str, tool_context: ToolContext) -> dict:
     # A missing system library must not lose the brief the agent just produced, so a PDF
     # failure degrades to Markdown-only and says so instead of raising.
     pdf_available = False
+    pdf_error: str | None = None
     try:
         to_pdf(body, BRIEF_DIR / f"{brief_id}.pdf")
         pdf_available = True
     except Exception as error:  # noqa: BLE001 -- any WeasyPrint/system failure
+        pdf_error = str(error)
         print(f"PERINGATAN: render PDF gagal, brief tetap tersedia sebagai Markdown: {error}")
 
     return {
@@ -343,4 +367,5 @@ def render_policy_brief(draft_markdown: str, tool_context: ToolContext) -> dict:
         "unused_facts": report["unused_facts"],
         "download_path": f"/api/brief/{brief_id}",
         "pdf_available": pdf_available,
+        "pdf_error": pdf_error,
     }

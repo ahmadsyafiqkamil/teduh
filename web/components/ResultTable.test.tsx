@@ -31,6 +31,13 @@ const OPT_RESPONSE = {
   equity_share_achieved: 1.0,
 };
 
+const BRIEF_RESPONSE = {
+  brief_id: 'abcdef123456',
+  badge: 'Semua angka terverifikasi (41 fakta)',
+  pdf_available: true,
+  warnings: [],
+};
+
 describe('ResultTable', () => {
   it('renders the ranking table with real kelurahan names', () => {
     render(<ResultTable tool="rank_priority_areas" response={RANK_RESPONSE} onHighlight={vi.fn()} onSelect={vi.fn()} />);
@@ -147,5 +154,34 @@ describe('ResultTable', () => {
   it('renders nothing when the tool returned an error', () => {
     const { container } = render(<ResultTable tool="rank_priority_areas" response={{ error: 'gagal' }} onHighlight={vi.fn()} onSelect={vi.fn()} />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders a PDF download link when the brief has a PDF', () => {
+    render(<ResultTable tool="render_policy_brief" response={BRIEF_RESPONSE} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+    expect(screen.getByText('Semua angka terverifikasi (41 fakta)')).toBeInTheDocument();
+    const pdfLink = screen.getByRole('link', { name: /unduh pdf/i });
+    expect(pdfLink).toHaveAttribute('href', expect.stringContaining('format=pdf'));
+    expect(screen.getByRole('link', { name: /unduh markdown/i })).toBeInTheDocument();
+  });
+
+  it('falls back to Markdown and hides the PDF button when the PDF failed', () => {
+    const noPdf = {
+      ...BRIEF_RESPONSE,
+      pdf_available: false,
+      pdf_error: 'WeasyPrint tidak tersedia',
+    };
+    render(<ResultTable tool="render_policy_brief" response={noPdf} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+    expect(screen.getByRole('link', { name: /unduh markdown/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /unduh pdf/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/gagal di server ini/i)).toBeInTheDocument();
+  });
+
+  it('surfaces validator warnings on the brief card', () => {
+    const withWarnings = {
+      ...BRIEF_RESPONSE,
+      warnings: ['Angka "30%" diizinkan sebagai nomor peraturan.'],
+    };
+    render(<ResultTable tool="render_policy_brief" response={withWarnings} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+    expect(screen.getByText(/nomor peraturan/i)).toBeInTheDocument();
   });
 });

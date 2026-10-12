@@ -8,11 +8,20 @@ from fastapi.testclient import TestClient
 
 from api.routes import router
 from teduh_agent.facts import SOURCE_DATA, fact, record
-from teduh_agent.tools.brief import REQUIRED_SECTIONS, render_policy_brief, to_html
+from teduh_agent.tools.brief import (
+    REQUIRED_SECTIONS,
+    ensure_pdf_libraries,
+    render_policy_brief,
+    to_html,
+)
 
 # WeasyPrint fails to import with OSError (not ImportError) when Pango/Cairo are missing,
 # because cffi cannot load libgobject at the C level. A plain importorskip would re-raise
-# that OSError and crash the whole module instead of skipping, so catch both here.
+# that OSError and crash the whole module instead of skipping, so catch both here. On
+# dev macOS the shim must run first, or the whole module would skip despite Homebrew
+# already providing the libraries.
+ensure_pdf_libraries()
+
 try:
     import weasyprint  # noqa: F401
 except (ImportError, OSError):
@@ -32,7 +41,7 @@ def client() -> TestClient:
 
 
 @pytest.fixture
-def rendered() -> dict:
+def rendered(isolated_brief_dir) -> dict:
     ctx = FakeToolContext()
     record(ctx, [fact("kel_ID3173040002.lst", "Suhu permukaan rata-rata", 44.61, "degC",
                       SOURCE_DATA)])
@@ -56,20 +65,16 @@ def test_html_includes_print_styles_so_the_pdf_is_not_naked():
 
 
 @pytest.mark.integration
-def test_render_also_writes_a_pdf(rendered):
-    from teduh_agent.tools.brief import BRIEF_DIR
-
+def test_render_also_writes_a_pdf(rendered, isolated_brief_dir):
     assert rendered["pdf_available"] is True
-    pdf = BRIEF_DIR / f"{rendered['brief_id']}.pdf"
+    pdf = isolated_brief_dir / f"{rendered['brief_id']}.pdf"
     assert pdf.exists()
     assert pdf.stat().st_size > 1000, "PDF terlalu kecil untuk berisi apa pun"
 
 
 @pytest.mark.integration
-def test_pdf_starts_with_the_pdf_magic_bytes(rendered):
-    from teduh_agent.tools.brief import BRIEF_DIR
-
-    data = (BRIEF_DIR / f"{rendered['brief_id']}.pdf").read_bytes()
+def test_pdf_starts_with_the_pdf_magic_bytes(rendered, isolated_brief_dir):
+    data = (isolated_brief_dir / f"{rendered['brief_id']}.pdf").read_bytes()
     assert data[:4] == b"%PDF"
 
 

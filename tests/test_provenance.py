@@ -183,7 +183,7 @@ def test_all_eight_concept_sections_are_required():
 # --- the tool surface -----------------------------------------------------------------
 
 @pytest.mark.integration
-def test_render_returns_errors_instead_of_a_brief_when_validation_fails(facts):
+def test_render_returns_errors_instead_of_a_brief_when_validation_fails(facts, isolated_brief_dir):
     ctx = FakeToolContext()
     record(ctx, facts)
     result = render_policy_brief(_full_draft() + "\nTurun 3 derajat.\n", ctx)
@@ -192,7 +192,7 @@ def test_render_returns_errors_instead_of_a_brief_when_validation_fails(facts):
 
 
 @pytest.mark.integration
-def test_render_produces_a_brief_with_a_verified_count(facts):
+def test_render_produces_a_brief_with_a_verified_count(facts, isolated_brief_dir):
     ctx = FakeToolContext()
     record(ctx, facts)
     draft = _full_draft() + (
@@ -204,7 +204,7 @@ def test_render_produces_a_brief_with_a_verified_count(facts):
 
 
 @pytest.mark.integration
-def test_render_appends_a_sources_section_with_footnote_definitions(facts):
+def test_render_appends_a_sources_section_with_footnote_definitions(facts, isolated_brief_dir):
     ctx = FakeToolContext()
     record(ctx, facts)
     result = render_policy_brief(
@@ -214,7 +214,7 @@ def test_render_appends_a_sources_section_with_footnote_definitions(facts):
 
 
 @pytest.mark.integration
-def test_cost_footnote_cites_the_price_without_the_word_asumsi(facts):
+def test_cost_footnote_cites_the_price_without_the_word_asumsi(facts, isolated_brief_dir):
     # DECISIONS 2026-10-09: the brief does not render an "this price is an assumption"
     # disclaimer, but the source still travels with the fact.
     ctx = FakeToolContext()
@@ -227,19 +227,17 @@ def test_cost_footnote_cites_the_price_without_the_word_asumsi(facts):
 
 
 @pytest.mark.integration
-def test_render_assigns_a_brief_id_and_writes_it_to_disk(facts):
+def test_render_assigns_a_brief_id_and_writes_it_to_disk(facts, isolated_brief_dir):
     ctx = FakeToolContext()
     record(ctx, facts)
     result = render_policy_brief(
         _full_draft() + "\nSuhu [[F:kel_ID3173040002.lst]].\n", ctx
     )
-    from teduh_agent.tools.brief import BRIEF_DIR
-
-    assert (BRIEF_DIR / f"{result['brief_id']}.md").exists()
+    assert (isolated_brief_dir / f"{result['brief_id']}.md").exists()
 
 
 @pytest.mark.integration
-def test_render_without_any_facts_in_session_refuses():
+def test_render_without_any_facts_in_session_refuses(isolated_brief_dir):
     result = render_policy_brief(_full_draft(), FakeToolContext())
     assert "errors" in result
 

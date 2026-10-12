@@ -10,6 +10,7 @@
  */
 
 import { MapPin } from 'lucide-react';
+import { briefUrl } from '@/lib/api';
 import { MINUS, formatIdr, formatNumber, formatPercent, formatUnit } from '@/lib/format';
 import { SourceChip } from './SourceChip';
 import styles from './ResultTable.module.css';
@@ -313,6 +314,54 @@ function OptimizeCard({ response, onSelect }: {
   );
 }
 
+function BriefCard({ response }: { response: Record<string, unknown> }) {
+  const briefId = response.brief_id as string;
+  const pdfAvailable = response.pdf_available === true;
+  const pdfError = response.pdf_error as string | undefined;
+  const warnings = (response.warnings ?? []) as string[];
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.cardHead}>{String(response.badge ?? 'Policy brief')}</div>
+
+      <div className={styles.block}>
+        {pdfAvailable ? (
+          <div className={styles.downloadRow}>
+            <a className={styles.downloadLink} href={briefUrl(briefId, 'pdf')} download>
+              Unduh PDF
+            </a>
+            <a className={styles.downloadLink} href={briefUrl(briefId, 'md')} download>
+              Unduh Markdown
+            </a>
+          </div>
+        ) : (
+          <>
+            <div className={styles.warn}>
+              Render PDF gagal di server ini{pdfError ? `: ${pdfError}` : ''}. Brief tetap
+              tersedia sebagai Markdown.
+            </div>
+            <a className={styles.downloadLink} href={briefUrl(briefId, 'md')} download>
+              Unduh Markdown
+            </a>
+          </>
+        )}
+      </div>
+
+      {warnings.length > 0 && (
+        <div className={styles.warn}>
+          {warnings.map((warning) => (
+            <div key={warning}>{warning}</div>
+          ))}
+        </div>
+      )}
+
+      <div className={styles.footer}>
+        <span>Semua angka dalam brief diverifikasi terhadap fakta sesi.</span>
+      </div>
+    </div>
+  );
+}
+
 export function ResultTable({ tool, response, onHighlight, onSelect }: ResultTableProps) {
   // A failed tool call renders no card: an empty table of dashes reads as missing data
   // rather than as a call that did not succeed.
@@ -334,6 +383,10 @@ export function ResultTable({ tool, response, onHighlight, onSelect }: ResultTab
 
   if (tool === 'optimize_portfolio' && Array.isArray(response.packages)) {
     return <OptimizeCard response={response} onSelect={onSelect} />;
+  }
+
+  if (tool === 'render_policy_brief' && typeof response.brief_id === 'string') {
+    return <BriefCard response={response} />;
   }
 
   return null;

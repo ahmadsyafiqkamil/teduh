@@ -17,6 +17,20 @@ FIXTURES = ROOT / "tests" / "fixtures"
 REAL_GRID = ROOT / "data" / "processed" / "grid_features.parquet"
 
 
+@pytest.fixture
+def isolated_brief_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Point brief rendering at a throwaway dir so tests never touch data/briefs/.
+
+    api/routes.py imports BRIEF_DIR by value, so patching only the brief module would leave
+    the endpoint tests hitting the real directory. Both must be patched.
+    """
+    briefs = tmp_path / "briefs"
+    briefs.mkdir()
+    monkeypatch.setattr("teduh_agent.tools.brief.BRIEF_DIR", briefs)
+    monkeypatch.setattr("api.routes.BRIEF_DIR", briefs)
+    return briefs
+
+
 @pytest.fixture(scope="session")
 def fixture_store() -> store_module.Store:
     return store_module.load(
