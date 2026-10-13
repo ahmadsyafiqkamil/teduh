@@ -71,9 +71,9 @@ gcloud builds submit "$ROOT" \
   --substitutions "_IMAGE=${IMAGE}"
 
 echo "==> deploy $SERVICE ke $REGION"
-# gcloud parses --set-env-vars as a comma-separated dict, so a comma INSIDE a value must be
-# escaped as ^,^ or the second origin is read as a bare (malformed) env entry.
-WEB_ORIGIN_ESCAPED="${WEB_ORIGIN//,/^,^}"
+# gcloud parses --set-env-vars as a comma-separated dict, so a comma INSIDE a value (the
+# comma-joined origin list) breaks it. Use an alternate delimiter (^|^) so the commas in
+# TEDUH_WEB_ORIGIN are literal. "|" appears in none of the values.
 gcloud run deploy "$SERVICE" \
   --project "$PROJECT" \
   --region "$REGION" \
@@ -85,7 +85,7 @@ gcloud run deploy "$SERVICE" \
   --concurrency 20 \
   --min-instances "$MIN_INSTANCES" \
   --max-instances 4 \
-  --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT},GOOGLE_CLOUD_LOCATION=${REGION},GOOGLE_GENAI_USE_ENTERPRISE=True,TEDUH_MODEL=${MODEL},TEDUH_WEB_ORIGIN=${WEB_ORIGIN_ESCAPED}"
+  --set-env-vars "^|^GOOGLE_CLOUD_PROJECT=${PROJECT}|GOOGLE_CLOUD_LOCATION=${REGION}|GOOGLE_GENAI_USE_ENTERPRISE=True|TEDUH_MODEL=${MODEL}|TEDUH_WEB_ORIGIN=${WEB_ORIGIN}"
 
 URL="$(gcloud run services describe "$SERVICE" --project "$PROJECT" --region "$REGION" --format 'value(status.url)')"
 echo "==> selesai: $URL"
