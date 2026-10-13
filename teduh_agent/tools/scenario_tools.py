@@ -153,6 +153,7 @@ def simulate_intervention(
         results.append(
             {
                 "kel_id": outcome.kel_id,
+                "kel_name": str(store.kelurahan.loc[kel_id, "kel_name"]),
                 "delta_lst_c": outcome.delta_lst_c,
                 "delta_lst_pop_weighted_c": outcome.delta_lst_pop_weighted_c,
                 "vulnerable_benefiting": outcome.vulnerable_benefiting,

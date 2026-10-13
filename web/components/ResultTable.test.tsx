@@ -13,7 +13,7 @@ const RANK_RESPONSE = {
 
 const SIM_RESPONSE = {
   results: [
-    { kel_id: 'ID3173040002', delta_lst_c: -0.83, delta_lst_pop_weighted_c: -0.91, vulnerable_benefiting: 540, area_m2: 12000, cost_idr: 1_140_000_000, extrapolation: false },
+    { kel_id: 'ID3173040002', kel_name: 'Kampung Rawa', delta_lst_c: -0.83, delta_lst_pop_weighted_c: -0.91, vulnerable_benefiting: 540, area_m2: 12000, cost_idr: 1_140_000_000, extrapolation: false },
   ],
   evidence: [
     { id: 'ev_ndvi_kl_2025', source_title: 'Kuala Lumpur UHI', year: 2025, value_min: -1.4, value_max: 0.1, unit: 'degC', comparable_to_model: true, url_or_doi: 'https://doi.org/x' },
@@ -85,6 +85,11 @@ describe('ResultTable', () => {
     expect(screen.getByText(/−0,83/)).toBeInTheDocument();
     // "indikatif" appears in both the card head and the footer note.
     expect(screen.getAllByText(/indikatif/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('names the kelurahan each simulation result belongs to', () => {
+    render(<ResultTable tool="simulate_intervention" response={SIM_RESPONSE} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+    expect(screen.getByText('Kampung Rawa')).toBeInTheDocument();
   });
 
   it('places the literature range beside the model number', () => {

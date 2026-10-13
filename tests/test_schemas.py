@@ -73,10 +73,11 @@ def test_simulate_rejects_an_empty_intervention_list():
 @pytest.mark.unit
 def test_simulate_caps_the_number_of_kelurahan():
     # Each kelurahan is a model prediction over its cells; an unbounded list is a trivial
-    # way to make one request occupy the whole instance.
+    # way to make one request occupy the whole instance. The cap is the full dataset size,
+    # so a whole-kota scenario passes while anything larger is rejected.
     with pytest.raises(ValidationError):
         SimulateRequest(
-            kel_ids=[f"ID31730400{i:02d}" for i in range(30)],
+            kel_ids=[f"ID{i:010d}" for i in range(265)],
             interventions=[InterventionInput(type="cool_roof", level="low")],
         )
 

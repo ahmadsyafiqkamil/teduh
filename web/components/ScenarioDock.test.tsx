@@ -11,6 +11,10 @@ function setup(overrides = {}) {
     status: 'Belum ada simulasi. Atur intervensi, lalu tekan Simulasikan.',
     busy: false,
     onSimulate: vi.fn(),
+    multiSelect: false,
+    pickedCount: 0,
+    onToggleMultiSelect: vi.fn(),
+    onClearPicked: vi.fn(),
     ...overrides,
   };
   render(<ScenarioDock {...props} />);

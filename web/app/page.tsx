@@ -40,10 +40,10 @@ import styles from './page.module.css';
 
 const USER_ID = 'perencana';
 
-// Mirrors api/schemas.py MAX_KELURAHAN_PER_REQUEST. The slider path must not send more
-// kelurahan than the API accepts, or a kota-wide scenario (Jakarta Pusat has 44) fails
-// with a 422 that the frontend can only surface as "permintaan tidak valid".
-const MAX_KELURAHAN_PER_REQUEST = 20;
+// Mirrors api/schemas.py MAX_KELURAHAN_PER_REQUEST. The full DKI Jakarta dataset is 264
+// kelurahan, so a whole-kota scenario (Jakarta Pusat has 44) must be allowed through. The
+// guard only trips for a list larger than the dataset itself, which is never legitimate.
+const MAX_KELURAHAN_PER_REQUEST = 264;
 
 export default function Home() {
   const [collection, setCollection] = useState<KelurahanCollection | null>(null);
@@ -57,6 +57,15 @@ export default function Home() {
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [priorityIds, setPriorityIds] = useState<string[]>([]);
   const [showPriority, setShowPriority] = useState(true);
+
+  // Manual multi-select: the planner toggles "pilih banyak" and clicks kelurahan to build
+  // their own simulation target, independent of the agent's priority set.
+  const [multiSelect, setMultiSelect] = useState(false);
+  const [pickedIds, setPickedIds] = useState<string[]>([]);
+  const multiSelectRef = useRef(false);
+  useEffect(() => {
+    multiSelectRef.current = multiSelect;
+  }, [multiSelect]);
 
   const [scenario, setScenario] = useState<ScenarioState>(EMPTY_SCENARIO);
   const [scenarioStatus, setScenarioStatus] = useState(
@@ -116,6 +125,35 @@ export default function Home() {
       })),
     };
   }, [collection, simulationDeltas]);
+
+  // Stable across renders so the map registers its click handler exactly once. The mode is
+  // read through a ref, so toggling "pilih banyak" never leaves a stale closure behind.
+  const handleMapSelect = useCallback((kelId: string) => {
+    if (multiSelectRef.current) {
+      setPickedIds((previous) =>
+        previous.includes(kelId)
+          ? previous.filter((id) => id !== kelId)
+          : [...previous, kelId],
+      );
+    } else {
+      setSelectedId(kelId);
+    }
+  }, []);
+
+  const toggleMultiSelect = useCallback(() => {
+    if (!multiSelectRef.current) {
+      // Entering multi-select: seed with the current single selection so the map gives
+      // immediate feedback, and close the drawer so clicks stop being interpreted as select.
+      setPickedIds(selectedId ? [selectedId] : []);
+      setSelectedId(null);
+      setMultiSelect(true);
+    } else {
+      setPickedIds([]);
+      setMultiSelect(false);
+    }
+  }, [selectedId]);
+
+  const clearPicked = useCallback(() => setPickedIds([]), []);
 
   const send = useCallback(
     async (text: string) => {
@@ -202,17 +240,23 @@ export default function Home() {
   );
 
   const runSimulation = useCallback(async () => {
-    let targets = priorityIds.length ? priorityIds : selectedId ? [selectedId] : [];
+    let targets = pickedIds.length
+      ? pickedIds
+      : priorityIds.length
+        ? priorityIds
+        : selectedId
+          ? [selectedId]
+          : [];
     if (!targets.length) {
       setScenarioStatus('Pilih kelurahan di peta atau minta agen menyusun prioritas dulu.');
       return;
     }
 
-    // The API rejects a request with more than 20 kelurahan. A kota-wide scenario (44 in
-    // Jakarta Pusat) must be capped rather than dropped as a 422, and the user told which
-    // subset ran -- priorityIds is already in rank order, so the top 20 are the right slice.
-    const truncated = targets.length > MAX_KELURAHAN_PER_REQUEST;
-    if (truncated) targets = targets.slice(0, MAX_KELURAHAN_PER_REQUEST);
+    // Safety net only: the API rejects a list larger than the dataset. It cannot trigger
+    // from a legitimate selection (there are 264 kelurahan total), so no user-facing note.
+    if (targets.length > MAX_KELURAHAN_PER_REQUEST) {
+      targets = targets.slice(0, MAX_KELURAHAN_PER_REQUEST);
+    }
 
     const interventions: { type: string; params: Record<string, number> }[] = [];
     if (scenario.tree > 0) {
@@ -255,21 +299,27 @@ export default function Home() {
       setScenarioStatus(
         treeRequested && treeArea <= 0
           ? `Pohon tidak bisa ditanam — lahan terbangun penuh. Coba cool roof atau green roof.`
-          : `Perkiraan rata-rata ${formatNumber(mean, 2)} °C pada ${result.results.length} kelurahan` +
-              (truncated ? ` (20 prioritas teratas)` : ``) +
-              ` · indikatif, suhu permukaan.`,
+          : `Perkiraan rata-rata ${formatNumber(mean, 2)} °C pada ${result.results.length} kelurahan · indikatif, suhu permukaan.`,
       );
     } catch (error) {
       setScenarioStatus(error instanceof Error ? error.message : 'Simulasi gagal.');
     } finally {
       setScenarioBusy(false);
     }
-  }, [priorityIds, selectedId, scenario]);
+  }, [pickedIds, priorityIds, selectedId, scenario]);
 
   const scopeLabel = selectedId
     ? (collection?.features.find((f) => f.properties.kel_id === selectedId)?.properties
         .kota_name ?? 'DKI JAKARTA').toUpperCase()
     : 'DKI JAKARTA';
+
+  const targetLabel = pickedIds.length
+    ? `Target: ${pickedIds.length} kelurahan dipilih`
+    : priorityIds.length
+      ? `Target: ${priorityIds.length} kelurahan prioritas`
+      : selectedId
+        ? 'Target: 1 kelurahan terpilih'
+        : 'Target: belum dipilih';
 
   return (
     <div className={styles.shell}>
@@ -298,11 +348,12 @@ export default function Home() {
                 selectedId={selectedId}
                 hoverId={hoverId}
                 priorityIds={priorityIds}
+                pickedIds={pickedIds}
                 showPriority={showPriority}
                 drawerOpen={selectedId !== null}
                 drawerWidth={drawerWidth ?? DRAWER_WIDTH_DEFAULT}
                 onHover={setHoverId}
-                onSelect={setSelectedId}
+                onSelect={handleMapSelect}
               />
             )}
 
@@ -348,16 +399,14 @@ export default function Home() {
             <ScenarioDock
               state={scenario}
               onChange={setScenario}
-              targetLabel={
-                priorityIds.length
-                  ? `Target: ${priorityIds.length} kelurahan prioritas`
-                  : selectedId
-                    ? 'Target: 1 kelurahan terpilih'
-                    : 'Target: belum dipilih'
-              }
+              targetLabel={targetLabel}
               status={scenarioStatus}
               busy={scenarioBusy}
               onSimulate={runSimulation}
+              multiSelect={multiSelect}
+              pickedCount={pickedIds.length}
+              onToggleMultiSelect={toggleMultiSelect}
+              onClearPicked={clearPicked}
             />
 
             {simulation && (

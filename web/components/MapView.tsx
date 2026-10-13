@@ -39,6 +39,7 @@ interface MapViewProps {
   selectedId: string | null;
   hoverId: string | null;
   priorityIds: string[];
+  pickedIds: string[];
   showPriority: boolean;
   drawerOpen: boolean;
   /** Current drawer width in px; the map pans by half of it so the selection stays visible. */
@@ -53,6 +54,7 @@ export function MapView({
   selectedId,
   hoverId,
   priorityIds,
+  pickedIds,
   showPriority,
   drawerOpen,
   drawerWidth,
@@ -165,6 +167,28 @@ export function MapView({
       },
     });
 
+    // Manually picked kelurahan (multi-select). Distinct from the agent's green priority
+    // outline and the single dashed selection, so a planner can tell "picked by hand" apart
+    // from "suggested by the agent" at a glance.
+    map.addLayer({
+      id: LAYER_IDS.pickedHalo,
+      type: 'line',
+      source: SOURCE_ID,
+      paint: {
+        'line-color': '#FFFFFF',
+        'line-width': ['case', ['boolean', ['feature-state', 'picked'], false], 6, 0],
+      },
+    });
+    map.addLayer({
+      id: LAYER_IDS.pickedOutline,
+      type: 'line',
+      source: SOURCE_ID,
+      paint: {
+        'line-color': '#1D5F8A',
+        'line-width': ['case', ['boolean', ['feature-state', 'picked'], false], 2.6, 0],
+      },
+    });
+
     let hovered: string | null = null;
     map.on('mousemove', LAYER_IDS.fill, (event) => {
       const feature = event.features?.[0];
@@ -243,6 +267,16 @@ export function MapView({
       map.setFeatureState({ source: SOURCE_ID, id }, { priority: active.has(id) });
     }
   }, [priorityIds, showPriority, ready, collection]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !map.getSource(SOURCE_ID) || !collection) return;
+    const active = new Set(pickedIds);
+    for (const feature of collection.features) {
+      const id = feature.properties.kel_id;
+      map.setFeatureState({ source: SOURCE_ID, id }, { picked: active.has(id) });
+    }
+  }, [pickedIds, ready, collection]);
 
   // Pan so the selected kelurahan is not hidden behind the drawer.
   useEffect(() => {

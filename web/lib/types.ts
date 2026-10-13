@@ -97,6 +97,7 @@ export interface InterventionInput {
 
 export interface ScenarioResult {
   kel_id: string;
+  kel_name: string;
   delta_lst_c: number;
   delta_lst_pop_weighted_c: number;
   vulnerable_benefiting: number;

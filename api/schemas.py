@@ -19,7 +19,12 @@ from model.scenario import INTERVENTION_TYPES, LEVELS
 # BPS P-code: "ID" plus 10 digits, e.g. ID3173040002.
 KEL_ID_PATTERN = r"^ID\d{10}$"
 
-MAX_KELURAHAN_PER_REQUEST = 20
+# The full DKI Jakarta dataset (264 kelurahan). A planner must be able to simulate a whole
+# kota -- Jakarta Pusat alone has 44 -- so the old cap of 20 was a product bug, not a
+# safeguard. The cap still exists to bound one request to the known dataset size: anything
+# larger is either a mistake or abuse, and a single full-city pass (75 636 cells) stays well
+# inside the Cloud Run timeout.
+MAX_KELURAHAN_PER_REQUEST = 264
 MAX_INTERVENTIONS_PER_REQUEST = len(INTERVENTION_TYPES)
 
 # Rp 10 trillion. Far above any municipal programme; exists to reject typos and abuse.

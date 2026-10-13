@@ -11,7 +11,7 @@
  * the help text spells that out. "pp" alone means nothing to the intended user.
  */
 
-import { Loader2, Play } from 'lucide-react';
+import { Check, Loader2, Play } from 'lucide-react';
 import styles from './ScenarioDock.module.css';
 
 export interface ScenarioState {
@@ -77,6 +77,10 @@ interface ScenarioDockProps {
   status: string;
   busy: boolean;
   onSimulate: () => void;
+  multiSelect: boolean;
+  pickedCount: number;
+  onToggleMultiSelect: () => void;
+  onClearPicked: () => void;
 }
 
 export function ScenarioDock({
@@ -86,6 +90,10 @@ export function ScenarioDock({
   status,
   busy,
   onSimulate,
+  multiSelect,
+  pickedCount,
+  onToggleMultiSelect,
+  onClearPicked,
 }: ScenarioDockProps) {
   const hasIntervention = state.tree > 0 || state.coolRoof > 0 || state.greenRoof > 0;
 
@@ -95,6 +103,28 @@ export function ScenarioDock({
         <span className={styles.title}>Simulasi skenario</span>
         <span className={styles.target}>{targetLabel}</span>
         <span className={styles.status}>{status}</span>
+      </div>
+
+      <div className={styles.toolbar}>
+        <button
+          type="button"
+          className={`${styles.multiToggle} ${multiSelect ? styles.multiToggleOn : ''}`}
+          aria-pressed={multiSelect}
+          onClick={onToggleMultiSelect}
+        >
+          {multiSelect ? <Check size={14} aria-hidden="true" /> : null}
+          Pilih banyak kelurahan
+        </button>
+        {pickedCount > 0 && (
+          <button type="button" className={styles.clearPicked} onClick={onClearPicked}>
+            Bersihkan ({pickedCount})
+          </button>
+        )}
+        <span className={styles.multiHint}>
+          {multiSelect
+            ? 'Klik kelurahan di peta untuk menambah atau menghapus pilihan.'
+            : 'Nyalakan untuk memilih beberapa kelurahan secara manual.'}
+        </span>
       </div>
 
       <div className={styles.grid}>

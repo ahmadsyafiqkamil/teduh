@@ -129,6 +129,7 @@ function ExtrapolationWarning({ features }: { features: string[] }) {
 function SimulateCard({ response }: { response: Record<string, unknown> }) {
   const results = response.results as {
     kel_id: string;
+    kel_name: string;
     delta_lst_c: number;
     delta_lst_pop_weighted_c: number;
     vulnerable_benefiting: number;
@@ -168,6 +169,7 @@ function SimulateCard({ response }: { response: Record<string, unknown> }) {
 
       {results.map((result) => (
         <div key={result.kel_id} className={styles.block}>
+          <div className={styles.blockHead}>{result.kel_name}</div>
           <div className={styles.metricLine}>
             <span>Perubahan suhu permukaan</span>
             <SourceChip

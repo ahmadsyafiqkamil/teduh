@@ -30,6 +30,8 @@ export const LAYER_IDS = {
   selected: 'kelurahan-selected',
   priorityHalo: 'priority-halo',
   priorityOutline: 'priority-outline',
+  pickedHalo: 'picked-halo',
+  pickedOutline: 'picked-outline',
 } as const;
 
 export const BASE_STYLE: StyleSpecification = {

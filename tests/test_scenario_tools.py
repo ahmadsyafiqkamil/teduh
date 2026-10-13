@@ -17,6 +17,7 @@ class FakeToolContext:
 def test_accepts_an_intervention_given_by_level():
     result = simulate_intervention(["ID3173040002"], [{"type": "cool_roof", "level": "medium"}])
     assert result["results"][0]["kel_id"] == "ID3173040002"
+    assert result["results"][0]["kel_name"] == "Kampung Rawa"
 
 
 @pytest.mark.integration
