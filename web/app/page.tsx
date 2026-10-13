@@ -40,6 +40,11 @@ import styles from './page.module.css';
 
 const USER_ID = 'perencana';
 
+// Mirrors api/schemas.py MAX_KELURAHAN_PER_REQUEST. The slider path must not send more
+// kelurahan than the API accepts, or a kota-wide scenario (Jakarta Pusat has 44) fails
+// with a 422 that the frontend can only surface as "permintaan tidak valid".
+const MAX_KELURAHAN_PER_REQUEST = 20;
+
 export default function Home() {
   const [collection, setCollection] = useState<KelurahanCollection | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -197,11 +202,17 @@ export default function Home() {
   );
 
   const runSimulation = useCallback(async () => {
-    const targets = priorityIds.length ? priorityIds : selectedId ? [selectedId] : [];
+    let targets = priorityIds.length ? priorityIds : selectedId ? [selectedId] : [];
     if (!targets.length) {
       setScenarioStatus('Pilih kelurahan di peta atau minta agen menyusun prioritas dulu.');
       return;
     }
+
+    // The API rejects a request with more than 20 kelurahan. A kota-wide scenario (44 in
+    // Jakarta Pusat) must be capped rather than dropped as a 422, and the user told which
+    // subset ran -- priorityIds is already in rank order, so the top 20 are the right slice.
+    const truncated = targets.length > MAX_KELURAHAN_PER_REQUEST;
+    if (truncated) targets = targets.slice(0, MAX_KELURAHAN_PER_REQUEST);
 
     const interventions: { type: string; params: Record<string, number> }[] = [];
     if (scenario.tree > 0) {
@@ -244,7 +255,9 @@ export default function Home() {
       setScenarioStatus(
         treeRequested && treeArea <= 0
           ? `Pohon tidak bisa ditanam — lahan terbangun penuh. Coba cool roof atau green roof.`
-          : `Perkiraan rata-rata ${formatNumber(mean, 2)} °C pada ${result.results.length} kelurahan · indikatif, suhu permukaan.`,
+          : `Perkiraan rata-rata ${formatNumber(mean, 2)} °C pada ${result.results.length} kelurahan` +
+              (truncated ? ` (20 prioritas teratas)` : ``) +
+              ` · indikatif, suhu permukaan.`,
       );
     } catch (error) {
       setScenarioStatus(error instanceof Error ? error.message : 'Simulasi gagal.');
