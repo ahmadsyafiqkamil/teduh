@@ -39,6 +39,24 @@ if [[ ! -f "data/model/model.txt" ]]; then
   echo "Jalankan: uv run python -m model.train" >&2
 fi
 
+# Resolve the web origin when it is not supplied explicitly. Deploying the API without an
+# origin used to WIPE the value to empty and CORS-block the browser (blank map, no error),
+# so this defaults to the live web URLs instead of leaving the guard off by accident.
+if [[ -z "${TEDUH_WEB_ORIGIN:-}" ]]; then
+  WEB_LEGACY="$(gcloud run services describe teduh-web \
+    --project "$PROJECT" --region "$REGION" --format 'value(status.url)' 2>/dev/null || true)"
+  # Canonical URL: <service>-<project-number>.<region>.run.app. Derive it from the project
+  # number so both the legacy and canonical origins are allowed.
+  PROJECT_NUMBER="$(gcloud projects describe "$PROJECT" --format 'value(projectNumber)' 2>/dev/null || true)"
+  ORIGINS=()
+  [[ -n "$WEB_LEGACY" ]] && ORIGINS+=("$WEB_LEGACY")
+  [[ -n "$PROJECT_NUMBER" ]] && ORIGINS+=("https://teduh-web-${PROJECT_NUMBER}.${REGION}.run.app")
+  WEB_ORIGIN="$(IFS=,; echo "${ORIGINS[*]}")"
+else
+  WEB_ORIGIN="$TEDUH_WEB_ORIGIN"
+fi
+echo "==> TEDUH_WEB_ORIGIN: ${WEB_ORIGIN:-'(kosong)'}"
+
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPO}/${SERVICE}:$(date +%Y%m%d-%H%M%S)"
 
 # Idempotent: succeeds quietly when the repository already exists.
@@ -64,7 +82,7 @@ gcloud run deploy "$SERVICE" \
   --concurrency 20 \
   --min-instances "$MIN_INSTANCES" \
   --max-instances 4 \
-  --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT},GOOGLE_CLOUD_LOCATION=${REGION},GOOGLE_GENAI_USE_ENTERPRISE=True,TEDUH_MODEL=${MODEL},TEDUH_WEB_ORIGIN=${TEDUH_WEB_ORIGIN:-}"
+  --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT},GOOGLE_CLOUD_LOCATION=${REGION},GOOGLE_GENAI_USE_ENTERPRISE=True,TEDUH_MODEL=${MODEL},TEDUH_WEB_ORIGIN=${WEB_ORIGIN}"
 
 URL="$(gcloud run services describe "$SERVICE" --project "$PROJECT" --region "$REGION" --format 'value(status.url)')"
 echo "==> selesai: $URL"

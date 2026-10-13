@@ -30,15 +30,17 @@ from api.routes import map_payload, router
 # ADK scans this directory for packages exposing root_agent; teduh_agent lives at the root.
 AGENTS_DIR = str(ROOT)
 
-# The deployed web origin is injected at deploy time. Localhost entries are for development.
+# The deployed web origin is injected at deploy time. It may be a comma-separated list
+# because one Cloud Run service answers on both its legacy (-as.a.run.app) and canonical
+# (.asia-southeast1.run.app) URLs, and a browser hitting either must not be CORS-blocked.
+# Localhost entries are for development.
 ALLOWED_ORIGINS = [
-    origin
-    for origin in (
-        os.environ.get("TEDUH_WEB_ORIGIN"),
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    )
-    if origin
+    origin.strip()
+    for origin in os.environ.get("TEDUH_WEB_ORIGIN", "").split(",")
+    if origin.strip()
+] + [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 
