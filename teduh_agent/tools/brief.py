@@ -136,12 +136,27 @@ def markers_in(draft: str) -> list[str]:
     return MARKER_PATTERN.findall(draft)
 
 
+# A heading like "## 1. Ringkasan Eksekutif" or "## 6. Keterkaitan ... (RDTR, RPJMD...)"
+# must still resolve to its required section. The wild-number whitelist already permits
+# numbered section lines (§8.4), so the structure check has to normalize them too.
+_HEADING_NUMBER = re.compile(r"^\d+(?:\.\d+)*[.)]?\s*")
+_TRAILING_PAREN = re.compile(r"\s*\([^)]*\)\s*$")
+
+
+def _normalize_heading(heading: str) -> str:
+    """Strip Markdown hashes, a leading section number, and a trailing parenthetical."""
+    normalized = heading.strip().lstrip("#").strip()
+    normalized = _HEADING_NUMBER.sub("", normalized)
+    normalized = _TRAILING_PAREN.sub("", normalized)
+    return normalized.strip()
+
+
 def _section_headings(draft: str) -> list[str]:
     headings = []
     for line in draft.splitlines():
         stripped = line.strip()
         if stripped.startswith("#"):
-            headings.append(stripped.lstrip("#").strip())
+            headings.append(_normalize_heading(stripped))
     return headings
 
 
@@ -149,12 +164,20 @@ def _structure_errors(draft: str) -> list[str]:
     headings = _section_headings(draft)
     errors: list[str] = []
 
-    missing = [section for section in REQUIRED_SECTIONS if section not in headings]
+    def _position(section: str) -> int | None:
+        for index, heading in enumerate(headings):
+            if heading == section or heading.startswith(section):
+                return index
+        return None
+
+    positions = [_position(section) for section in REQUIRED_SECTIONS]
+    missing = [
+        section for section, pos in zip(REQUIRED_SECTIONS, positions, strict=True) if pos is None
+    ]
     if missing:
         errors.append(f"Bagian wajib belum ada: {', '.join(missing)}.")
         return errors
 
-    positions = [headings.index(section) for section in REQUIRED_SECTIONS]
     if positions != sorted(positions):
         errors.append(
             "Urutan bagian tidak sesuai. Urutan wajib: " + " > ".join(REQUIRED_SECTIONS) + "."
