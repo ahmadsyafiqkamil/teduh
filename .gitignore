@@ -39,3 +39,6 @@ data/model/*
 .env
 web/node_modules/
 web/.next/
+
+# Aset video demo (vo.wav/vo.mp3 17 MB) — tidak di-commit, lihat video/demo-submission/RESUME.md.
+/video/

@@ -67,7 +67,9 @@ def test_single_agent_mode_keeps_the_same_name(monkeypatch):
 
 @pytest.mark.unit
 def test_root_instruction_carries_the_provenance_rule():
-    assert "tidak berasal dari" in agent_module.root_agent.instruction.lower()
+    instruction = agent_module.root_agent.instruction
+    text = instruction(None) if callable(instruction) else instruction
+    assert "tidak berasal dari" in text.lower()
 
 
 @pytest.mark.unit

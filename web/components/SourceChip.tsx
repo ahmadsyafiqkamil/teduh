@@ -14,10 +14,20 @@
 
 import { Info } from 'lucide-react';
 import { useId, useState } from 'react';
+import { t, type Lang } from '@/lib/i18n';
 import styles from './SourceChip.module.css';
 
 export type SourceKind = 'data' | 'model' | 'literatur' | 'asumsi' | 'input';
 
+export const SOURCE_KICKER_KEYS: Record<SourceKind, string> = {
+  data: 'source.kicker.data',
+  model: 'source.kicker.model',
+  literatur: 'source.kicker.literatur',
+  asumsi: 'source.kicker.asumsi',
+  input: 'source.kicker.input',
+};
+
+/** Legacy Indonesian kickers, kept for callers that do not pass a language. */
 export const SOURCE_KICKERS: Record<SourceKind, string> = {
   data: 'Sumber · Data satelit',
   model: 'Sumber · Model & perhitungan TEDUH',
@@ -45,6 +55,7 @@ interface SourceChipProps {
   source: string;
   placement?: 'top' | 'bottom';
   align?: 'center' | 'start' | 'end';
+  lang?: Lang;
 }
 
 export function SourceChip({
@@ -54,6 +65,7 @@ export function SourceChip({
   source,
   placement = 'top',
   align = 'center',
+  lang = 'id',
 }: SourceChipProps) {
   const [open, setOpen] = useState(false);
   const tooltipId = useId();
@@ -87,7 +99,7 @@ export function SourceChip({
           <span
             className={`${styles.kicker} ${kind === 'asumsi' ? styles.kickerAssumption : ''}`}
           >
-            {SOURCE_KICKERS[kind]}
+            {t(lang, SOURCE_KICKER_KEYS[kind])}
           </span>
           {source}
         </span>

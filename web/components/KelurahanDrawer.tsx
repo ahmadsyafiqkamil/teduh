@@ -19,6 +19,7 @@ import { MessageCircle, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { fetchProfile } from '@/lib/api';
 import { MINUS, formatNumber, formatPercent, formatRank, formatUnit } from '@/lib/format';
+import { t, type Lang } from '@/lib/i18n';
 import { DRAWER_MAX_PX, DRAWER_MIN_PX, DRAWER_WIDTH_DEFAULT } from '@/lib/resize';
 import type { Driver, ProfileResponse } from '@/lib/types';
 import { ResizeHandle } from './ResizeHandle';
@@ -39,10 +40,10 @@ const SUM_TOLERANCE_C = 0.1;
 const ZERO_AXIS_PCT = 20;
 
 const COMPONENT_LABELS: [keyof ProfileResponse['profile'], string][] = [
-  ['H', 'Bahaya (panas permukaan)'],
-  ['E', 'Keterpaparan (kepadatan penduduk)'],
-  ['S', 'Kepekaan (balita & lansia)'],
-  ['A', 'Kurangnya kapasitas adaptif'],
+  ['H', 'drawer.component.H'],
+  ['E', 'drawer.component.E'],
+  ['S', 'drawer.component.S'],
+  ['A', 'drawer.component.A'],
 ];
 
 const LANDCOVER_COLORS = {
@@ -52,13 +53,40 @@ const LANDCOVER_COLORS = {
   other: '#D5D0C6',
 };
 
-function DriverBar({ driver, scale }: { driver: Driver; scale: number }) {
+/** i18n key per model feature name, for the English driver labels. */
+const DRIVER_LABEL_KEYS: Record<string, string> = {
+  albedo: 'driver.albedo',
+  ndvi: 'driver.ndvi',
+  ndbi: 'driver.ndbi',
+  ndwi: 'driver.ndwi',
+  tree_frac: 'driver.tree_frac',
+  built_frac: 'driver.built_frac',
+  water_frac: 'driver.water_frac',
+  roof_frac: 'driver.roof_frac',
+  bldg_h_mean: 'driver.bldg_h_mean',
+  elev_m: 'driver.elev_m',
+  dist_coast_km: 'driver.dist_coast_km',
+  pop: 'driver.pop',
+};
+
+function driverLabel(driver: Driver, lang: Lang): string {
+  const key = DRIVER_LABEL_KEYS[driver.feature];
+  return lang === 'en' && key ? t(lang, key) : driver.label;
+}
+
+function noteForProfile(data: ProfileResponse, lang: Lang): string {
+  const key = (data as unknown as Record<string, unknown>).note_key;
+  if (typeof key === 'string' && key) return t(lang, key);
+  return data.note;
+}
+
+function DriverBar({ driver, scale, lang }: { driver: Driver; scale: number; lang: Lang }) {
   const warming = driver.contribution_c > 0;
   const widthPct = (Math.abs(driver.contribution_c) / scale) * (100 - ZERO_AXIS_PCT);
 
   return (
     <div className={styles.driverRow}>
-      <span>{driver.label}</span>
+      <span>{driverLabel(driver, lang)}</span>
       <span className={styles.driverTrack}>
         <span
           className={styles.driverBar}
@@ -70,10 +98,11 @@ function DriverBar({ driver, scale }: { driver: Driver; scale: number }) {
         />
       </span>
       <SourceChip
-        value={`${driver.contribution_c > 0 ? '+' : MINUS}${formatNumber(Math.abs(driver.contribution_c), 1)}`}
+        value={`${driver.contribution_c > 0 ? '+' : MINUS}${formatNumber(Math.abs(driver.contribution_c), 1, lang)}`}
         unit="°C"
         kind="model"
-        source={`${MODEL_SOURCE} Kontribusi ${driver.label} (${driver.direction}).`}
+        source={`${MODEL_SOURCE} Kontribusi ${driverLabel(driver, lang)} (${driver.direction}).`}
+        lang={lang}
         align="end"
       />
     </div>
@@ -82,6 +111,7 @@ function DriverBar({ driver, scale }: { driver: Driver; scale: number }) {
 
 interface KelurahanDrawerProps {
   kelId: string | null;
+  lang?: Lang;
   onClose: () => void;
   onAskAgent: (prompt: string) => void;
   width: number | null;
@@ -90,6 +120,7 @@ interface KelurahanDrawerProps {
 
 export function KelurahanDrawer({
   kelId,
+  lang = 'id',
   onClose,
   onAskAgent,
   width,
@@ -141,14 +172,14 @@ export function KelurahanDrawer({
         min={DRAWER_MIN_PX}
         max={DRAWER_MAX_PX}
         onResize={onResize}
-        label="Ubah lebar panel profil"
+        label={t(lang, 'resize.drawer')}
       />
     </div>
   );
 
   if (error) {
     return (
-      <aside className={styles.drawer} style={drawerStyle} role="dialog" aria-label="Profil kelurahan">
+      <aside className={styles.drawer} style={drawerStyle} role="dialog" aria-label={t(lang, 'drawer.aria')}>
         {resizeHandle}
         <div className={styles.state}>{error}</div>
       </aside>
@@ -157,9 +188,9 @@ export function KelurahanDrawer({
 
   if (!data) {
     return (
-      <aside className={styles.drawer} style={drawerStyle} role="dialog" aria-label="Profil kelurahan">
+      <aside className={styles.drawer} style={drawerStyle} role="dialog" aria-label={t(lang, 'drawer.aria')}>
         {resizeHandle}
-        <div className={styles.state}>Memuat profil kelurahan…</div>
+        <div className={styles.state}>{t(lang, 'drawer.loading')}</div>
       </aside>
     );
   }
@@ -178,29 +209,30 @@ export function KelurahanDrawer({
       className={styles.drawer}
       style={drawerStyle}
       role="dialog"
-      aria-label={`Profil ${profile.kel_name}`}
+      aria-label={t(lang, 'drawer.ariaNamed', { name: profile.kel_name })}
     >
       {resizeHandle}
       <div className={styles.header}>
         <div className={styles.headerTop}>
-          <span className="kicker">PROFIL KELURAHAN</span>
-          <button type="button" className={styles.close} onClick={onClose} aria-label="Tutup profil">
+          <span className="kicker">{t(lang, 'drawer.kicker')}</span>
+          <button type="button" className={styles.close} onClick={onClose} aria-label={t(lang, 'drawer.close')}>
             <X size={18} />
           </button>
         </div>
 
         <h2 className={styles.name}>{profile.kel_name}</h2>
         <div className={styles.location}>
-          Kec. {profile.kec_name} · {profile.kota_name}
+          {t(lang, 'drawer.location', { kec: profile.kec_name, kota: profile.kota_name })}
         </div>
 
         <div className={styles.pills}>
           <span className={styles.pillRank}>
-            Peringkat HVI{' '}
+            {t(lang, 'drawer.rank')}{' '}
             <SourceChip
-              value={formatRank(profile.hvi_rank, total)}
+              value={formatRank(profile.hvi_rank, total, lang)}
               kind="data"
-              source={`${DATA_SOURCE} Peringkat dihitung atas ${total} kelurahan DKI Jakarta daratan.`}
+              source={t(lang, 'drawer.rankSource', { source: DATA_SOURCE, total })}
+              lang={lang}
               placement="bottom"
             />
           </span>
@@ -211,110 +243,115 @@ export function KelurahanDrawer({
           className={styles.ask}
           onClick={() =>
             onAskAgent(
-              `Jelaskan kondisi panas dan opsi intervensi untuk Kelurahan ${profile.kel_name}.`,
+              t(lang, 'drawer.askPrompt', { name: profile.kel_name }),
             )
           }
         >
           <MessageCircle size={16} aria-hidden="true" />
-          Tanya agen tentang wilayah ini
+          {t(lang, 'drawer.askAgent')}
         </button>
       </div>
 
       <div className={styles.body}>
         <div className={styles.metrics}>
           <div className={styles.metricCard}>
-            <div className={styles.metricLabel}>LST rata-rata</div>
+            <div className={styles.metricLabel}>{t(lang, 'drawer.lst')}</div>
             <div className={styles.metricValue}>
               <SourceChip
-                value={formatNumber(profile.lst, 1)}
+                value={formatNumber(profile.lst, 1, lang)}
                 unit="°C"
                 kind="data"
                 source={DATA_SOURCE}
+                lang={lang}
                 align="start"
               />
             </div>
-            <div className={styles.metricSub}>suhu permukaan</div>
+            <div className={styles.metricSub}>{t(lang, 'drawer.lstSub')}</div>
           </div>
 
           <div className={styles.metricCard}>
-            <div className={styles.metricLabel}>Selisih dari rata-rata kota</div>
+            <div className={styles.metricLabel}>{t(lang, 'drawer.anomaly')}</div>
             <div className={styles.metricValue} style={{ color: 'var(--color-hot-strong)' }}>
               <SourceChip
-                value={`${profile.lst_anomaly > 0 ? '+' : MINUS}${formatNumber(Math.abs(profile.lst_anomaly), 2)}`}
+                value={`${profile.lst_anomaly > 0 ? '+' : MINUS}${formatNumber(Math.abs(profile.lst_anomaly), 2, lang)}`}
                 unit="°C"
                 kind="data"
-                source={`${DATA_SOURCE} Rata-rata kota dihitung dari sel berkualitas baik.`}
+                source={t(lang, 'drawer.anomalySource', { source: DATA_SOURCE })}
+                lang={lang}
                 align="start"
               />
             </div>
             <div className={styles.metricSub}>
-              rata-rata kota{' '}
+              {t(lang, 'drawer.anomalySub')}{' '}
               <SourceChip
-                value={formatNumber(profile.lst - profile.lst_anomaly, 2)}
+                value={formatNumber(profile.lst - profile.lst_anomaly, 2, lang)}
                 unit="°C"
                 kind="data"
                 source={DATA_SOURCE}
+                lang={lang}
                 align="start"
               />
             </div>
           </div>
 
           <div className={styles.metricCard}>
-            <div className={styles.metricLabel}>Indeks kerentanan (HVI)</div>
+            <div className={styles.metricLabel}>{t(lang, 'drawer.hvi')}</div>
             <div className={styles.metricValue} style={{ color: 'var(--color-hvi-dark)' }}>
               <SourceChip
-                value={formatNumber(profile.hvi, 2)}
+                value={formatNumber(profile.hvi, 2, lang)}
                 kind="data"
-                source={`${DATA_SOURCE} HVI adalah persentil dalam-kota, bukan risiko absolut.`}
+                source={t(lang, 'drawer.hviSource', { source: DATA_SOURCE })}
+                lang={lang}
                 align="start"
               />
             </div>
-            <div className={styles.metricSub}>skala 0–1, makin tinggi makin rentan</div>
+            <div className={styles.metricSub}>{t(lang, 'drawer.hviSub')}</div>
           </div>
 
           <div className={styles.metricCard}>
-            <div className={styles.metricLabel}>Warga rentan</div>
+            <div className={styles.metricLabel}>{t(lang, 'drawer.vulnerable')}</div>
             <div className={styles.metricValue}>
               <SourceChip
-                value={formatNumber(profile.vulnerable, 0)}
-                unit="jiwa"
+                value={formatNumber(profile.vulnerable, 0, lang)}
+                unit={lang === 'en' ? 'people' : 'jiwa'}
                 kind="data"
-                source={`${DATA_SOURCE} Balita (<5 tahun) dan lansia (>=65 tahun), WorldPop 2025.`}
+                source={t(lang, 'drawer.vulnerableSource', { source: DATA_SOURCE })}
+                lang={lang}
                 align="start"
               />
             </div>
             <div className={styles.metricSub}>
               <SourceChip
-                value={formatNumber(profile.exposed_vulnerable, 0)}
-                unit="jiwa"
+                value={formatNumber(profile.exposed_vulnerable, 0, lang)}
+                unit={lang === 'en' ? 'people' : 'jiwa'}
                 kind="data"
-                source={`${DATA_SOURCE} Warga rentan di sel dengan persentil bahaya >= 0,8.`}
+                source={t(lang, 'drawer.exposedSource', { source: DATA_SOURCE })}
+                lang={lang}
                 align="start"
               />{' '}
-              di sel paling panas
+              {t(lang, 'drawer.exposedSuffix')}
             </div>
           </div>
         </div>
 
         <section>
-          <h3 className={styles.sectionTitle}>Komponen kerentanan panas</h3>
-          <div className={styles.formula}>
-            HVI = Bahaya × (0,4 Keterpaparan + 0,3 Kepekaan + 0,3 Kurangnya kapasitas adaptif)
-          </div>
-          {COMPONENT_LABELS.map(([key, label]) => {
+          <h3 className={styles.sectionTitle}>{t(lang, 'drawer.componentsTitle')}</h3>
+          <div className={styles.formula}>{t(lang, 'drawer.formula')}</div>
+          {COMPONENT_LABELS.map(([key, labelKey]) => {
             const value = profile[key] as number;
             return (
               <div key={key} className={styles.componentRow}>
                 <div>
-                  <div className={styles.componentLabel}>{label}</div>
+                  <div className={styles.componentLabel}>{t(lang, labelKey)}</div>
                   <div className={styles.track}>
                     <div className={styles.fill} style={{ width: `${value * 100}%` }} />
                   </div>
                 </div>
                 <SourceChip
-                  value={formatNumber(value, 2)}
+                  value={formatNumber(value, 2, lang)}
                   kind="data"
-                  source={`${DATA_SOURCE} Persentil dalam-kota untuk komponen ${key}.`}
+                  source={t(lang, 'drawer.componentSource', { source: DATA_SOURCE, key })}
+                  lang={lang}
                   align="end"
                 />
               </div>
@@ -323,45 +360,35 @@ export function KelurahanDrawer({
         </section>
 
         <section>
-          <h3 className={styles.sectionTitle}>Apa yang membuat wilayah ini panas?</h3>
-          <div className={styles.sectionSub}>
-            Kontribusi tiap faktor terhadap prediksi suhu, menurut model (SHAP).
-          </div>
+          <h3 className={styles.sectionTitle}>{t(lang, 'drawer.driversTitle')}</h3>
+          <div className={styles.sectionSub}>{t(lang, 'drawer.driversSub')}</div>
 
           {data.drivers_unavailable && (
             <div className={styles.mismatch}>{data.drivers_unavailable}</div>
           )}
 
           {drivers.length > 0 && (
-            <div className={styles.driverLegend} aria-label="Arah kontribusi">
-              <span className={styles.legendWarm}>memanaskan</span>
-              <span className={styles.legendCool}>mendinginkan</span>
+            <div className={styles.driverLegend} aria-label={t(lang, 'drawer.driversTitle')}>
+              <span className={styles.legendWarm}>{t(lang, 'drawer.legendWarm')}</span>
+              <span className={styles.legendCool}>{t(lang, 'drawer.legendCool')}</span>
             </div>
           )}
 
           {drivers.map((driver) => (
-            <DriverBar key={driver.feature} driver={driver} scale={scale} />
+            <DriverBar key={driver.feature} driver={driver} scale={scale} lang={lang} />
           ))}
 
           {drivers.length > 0 && mismatch && (
             <div className={styles.mismatch}>
-              Jumlah kontribusi di atas{' '}
-              <SourceChip
-                value={`${driverSum > 0 ? '+' : MINUS}${formatNumber(Math.abs(driverSum), 2)}`}
-                unit="°C"
-                kind="model"
-                source={MODEL_SOURCE}
-                align="start"
-              />{' '}
-              <strong>tidak menjumlah</strong> ke selisih dari rata-rata kota. Keduanya
-              besaran berbeda: model menjelaskan prediksinya sendiri, bukan selisih terhadap
-              rata-rata kota. Pakai angka ini sebagai arah, bukan sebagai penguraian tepat.
+              {t(lang, 'drawer.mismatch', {
+                sum: `${driverSum > 0 ? '+' : MINUS}${formatNumber(Math.abs(driverSum), 2, lang)}`,
+              })}
             </div>
           )}
         </section>
 
         <section>
-          <h3 className={styles.sectionTitle}>Tutupan lahan</h3>
+          <h3 className={styles.sectionTitle}>{t(lang, 'drawer.landcoverTitle')}</h3>
           <div className={styles.landcover}>
             <span style={{ width: `${profile.built_frac * 100}%`, background: LANDCOVER_COLORS.built }} />
             <span style={{ width: `${profile.tree_frac * 100}%`, background: LANDCOVER_COLORS.tree }} />
@@ -369,20 +396,22 @@ export function KelurahanDrawer({
             <span style={{ width: `${otherFrac * 100}%`, background: LANDCOVER_COLORS.other }} />
           </div>
           <div className={styles.componentRow}>
-            <span className={styles.componentLabel}>Bangunan</span>
+            <span className={styles.componentLabel}>{t(lang, 'drawer.landcover.built')}</span>
             <SourceChip
-              value={formatPercent(profile.built_frac, 1)}
+              value={formatPercent(profile.built_frac, 1, lang)}
               kind="data"
-              source={`${DATA_SOURCE} ESA WorldCover kelas 50.`}
+              source={t(lang, 'drawer.landcoverSource.built', { source: DATA_SOURCE })}
+              lang={lang}
               align="end"
             />
           </div>
           <div className={styles.componentRow}>
-            <span className={styles.componentLabel}>Pohon</span>
+            <span className={styles.componentLabel}>{t(lang, 'drawer.landcover.tree')}</span>
             <SourceChip
-              value={formatPercent(profile.tree_frac, 1)}
+              value={formatPercent(profile.tree_frac, 1, lang)}
               kind="data"
-              source={`${DATA_SOURCE} ESA WorldCover kelas 10 dan 95.`}
+              source={t(lang, 'drawer.landcoverSource.tree', { source: DATA_SOURCE })}
+              lang={lang}
               align="end"
             />
           </div>
@@ -390,7 +419,7 @@ export function KelurahanDrawer({
 
         <div className={styles.footnote}>
           <span aria-hidden="true">ⓘ</span>
-          <span>{data.note}</span>
+          <span>{noteForProfile(data, lang)}</span>
         </div>
       </div>
     </aside>

@@ -16,6 +16,16 @@ def _tool_names(agent) -> set[str]:
     return {getattr(tool, "__name__", getattr(tool, "name", str(tool))) for tool in agent.tools}
 
 
+def _instruction(agent) -> str:
+    """Resolve the dynamic instruction provider to its Indonesian default.
+
+    instruction_for() returns a callable that ADK invokes with the request context; with
+    no context it falls back to Bahasa Indonesia, which is what these provenance tests pin.
+    """
+    instruction = agent.instruction
+    return instruction(None) if callable(instruction) else str(instruction)
+
+
 @pytest.mark.unit
 def test_the_four_sub_agents_are_named_as_the_eval_set_expects(agents):
     assert "heat_analyst" in agents
@@ -58,7 +68,7 @@ def test_no_sub_agent_can_reach_another_sub_agents_tools(agents):
 @pytest.mark.unit
 def test_every_sub_agent_carries_the_shared_rules(agents):
     for name, agent in agents.items():
-        assert "tidak berasal dari" in agent.instruction.lower(), (
+        assert "tidak berasal dari" in _instruction(agent).lower(), (
             f"{name} kehilangan aturan provenance"
         )
 

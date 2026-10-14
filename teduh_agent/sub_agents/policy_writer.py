@@ -3,7 +3,7 @@
 from google.adk.agents import LlmAgent
 
 from teduh_agent.llm import resolve_model
-from teduh_agent.prompts import compose
+from teduh_agent.prompts import instruction_for
 from teduh_agent.tools.brief import get_session_facts, render_policy_brief
 
 NAME = "policy_writer"
@@ -19,6 +19,6 @@ def build() -> LlmAgent:
         name=NAME,
         model=resolve_model(),
         description=DESCRIPTION,
-        instruction=compose("policy_writer"),
+        instruction=instruction_for("policy_writer"),
         tools=[get_session_facts, render_policy_brief],
     )

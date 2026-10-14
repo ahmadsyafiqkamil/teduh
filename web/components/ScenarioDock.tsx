@@ -12,6 +12,7 @@
  */
 
 import { Check, Loader2, Play } from 'lucide-react';
+import { t, type Lang } from '@/lib/i18n';
 import styles from './ScenarioDock.module.css';
 
 export interface ScenarioState {
@@ -32,8 +33,8 @@ type SliderKey = 'tree' | 'coolRoof' | 'greenRoof';
 
 interface SliderDefinition {
   key: SliderKey;
-  label: string;
-  help: string;
+  labelKey: string;
+  helpKey: string;
   min: number;
   max: number;
   step: number;
@@ -43,8 +44,8 @@ interface SliderDefinition {
 export const SLIDERS: SliderDefinition[] = [
   {
     key: 'tree',
-    label: 'Tambah kanopi pohon',
-    help: 'Poin persen lahan terbuka',
+    labelKey: 'scenario.slider.tree.label',
+    helpKey: 'scenario.slider.tree.help',
     min: 0,
     max: 20,
     step: 1,
@@ -52,8 +53,8 @@ export const SLIDERS: SliderDefinition[] = [
   },
   {
     key: 'coolRoof',
-    label: 'Cool roof',
-    help: 'Porsi atap dicat pemantul panas',
+    labelKey: 'scenario.slider.coolRoof.label',
+    helpKey: 'scenario.slider.coolRoof.help',
     min: 0,
     max: 100,
     step: 5,
@@ -61,8 +62,8 @@ export const SLIDERS: SliderDefinition[] = [
   },
   {
     key: 'greenRoof',
-    label: 'Green roof',
-    help: 'Porsi atap beton datar',
+    labelKey: 'scenario.slider.greenRoof.label',
+    helpKey: 'scenario.slider.greenRoof.help',
     min: 0,
     max: 50,
     step: 5,
@@ -76,6 +77,7 @@ interface ScenarioDockProps {
   targetLabel: string;
   status: string;
   busy: boolean;
+  lang?: Lang;
   onSimulate: () => void;
   multiSelect: boolean;
   pickedCount: number;
@@ -89,6 +91,7 @@ export function ScenarioDock({
   targetLabel,
   status,
   busy,
+  lang = 'id',
   onSimulate,
   multiSelect,
   pickedCount,
@@ -98,9 +101,9 @@ export function ScenarioDock({
   const hasIntervention = state.tree > 0 || state.coolRoof > 0 || state.greenRoof > 0;
 
   return (
-    <section className={styles.dock} aria-label="Simulasi skenario">
+    <section className={styles.dock} aria-label={t(lang, 'scenario.title')}>
       <div className={styles.titleRow}>
-        <span className={styles.title}>Simulasi skenario</span>
+        <span className={styles.title}>{t(lang, 'scenario.title')}</span>
         <span className={styles.target}>{targetLabel}</span>
         <span className={styles.status}>{status}</span>
       </div>
@@ -113,17 +116,17 @@ export function ScenarioDock({
           onClick={onToggleMultiSelect}
         >
           {multiSelect ? <Check size={14} aria-hidden="true" /> : null}
-          Pilih banyak kelurahan
+          {t(lang, 'scenario.multiSelect')}
         </button>
         {pickedCount > 0 && (
           <button type="button" className={styles.clearPicked} onClick={onClearPicked}>
-            Bersihkan ({pickedCount})
+            {t(lang, 'scenario.clearPicked', { n: pickedCount })}
           </button>
         )}
         <span className={styles.multiHint}>
           {multiSelect
-            ? 'Klik kelurahan di peta untuk menambah atau menghapus pilihan.'
-            : 'Nyalakan untuk memilih beberapa kelurahan secara manual.'}
+            ? t(lang, 'scenario.multiHint.on')
+            : t(lang, 'scenario.multiHint.off')}
         </span>
       </div>
 
@@ -134,7 +137,7 @@ export function ScenarioDock({
             <div key={slider.key} className={styles.field}>
               <div className={styles.fieldHead}>
                 <label className={styles.fieldLabel} htmlFor={`slider-${slider.key}`}>
-                  {slider.label}
+                  {t(lang, slider.labelKey)}
                 </label>
                 <span
                   className={`${styles.value} ${value > 0 ? styles.valueActive : ''}`}
@@ -154,14 +157,14 @@ export function ScenarioDock({
                   onChange({ ...state, [slider.key]: Number(event.target.value) })
                 }
               />
-              <div className={styles.help}>{slider.help}</div>
+              <div className={styles.help}>{t(lang, slider.helpKey)}</div>
             </div>
           );
         })}
 
         <div className={styles.field}>
           <label className={styles.fieldLabel} htmlFor="budget">
-            Anggaran (Rp)
+            {t(lang, 'scenario.budget')}
           </label>
           <div className={styles.budgetWrap}>
             <span aria-hidden="true">Rp</span>
@@ -169,10 +172,10 @@ export function ScenarioDock({
               id="budget"
               type="text"
               inputMode="numeric"
-              aria-label="Anggaran dalam rupiah"
-              value={state.budget === null ? '' : state.budget.toLocaleString('id-ID')}
+              aria-label={t(lang, 'scenario.budgetLabel')}
+              value={state.budget === null ? '' : state.budget.toLocaleString(lang === 'en' ? 'en-US' : 'id-ID')}
               onChange={(event) => {
-                // Digits only: the displayed value carries dot separators, and parsing them
+                // Digits only: the displayed value carries separators, and parsing them
                 // back as a number would multiply the budget by a thousand.
                 const digits = event.target.value.replace(/\D/g, '');
                 onChange({ ...state, budget: digits ? Number(digits) : null });
@@ -189,11 +192,11 @@ export function ScenarioDock({
         >
           {busy ? (
             <>
-              <Loader2 size={16} aria-hidden="true" /> Menghitung…
+              <Loader2 size={16} aria-hidden="true" /> {t(lang, 'scenario.calculating')}
             </>
           ) : (
             <>
-              <Play size={16} aria-hidden="true" /> Simulasikan
+              <Play size={16} aria-hidden="true" /> {t(lang, 'scenario.simulate')}
             </>
           )}
         </button>

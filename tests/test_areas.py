@@ -169,6 +169,27 @@ def test_ranking_caps_an_absurd_top_k():
 
 
 @pytest.mark.integration
+def test_narrowing_the_scope_does_not_change_a_reported_hvi():
+    """CONCEPT 7.4 normalises every component to a percentile *within the city*. If the tool
+    re-percentiles inside the scope, the chat reports one HVI while the map paints another, and
+    the two contradict each other on screen in the same frame."""
+    from teduh_agent.store import get_store
+
+    stored = get_store().kelurahan.loc["ID3173040002", "hvi"]
+    scoped = rank_priority_areas("Kota Jakarta Pusat", top_k=5)
+    reported = next(a["hvi"] for a in scoped["areas"] if a["kel_id"] == "ID3173040002")
+    assert reported == pytest.approx(float(stored), abs=1e-9)
+
+
+@pytest.mark.integration
+def test_narrowing_the_scope_does_not_reorder_the_ranking():
+    citywide = rank_priority_areas(SCOPE_ALL, top_k=MAX_TOP_K)
+    in_jakpus = [a["kel_id"] for a in citywide["areas"] if a["kota_id"] == "ID3173"][:3]
+    scoped = [a["kel_id"] for a in rank_priority_areas("Kota Jakarta Pusat", top_k=3)["areas"]]
+    assert scoped == in_jakpus
+
+
+@pytest.mark.integration
 def test_ranking_can_be_narrowed_to_one_kota():
     result = rank_priority_areas("ID3172", top_k=5)
     assert all(area["kota_id"] == "ID3172" for area in result["areas"])

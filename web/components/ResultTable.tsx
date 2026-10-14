@@ -12,27 +12,35 @@
 import { MapPin } from 'lucide-react';
 import { briefUrl } from '@/lib/api';
 import { MINUS, formatIdr, formatNumber, formatPercent, formatUnit } from '@/lib/format';
+import { t, type Lang } from '@/lib/i18n';
 import { SourceChip } from './SourceChip';
 import styles from './ResultTable.module.css';
 
-const DATA_SOURCE = 'Data TEDUH v1 (Landsat 8/9, WorldPop 2025, ESA WorldCover v200).';
 const MODEL_SOURCE = 'Model panas TEDUH LightGBM v1, spatial block CV.';
-const LST_FOOTNOTE = 'LST = suhu permukaan, bukan suhu udara.';
 
-/** Indonesian label for a feature the extrapolation guard can flag. */
-const FEATURE_LABELS: Record<string, string> = {
-  albedo: 'pantulan permukaan (cool roof)',
-  ndvi: 'kehijauan (vegetasi)',
-  ndbi: 'indeks bangunan (NDBI)',
-  ndwi: 'indeks kelembapan (NDWI)',
-  tree_frac: 'tutupan pohon',
-  built_frac: 'luas terbangun',
-  water_frac: 'luas perairan',
-  roof_frac: 'luas atap',
-  bldg_h_mean: 'tinggi bangunan',
-  elev_m: 'ketinggian lahan',
-  dist_coast_km: 'jarak ke pantai',
-  pop: 'jumlah penduduk',
+/** Resolve a tool's note into the active language via note_key, falling back to the raw note. */
+function noteFor(response: Record<string, unknown>, lang: Lang): string {
+  const key = response.note_key;
+  if (typeof key === 'string' && key) return t(lang, key);
+  const raw = response.note;
+  if (typeof raw === 'string' && raw) return raw;
+  return t(lang, 'result.rank.footnote');
+}
+
+/** i18n key for a feature the extrapolation guard can flag. */
+const FEATURE_LABEL_KEYS: Record<string, string> = {
+  albedo: 'feature.albedo',
+  ndvi: 'feature.ndvi',
+  ndbi: 'feature.ndbi',
+  ndwi: 'feature.ndwi',
+  tree_frac: 'feature.tree_frac',
+  built_frac: 'feature.built_frac',
+  water_frac: 'feature.water_frac',
+  roof_frac: 'feature.roof_frac',
+  bldg_h_mean: 'feature.bldg_h_mean',
+  elev_m: 'feature.elev_m',
+  dist_coast_km: 'feature.dist_coast_km',
+  pop: 'feature.pop',
 };
 
 interface RankedArea {
@@ -48,27 +56,29 @@ interface RankedArea {
 interface ResultTableProps {
   tool: string;
   response: Record<string, unknown>;
+  lang?: Lang;
   onHighlight: (kelIds: string[]) => void;
   onSelect: (kelId: string) => void;
 }
 
-function RankCard({ areas, onHighlight, onSelect }: {
+function RankCard({ areas, lang, onHighlight, onSelect }: {
   areas: RankedArea[];
+  lang: Lang;
   onHighlight: (ids: string[]) => void;
   onSelect: (id: string) => void;
 }) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHead}>
-        {areas.length} kelurahan paling rentan panas
+        {t(lang, 'result.rank.head', { n: areas.length })}
       </div>
 
       <div className={styles.headRow}>
-        <span>#</span>
-        <span>Kelurahan</span>
-        <span className={styles.numeric}>HVI</span>
-        <span className={styles.numeric}>LST</span>
-        <span className={styles.numeric}>Rentan</span>
+        <span>{t(lang, 'result.rank.col.rank')}</span>
+        <span>{t(lang, 'result.rank.col.kelurahan')}</span>
+        <span className={styles.numeric}>{t(lang, 'result.rank.col.hvi')}</span>
+        <span className={styles.numeric}>{t(lang, 'result.rank.col.lst')}</span>
+        <span className={styles.numeric}>{t(lang, 'result.rank.col.vulnerable')}</span>
       </div>
 
       {areas.map((area) => (
@@ -88,45 +98,43 @@ function RankCard({ areas, onHighlight, onSelect }: {
               {area.kota_name}
             </span>
           </span>
-          <span className={styles.numeric}>{formatNumber(area.hvi, 2)}</span>
-          <span className={styles.numeric}>{formatUnit(area.lst_c_mean, 'degC', 1)}</span>
-          <span className={styles.numeric}>{formatNumber(area.exposed_vulnerable, 0)}</span>
+          <span className={styles.numeric}>{formatNumber(area.hvi, 2, lang)}</span>
+          <span className={styles.numeric}>{formatUnit(area.lst_c_mean, 'degC', 1, lang)}</span>
+          <span className={styles.numeric}>{formatNumber(area.exposed_vulnerable, 0, lang)}</span>
         </button>
       ))}
 
       <div className={styles.footer}>
-        <span>{LST_FOOTNOTE}</span>
+        <span>{t(lang, 'result.rank.footnote')}</span>
         <button
           type="button"
           className={styles.highlightToggle}
           onClick={() => onHighlight(areas.map((area) => area.kel_id))}
         >
-          <MapPin size={12} aria-hidden="true" /> Sorot di peta
+          <MapPin size={12} aria-hidden="true" /> {t(lang, 'result.rank.highlight')}
         </button>
       </div>
     </div>
   );
 }
 
-function ExtrapolationWarning({ features }: { features: string[] }) {
-  const labels = features.map((feature) => FEATURE_LABELS[feature] ?? feature);
+function ExtrapolationWarning({ features, lang }: { features: string[]; lang: Lang }) {
+  const labels = features.map((feature) =>
+    t(lang, FEATURE_LABEL_KEYS[feature] ?? feature),
+  );
   const hasAlbedo = features.includes('albedo');
   const hasOther = features.some((feature) => feature !== 'albedo');
 
   return (
     <>
-      Skenario ini <strong>di luar rentang data latih</strong> model untuk{' '}
-      {labels.join(', ')}.{' '}
-      {hasAlbedo &&
-        'Pantulan permukaan setinggi ini belum pernah terpantau di Jakarta — belum ada atap ' +
-          'reflektif di data latih — jadi angkanya ekstrapolasi fisika, bukan analog dari ' +
-          'pengukuran.'}{' '}
-      {hasOther && 'Turunkan intensitas intervensi agar hasilnya lebih dapat diandalkan.'}
+      {t(lang, 'result.extrapolation.intro', { labels: labels.join(', ') })}{' '}
+      {hasAlbedo && t(lang, 'result.extrapolation.albedo')}{' '}
+      {hasOther && t(lang, 'result.extrapolation.other')}
     </>
   );
 }
 
-function SimulateCard({ response }: { response: Record<string, unknown> }) {
+function SimulateCard({ response, lang }: { response: Record<string, unknown>; lang: Lang }) {
   const results = response.results as {
     kel_id: string;
     kel_name: string;
@@ -165,48 +173,52 @@ function SimulateCard({ response }: { response: Record<string, unknown> }) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.cardHead}>Perkiraan dampak intervensi · indikatif</div>
+      <div className={styles.cardHead}>{t(lang, 'result.simulate.head')}</div>
 
       {results.map((result) => (
         <div key={result.kel_id} className={styles.block}>
           <div className={styles.blockHead}>{result.kel_name}</div>
           <div className={styles.metricLine}>
-            <span>Perubahan suhu permukaan</span>
+            <span>{t(lang, 'result.simulate.deltaLst')}</span>
             <SourceChip
-              value={`${result.delta_lst_c > 0 ? '+' : MINUS}${formatNumber(Math.abs(result.delta_lst_c), 2)}`}
+              value={`${result.delta_lst_c > 0 ? '+' : MINUS}${formatNumber(Math.abs(result.delta_lst_c), 2, lang)}`}
               unit="°C"
               kind="model"
               source={MODEL_SOURCE}
+              lang={lang}
               align="end"
             />
           </div>
           <div className={styles.metricLine}>
-            <span>Tertimbang penduduk</span>
+            <span>{t(lang, 'result.simulate.popWeighted')}</span>
             <SourceChip
-              value={`${result.delta_lst_pop_weighted_c > 0 ? '+' : MINUS}${formatNumber(Math.abs(result.delta_lst_pop_weighted_c), 2)}`}
+              value={`${result.delta_lst_pop_weighted_c > 0 ? '+' : MINUS}${formatNumber(Math.abs(result.delta_lst_pop_weighted_c), 2, lang)}`}
               unit="°C"
               kind="model"
               source={MODEL_SOURCE}
+              lang={lang}
               align="end"
             />
           </div>
           <div className={styles.metricLine}>
-            <span>Warga rentan merasakan pendinginan</span>
+            <span>{t(lang, 'result.simulate.vulnerableBenefiting')}</span>
             <SourceChip
-              value={formatNumber(result.vulnerable_benefiting, 0)}
-              unit="jiwa"
+              value={formatNumber(result.vulnerable_benefiting, 0, lang)}
+              unit={lang === 'en' ? 'people' : 'jiwa'}
               kind="model"
-              source={`${MODEL_SOURCE} Sel dengan pendinginan minimal 0,5 °C.`}
+              source={`${MODEL_SOURCE} ${lang === 'en' ? 'Cells with at least 0.5 °C cooling.' : 'Sel dengan pendinginan minimal 0,5 °C.'}`}
+              lang={lang}
               align="end"
             />
           </div>
           <div className={styles.metricLine}>
-            <span>Perkiraan biaya</span>
+            <span>{t(lang, 'result.simulate.cost')}</span>
             <SourceChip
-              value={formatIdr(result.cost_idr).replace('Rp ', '')}
+              value={formatIdr(result.cost_idr, lang).replace('Rp ', '')}
               unit=""
               kind="asumsi"
-              source="Harga satuan TEDUH, dapat disesuaikan (config/costs.yaml)."
+              source={t(lang, 'source.price')}
+              lang={lang}
               align="end"
             />
           </div>
@@ -215,38 +227,40 @@ function SimulateCard({ response }: { response: Record<string, unknown> }) {
 
       {treeRequested && treeArea <= 0 && (
         <div className={styles.warn}>
-          Tidak ada lahan untuk menanam pohon di wilayah ini — hampir seluruh areanya sudah
-          terbangun atau tertutup air. Coba intervensi <strong>cool roof</strong> atau{' '}
-          <strong>green roof</strong>, yang bekerja di atas bangunan.
+          {t(lang, 'result.simulate.treeBlocked')}
         </div>
       )}
 
       {flaggedFeatures.length > 0 && (
         <div className={styles.warn}>
-          <ExtrapolationWarning features={flaggedFeatures} />
+          <ExtrapolationWarning features={flaggedFeatures} lang={lang} />
         </div>
       )}
 
       {evidence.map((entry) => (
         <div key={entry.id} className={styles.evidence}>
-          Pembanding literatur: {entry.source_title} ({entry.year}) melaporkan{' '}
-          {formatUnit(entry.value_min, 'degC', 1)} sampai{' '}
-          {formatUnit(entry.value_max, 'degC', 1)}
+          {t(lang, 'result.simulate.evidence', {
+            title: entry.source_title,
+            year: entry.year,
+            min: formatUnit(entry.value_min, 'degC', 1, lang),
+            max: formatUnit(entry.value_max, 'degC', 1, lang),
+          })}
           {entry.comparable_to_model
             ? '.'
-            : ' — perhatikan bahwa studi ini mengukur besaran lain, bukan pendinginan kawasan.'}
+            : t(lang, 'result.simulate.evidenceNotComparable')}
         </div>
       ))}
 
       <div className={styles.footer}>
-        <span>{String(response.note ?? LST_FOOTNOTE)}</span>
+        <span>{noteFor(response, lang)}</span>
       </div>
     </div>
   );
 }
 
-function OptimizeCard({ response, onSelect }: {
+function OptimizeCard({ response, lang, onSelect }: {
   response: Record<string, unknown>;
+  lang: Lang;
   onSelect: (id: string) => void;
 }) {
   const packages = response.packages as {
@@ -262,34 +276,37 @@ function OptimizeCard({ response, onSelect }: {
   return (
     <div className={styles.card}>
       <div className={styles.cardHead}>
-        Rekomendasi portofolio · {packages.length} paket
+        {t(lang, 'result.optimize.head', { n: packages.length })}
       </div>
 
       <div className={styles.block}>
         <div className={styles.metricLine}>
-          <span>Total biaya</span>
+          <span>{t(lang, 'result.optimize.totalCost')}</span>
           <SourceChip
-            value={formatIdr(response.total_cost_idr as number)}
+            value={formatIdr(response.total_cost_idr as number, lang)}
             kind="asumsi"
-            source="Harga satuan TEDUH, dapat disesuaikan (config/costs.yaml)."
+            source={t(lang, 'source.price')}
+            lang={lang}
             align="end"
           />
         </div>
         <div className={styles.metricLine}>
-          <span>Anggaran tersedia</span>
+          <span>{t(lang, 'result.optimize.budget')}</span>
           <SourceChip
-            value={formatIdr(response.budget_idr as number)}
+            value={formatIdr(response.budget_idr as number, lang)}
             kind="input"
-            source="Anggaran yang Anda masukkan."
+            source={t(lang, 'result.optimize.budgetSource')}
+            lang={lang}
             align="end"
           />
         </div>
         <div className={styles.metricLine}>
-          <span>Porsi untuk kelurahan paling rentan</span>
+          <span>{t(lang, 'result.optimize.equity')}</span>
           <SourceChip
-            value={formatPercent(response.equity_share_achieved as number, 0)}
+            value={formatPercent(response.equity_share_achieved as number, 0, lang)}
             kind="model"
-            source={`${MODEL_SOURCE} Kendala minimum ${formatPercent(response.equity_share_requested as number, 0)}.`}
+            source={`${MODEL_SOURCE} ${lang === 'en' ? 'Minimum constraint' : 'Kendala minimum'} ${formatPercent(response.equity_share_requested as number, 0, lang)}.`}
+            lang={lang}
             align="end"
           />
         </div>
@@ -304,19 +321,19 @@ function OptimizeCard({ response, onSelect }: {
           onClick={() => onSelect(item.kel_id)}
         >
           <strong>{item.kel_name}</strong> · {item.intervention_type} ({item.level}) ·{' '}
-          {formatIdr(item.cost_idr)}
-          {item.in_top_hvi_quintile && ' · kuintil teratas'}
+          {formatIdr(item.cost_idr, lang)}
+          {item.in_top_hvi_quintile && ` · ${t(lang, 'result.optimize.quintile')}`}
         </button>
       ))}
 
       <div className={styles.footer}>
-        <span>{String(response.note ?? LST_FOOTNOTE)}</span>
+        <span>{noteFor(response, lang)}</span>
       </div>
     </div>
   );
 }
 
-function BriefCard({ response }: { response: Record<string, unknown> }) {
+function BriefCard({ response, lang }: { response: Record<string, unknown>; lang: Lang }) {
   const briefId = response.brief_id as string;
   const pdfAvailable = response.pdf_available === true;
   const pdfError = response.pdf_error as string | undefined;
@@ -324,26 +341,25 @@ function BriefCard({ response }: { response: Record<string, unknown> }) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.cardHead}>{String(response.badge ?? 'Policy brief')}</div>
+      <div className={styles.cardHead}>{String(response.badge ?? t(lang, 'result.brief.badge'))}</div>
 
       <div className={styles.block}>
         {pdfAvailable ? (
           <div className={styles.downloadRow}>
             <a className={styles.downloadLink} href={briefUrl(briefId, 'pdf')} download>
-              Unduh PDF
+              {t(lang, 'result.brief.downloadPdf')}
             </a>
             <a className={styles.downloadLink} href={briefUrl(briefId, 'md')} download>
-              Unduh Markdown
+              {t(lang, 'result.brief.downloadMd')}
             </a>
           </div>
         ) : (
           <>
             <div className={styles.warn}>
-              Render PDF gagal di server ini{pdfError ? `: ${pdfError}` : ''}. Brief tetap
-              tersedia sebagai Markdown.
+              {t(lang, 'result.brief.pdfFailed', { error: pdfError ? `: ${pdfError}` : '' })}
             </div>
             <a className={styles.downloadLink} href={briefUrl(briefId, 'md')} download>
-              Unduh Markdown
+              {t(lang, 'result.brief.downloadMd')}
             </a>
           </>
         )}
@@ -358,13 +374,19 @@ function BriefCard({ response }: { response: Record<string, unknown> }) {
       )}
 
       <div className={styles.footer}>
-        <span>Semua angka dalam brief diverifikasi terhadap fakta sesi.</span>
+        <span>{t(lang, 'result.brief.verified')}</span>
       </div>
     </div>
   );
 }
 
-export function ResultTable({ tool, response, onHighlight, onSelect }: ResultTableProps) {
+export function ResultTable({
+  tool,
+  response,
+  lang = 'id',
+  onHighlight,
+  onSelect,
+}: ResultTableProps) {
   // A failed tool call renders no card: an empty table of dashes reads as missing data
   // rather than as a call that did not succeed.
   if (!response || 'error' in response) return null;
@@ -373,6 +395,7 @@ export function ResultTable({ tool, response, onHighlight, onSelect }: ResultTab
     return (
       <RankCard
         areas={response.areas as RankedArea[]}
+        lang={lang}
         onHighlight={onHighlight}
         onSelect={onSelect}
       />
@@ -380,15 +403,15 @@ export function ResultTable({ tool, response, onHighlight, onSelect }: ResultTab
   }
 
   if (tool === 'simulate_intervention' && Array.isArray(response.results)) {
-    return <SimulateCard response={response} />;
+    return <SimulateCard response={response} lang={lang} />;
   }
 
   if (tool === 'optimize_portfolio' && Array.isArray(response.packages)) {
-    return <OptimizeCard response={response} onSelect={onSelect} />;
+    return <OptimizeCard response={response} lang={lang} onSelect={onSelect} />;
   }
 
   if (tool === 'render_policy_brief' && typeof response.brief_id === 'string') {
-    return <BriefCard response={response} />;
+    return <BriefCard response={response} lang={lang} />;
   }
 
   return null;

@@ -15,22 +15,23 @@
  */
 
 import { API_BASE } from './api';
+import { t, type Lang } from './i18n';
 
 export const APP_NAME = 'teduh_agent';
 
-/** Indonesian labels for the step list; keys are the tool names from M3/M5/M6. */
-const TOOL_LABELS: Record<string, string> = {
-  find_area: 'Mencari wilayah',
-  get_area_profile: 'Mengambil profil kelurahan',
-  rank_priority_areas: 'Menghitung indeks kerentanan',
-  explain_drivers: 'Menganalisis faktor pendorong',
-  simulate_intervention: 'Menyimulasikan intervensi',
-  optimize_portfolio: 'Menyusun portofolio anggaran',
-  get_evidence: 'Mengambil temuan literatur',
-  get_session_facts: 'Mengumpulkan fakta percakapan',
-  render_policy_brief: 'Menyusun policy brief',
-  analyze_roof_photo: 'Menganalisis foto atap',
-  recommend_roof_action: 'Menyusun rekomendasi atap',
+/** i18n key per tool name for the step list; keys are the tool names from M3/M5/M6. */
+const TOOL_LABEL_KEYS: Record<string, string> = {
+  find_area: 'tool.find_area',
+  get_area_profile: 'tool.get_area_profile',
+  rank_priority_areas: 'tool.rank_priority_areas',
+  explain_drivers: 'tool.explain_drivers',
+  simulate_intervention: 'tool.simulate_intervention',
+  optimize_portfolio: 'tool.optimize_portfolio',
+  get_evidence: 'tool.get_evidence',
+  get_session_facts: 'tool.get_session_facts',
+  render_policy_brief: 'tool.render_policy_brief',
+  analyze_roof_photo: 'tool.analyze_roof_photo',
+  recommend_roof_action: 'tool.recommend_roof_action',
 };
 
 export interface AgentStep {
@@ -63,8 +64,7 @@ export async function createSession(userId: string): Promise<string> {
   if (!response.ok) {
     throw new Error(`Gagal membuat sesi agen (status ${response.status}).`);
   }
-  return sessionId;
-}
+  return sessionId;}
 
 /** Split a buffer into complete SSE events, returning the unparsed tail. */
 export function parseSseChunk(buffer: string): { events: unknown[]; rest: string } {
@@ -131,7 +131,7 @@ export function errorOf(event: unknown): string | null {
   return null;
 }
 
-export function eventsToSteps(raw: unknown[]): AgentStep[] {
+export function eventsToSteps(raw: unknown[], lang: Lang = 'id'): AgentStep[] {
   const steps: AgentStep[] = [];
 
   for (const event of raw) {
@@ -140,7 +140,10 @@ export function eventsToSteps(raw: unknown[]): AgentStep[] {
         const { name, args } = part.functionCall;
         steps.push({
           tool: name,
-          label: TOOL_LABELS[name] ?? `Menjalankan ${name}`,
+          label:
+            TOOL_LABEL_KEYS[name]
+              ? t(lang, TOOL_LABEL_KEYS[name])
+              : t(lang, 'tool.running', { tool: name }),
           args: args ?? {},
           status: 'running',
         });
@@ -172,8 +175,10 @@ export async function* streamAgent(options: {
   userId: string;
   sessionId: string;
   message: string;
+  lang?: Lang;
   signal?: AbortSignal;
 }): AsyncGenerator<AgentEvent> {
+  const lang = options.lang ?? 'id';
   const response = await fetch(`${API_BASE}/run_sse`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -182,6 +187,7 @@ export async function* streamAgent(options: {
       appName: APP_NAME,
       userId: options.userId,
       sessionId: options.sessionId,
+      state_delta: { lang },
       newMessage: { role: 'user', parts: [{ text: options.message }] },
       streaming: true,
     }),
@@ -190,7 +196,7 @@ export async function* streamAgent(options: {
   if (!response.ok || !response.body) {
     yield {
       kind: 'error',
-      message: `Agen tidak bisa dihubungi (status ${response.status}).`,
+      message: t(lang, 'agent.unreachable') + ` (status ${response.status})`,
     };
     return;
   }
@@ -227,7 +233,7 @@ export async function* streamAgent(options: {
 
     const text = textOf(collected);
     if (text) yield { kind: 'text', text };
-    const steps = eventsToSteps(collected);
+    const steps = eventsToSteps(collected, lang);
     if (steps.length) yield { kind: 'steps', steps };
   }
   yield { kind: 'done' };

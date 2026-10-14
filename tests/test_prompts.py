@@ -4,7 +4,14 @@ edit during golden-question tuning is exactly when one of them gets dropped by a
 
 import pytest
 
-from teduh_agent.prompts import SHARED, available, compose, load
+from teduh_agent.prompts import (
+    SHARED,
+    available,
+    compose,
+    instruction_for,
+    language_directive,
+    load,
+)
 
 AGENT_PROMPTS = (
     "coordinator",
@@ -122,3 +129,35 @@ def test_coordinator_names_every_sub_agent_it_can_route_to():
     text = load("coordinator")
     for name in ("heat_analyst", "intervention_planner", "policy_writer", "roof_inspector"):
         assert name in text
+
+
+@pytest.mark.unit
+def test_language_directive_defaults_to_indonesian():
+    assert "indonesia" in language_directive("id").lower()
+
+
+@pytest.mark.unit
+def test_language_directive_switches_to_english():
+    # The directive itself is written in Bahasa Indonesia (Gemini follows it regardless of
+    # the instruction's own language) and orders the answer in Bahasa *Inggris*.
+    text = language_directive("en").lower()
+    assert "inggris" in text
+    assert "indonesia" not in text
+
+
+@pytest.mark.unit
+def test_instruction_provider_still_carries_the_provenance_rule():
+    # The dynamic provider appends the language directive to the same composed prompt, so
+    # the no-invented-numbers rule must survive the switch. No context defaults to "id".
+    provider = instruction_for("heat_analyst")
+    resolved = provider(None)
+    assert "tidak berasal dari" in resolved.lower()
+
+
+@pytest.mark.unit
+def test_instruction_provider_reads_the_language_from_session_state():
+    class _Ctx:
+        state = {"lang": "en"}
+
+    resolved = instruction_for("heat_analyst")(_Ctx())
+    assert "inggris" in resolved.lower()

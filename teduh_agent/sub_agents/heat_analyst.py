@@ -3,7 +3,7 @@
 from google.adk.agents import LlmAgent
 
 from teduh_agent.llm import resolve_model
-from teduh_agent.prompts import compose
+from teduh_agent.prompts import instruction_for
 from teduh_agent.tools.areas import (
     explain_drivers,
     find_area,
@@ -25,6 +25,6 @@ def build() -> LlmAgent:
         name=NAME,
         model=resolve_model(),
         description=DESCRIPTION,
-        instruction=compose("heat_analyst"),
+        instruction=instruction_for("heat_analyst"),
         tools=[find_area, get_area_profile, rank_priority_areas, explain_drivers],
     )

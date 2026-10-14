@@ -1,5 +1,27 @@
 # Keputusan yang Menyimpang dari CONCEPT.md
 
+## 2026-10-14 — Toggle ID/EN: terjemahan UI + jawaban agen lewat state_delta dan InstructionProvider
+
+- **Konsep (§6.2 poin 5):** "UI dan jawaban agen dalam Bahasa Indonesia. Bahasa Inggris tersedia untuk juri (toggle)."
+- **Implementasi tiga lapis:**
+  1. **UI web** — satu tabel i18n `web/lib/i18n.ts` (`id`/`en`), helper `t(lang, key, params)`; semua komponen (`Header`, `AgentPanel`, `KelurahanDrawer`, `ScenarioDock`, `ResultTable`, `MapOverlays`, `SourceChip`, halaman `cek-atap` & `sumber-data`) dan `format.ts`/`layers.ts` membaca bahasa aktif. `web/lib/useLang.ts` menyimpan pilihan ke `localStorage` (`teduh.lang`) supaya toggle menempel antarpage.
+  2. **Jawaban agen** — frontend mengirim `state_delta: { lang }` di payload `/run_sse` (ADK `RunAgentRequest` memiliki field ini, bukan `lang` khusus). `teduh_agent/prompts/__init__.py::instruction_for()` mengembalikan *InstructionProvider* (callable ADK) yang membaca `ctx.state["lang"]` dan menambahkan `language_directive(lang)` ke prompt. Semua sub-agen + koordinator + mode single-agent memakai provider ini.
+  3. **Output tool** — `note` tetap Bahasa Indonesia (sumber otoritatif untuk agen & konsumen non-web), tapi tiap tool menambah `note_key` (`note.indicative`, `note.lst_surface`, `note.shap_correlational`, `note.optimize_costs`) yang diterjemahkan web. Label driver SHAP diterjemahkan web dari `feature` (kunci `driver.*`), bukan dari `label` Indonesia backend.
+- **Alasan pakai `InstructionProvider` bukan hard-code:** bahasa adalah per-permintaan, bukan per-proses; prompt dinamis ADK membaca state sesi tanpa menyentuh model ID atau arsitektur tool.
+- **Risiko / batas cakupan:** teks bebas hasil rule engine atap (`reason`, `safety`, `guidance`, `notes` dari `teduh_agent/tools/roof.py`) **tetap Bahasa Indonesia** di mode EN — peringatan asbes adalah keselamatan dan isinya di-pin oleh `tests/test_roof.py`. UI statis `/cek-atap` sudah diterjemahkan; untuk narasi rekomendasi warga, jalur agen (`roof_inspector`) yang kini menjawab dalam bahasa aktif.
+- **Validator provenance TIDAK dilemahkan** (angka & source di `facts` tak tersentuh); hanya `label`/`note` presentasi yang menjadi kunci.
+- **Tes:** `tests/test_prompts.py` (language_directive + provider), `web/lib/i18n.test.ts` (paritas `id`/`en`); seluruh `test_prompts.py` dan smoke test memanggil provider dengan `None` untuk default Indonesia.
+
+## 2026-10-13 — `rank_priority_areas` memakai komponen HVI se-kota, bukan persentil ulang di dalam scope
+
+- **Konsep (§7.4):** "Semua komponen dinormalisasi ke persentil (0–1) dalam kota."
+- **Masalah yang ditemukan:** `teduh_agent/tools/areas.py` memanggil `components(scoped)`, sehingga H/E/S/A dihitung ulang sebagai persentil **di dalam scope** yang diminta. Akibatnya satu kelurahan punya dua HVI berbeda tergantung pertanyaannya: untuk Jakarta Pusat, chat melaporkan Serdang 0,83 sebagai puncak sementara peta (memakai `hvi` tersimpan) mewarnai Kampung Rawa 0,931 paling gelap. Keduanya tampil di layar yang sama.
+- **Keputusan:** pakai kolom `H/E/S/A` tersimpan di `kelurahan_metrics.parquet` yang sudah persentil se-kota. Bobot kustom dari UI tetap berlaku, diterapkan pada komponen se-kota.
+- **Alasan:** inilah yang §7.4 tetapkan, dan docstring `model/hvi.py` sendiri menyebut peta-vs-peringkat yang tidak sepakat sebagai "the one thing this product cannot get wrong". Peringkat scope sekarang persis irisan dari peringkat se-kota. Verifikasi: `H*(0,4E+0,3S+0,3A)` mereproduksi `hvi` tersimpan dengan selisih maksimum 0,0.
+- **Dampak angka:** peringkat prioritas per kota/kecamatan berubah. Jakarta Pusat 3 teratas kini Kampung Rawa (0,931), Serdang (0,899), Johar Baru (0,836) — sama dengan peta. Brief atau tangkapan layar yang dibuat sebelum 13 Okt 2026 memakai angka lama.
+- **Risiko:** HVI se-kota membuat seluruh kelurahan di kota yang relatif sejuk tampak rendah meski panas secara lokal. Itu memang konsekuensi §7.4 dan sudah dinyatakan di `model/hvi.py` ("never be read as an absolute risk"). Kalau peringkat relatif-kecamatan memang dibutuhkan, tambahkan sebagai metrik terpisah dengan nama sendiri, jangan dengan menimpa HVI.
+- **Tes:** `tests/test_areas.py::test_narrowing_the_scope_does_not_change_a_reported_hvi` dan `::test_narrowing_the_scope_does_not_reorder_the_ranking`.
+
 ## 2026-10-08 — WorldPop Global2 (2015–2030) menggantikan WorldPop GP 2020
 
 - **Konsep:** `WorldPop/GP/100m/pop` dan `WorldPop/GP/100m/pop_age_sex` (tahun 2020).

@@ -15,6 +15,12 @@
   text-decoration: none;
 }
 
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .title {
   margin: var(--space-8) 0 var(--space-4);
   font-size: var(--text-kelurahan);

@@ -81,6 +81,7 @@ export interface ProfileResponse {
   profile: AreaProfile;
   total_kelurahan: number;
   note: string;
+  note_key?: string;
   drivers: Driver[];
   drivers_unavailable?: string;
   facts: Fact[];
@@ -128,6 +129,7 @@ export interface SimulateResponse {
   interventions: InterventionInput[];
   evidence: EvidenceEntry[];
   note: string;
+  note_key?: string;
   map_highlight: string[];
   facts: Fact[];
 }
@@ -152,6 +154,7 @@ export interface OptimizeResponse {
   equity_share_achieved: number;
   solver_status: string;
   note: string;
+  note_key?: string;
   map_highlight: string[];
   facts: Fact[];
 }

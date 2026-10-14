@@ -22,13 +22,15 @@ Isi dari hasil pengukuran sebenarnya. **Kosongkan yang belum diukur — jangan p
 | Kelurahan tercakup | `kelurahan_metrics.parquet` | 264 |
 | Sel grid 100 m | `grid_features.parquet` | 75.636 |
 | Rata-rata LST kota | sel `lst_quality = good` | 41,84 °C |
-| R² spatial block CV | `data/model/model_card.json` | ______ |
-| RMSE | `model_card.json` | ______ °C |
-| Akurasi pemilihan tool | laporan `golden_*.json` | ______% dari 20 pertanyaan |
-| Latensi p50 chat | laporan `golden_*.json` | ______ s |
-| Akurasi `roof_form` | laporan `roof_*.json` | ______% (butuh 30 foto) |
-| Akurasi `material` | laporan `roof_*.json` | ______% (butuh 30 foto) |
+| R² spatial block CV | `data/model/model_card.json` | 0,755 rata-rata 5 lipatan (terendah 0,723) |
+| RMSE | `model_card.json` | 1,24 °C (MAE 0,94 °C) |
+| Akurasi pemilihan tool | `golden_20261009T153001Z.json` | 65% (13/20) — **di bawah target 90%, jangan dikutip sebagai capaian** |
+| Latensi p50 chat | `golden_20261009T153001Z.json` | 9,4 s — **di atas target 8 s, jangan dikutip sebagai capaian** |
+| Akurasi `roof_form` | `roof_20261009T151310Z.json` | belum terukur (0 foto berlabel dari 30) |
+| Akurasi `material` | `roof_20261009T151310Z.json` | belum terukur (0 foto berlabel dari 30) |
 | Validasi penduduk | DECISIONS 2026-10-09 | selisih 0,54% vs Dukcapil |
+| Baseline regresi linear | `model_card.json` | R² 0,686 — LightGBM unggul 0,069 |
+| Bukti literatur terverifikasi | `interventions.json` | 4 dari 10 entri `verified: true` |
 
 **Jangan diklaim:** target CONCEPT yang belum tercapai, akurasi Cek Atap sebelum 30 foto ada, dan R² 0,92 dari literatur (desain evaluasi kita berbeda).
 

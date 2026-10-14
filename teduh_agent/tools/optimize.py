@@ -298,6 +298,7 @@ def optimize_portfolio(
             "Perkiraan biaya memakai harga satuan dari config/costs.yaml. "
             "Pendinginan adalah suhu permukaan dan bersifat indikatif."
         ),
+        "note_key": "note.optimize_costs",
         "map_highlight": [p["kel_id"] for p in packages],
         "facts": facts,
     }

@@ -12,37 +12,41 @@
 import { Camera, TreeDeciduous } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { LangToggle } from '@/components/LangToggle';
 import { postRoof } from '@/lib/api';
 import { formatPercent } from '@/lib/format';
+import { t, type Lang } from '@/lib/i18n';
+import { useStoredLang } from '@/lib/useLang';
 import type { RoofResponse } from '@/lib/types';
 import styles from './page.module.css';
 
-const MATERIAL_LABELS: Record<string, string> = {
-  clay_tile: 'Genteng tanah liat',
-  concrete_tile: 'Genteng beton',
-  metal_sheet: 'Seng atau metal',
-  concrete_slab: 'Pelat beton',
-  asbestos_cement: 'Asbes (semen berserat)',
-  other: 'Lainnya',
-  unknown: 'Belum bisa dipastikan',
+const MATERIAL_LABEL_KEYS: Record<string, string> = {
+  clay_tile: 'roof.material.clay_tile',
+  concrete_tile: 'roof.material.concrete_tile',
+  metal_sheet: 'roof.material.metal_sheet',
+  concrete_slab: 'roof.material.concrete_slab',
+  asbestos_cement: 'roof.material.asbestos_cement',
+  other: 'roof.material.other',
+  unknown: 'roof.material.unknown',
 };
 
-const FORM_LABELS: Record<string, string> = {
-  flat: 'Datar',
-  pitched: 'Miring',
-  mixed: 'Campuran',
-  unknown: 'Belum bisa dipastikan',
+const FORM_LABEL_KEYS: Record<string, string> = {
+  flat: 'roof.form.flat',
+  pitched: 'roof.form.pitched',
+  mixed: 'roof.form.mixed',
+  unknown: 'roof.form.unknown',
 };
 
-const ACTION_LABELS: Record<string, string> = {
-  cool_roof: 'Cat cool roof (pemantul panas)',
-  green_roof: 'Green roof (atap hijau)',
-  maintain_shade: 'Pertahankan peneduh pohon',
-  consult_professional: 'Konsultasi tenaga profesional',
-  retake_photo: 'Perlu foto ulang',
+const ACTION_LABEL_KEYS: Record<string, string> = {
+  cool_roof: 'roof.action.cool_roof',
+  green_roof: 'roof.action.green_roof',
+  maintain_shade: 'roof.action.maintain_shade',
+  consult_professional: 'roof.action.consult_professional',
+  retake_photo: 'roof.action.retake_photo',
 };
 
 export default function CekAtap() {
+  const [lang] = useStoredLang();
   const [result, setResult] = useState<RoofResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -57,7 +61,7 @@ export default function CekAtap() {
     try {
       setResult(await postRoof(file));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Analisis gagal.');
+      setError(cause instanceof Error ? cause.message : t(lang, 'roof.analysisFailed'));
     } finally {
       setBusy(false);
     }
@@ -65,41 +69,39 @@ export default function CekAtap() {
 
   return (
     <main className={styles.page}>
-      <Link href="/" className={styles.brand}>
-        <TreeDeciduous size={18} aria-hidden="true" />
-        TEDUH
-      </Link>
+      <div className={styles.topRow}>
+        <Link href="/" className={styles.brand}>
+          <TreeDeciduous size={18} aria-hidden="true" />
+          TEDUH
+        </Link>
+        <LangToggle />
+      </div>
 
-      <h1 className={styles.title}>Cek Atap</h1>
-      <p className={styles.lead}>
-        Foto atap rumah Anda, dan TEDUH akan mengenali jenisnya lalu menyarankan cara
-        menurunkan panas yang masuk ke dalam rumah.
-      </p>
+      <h1 className={styles.title}>{t(lang, 'roof.title')}</h1>
+      <p className={styles.lead}>{t(lang, 'roof.lead')}</p>
 
       <div className={styles.privacy}>
-        <strong>Sebelum memotret:</strong> jangan ada wajah, nomor rumah, plat nomor, atau
-        nama jalan di dalam frame. Foto Anda <strong>tidak disimpan</strong> — foto hanya
-        dianalisis, lalu langsung dibuang bersama seluruh metadatanya.
+        <strong>{t(lang, 'roof.privacyPrefix')}</strong> {t(lang, 'roof.privacy')}
       </div>
 
       <label className={styles.picker}>
         <Camera size={28} aria-hidden="true" color="var(--color-canopy)" />
         <div style={{ marginTop: 'var(--space-5)', fontWeight: 600 }}>
-          {busy ? 'Menganalisis foto…' : 'Pilih foto atap'}
+          {busy ? t(lang, 'roof.analyzing') : t(lang, 'roof.pick')}
         </div>
         <div style={{ marginTop: 'var(--space-2)', fontSize: 'var(--text-kicker)', color: 'var(--color-ink-secondary)' }}>
-          JPG atau PNG, maksimal 8 MB
+          {t(lang, 'roof.fileHint')}
         </div>
         <input
           type="file"
           accept="image/jpeg,image/png"
-          aria-label="Pilih foto atap"
+          aria-label={t(lang, 'roof.pickLabel')}
           disabled={busy}
           onChange={(event) => handleFile(event.target.files?.[0])}
         />
       </label>
 
-      {previewUrl && <img src={previewUrl} alt="Pratinjau foto atap" className={styles.preview} />}
+      {previewUrl && <img src={previewUrl} alt={t(lang, 'roof.previewAlt')} className={styles.preview} />}
 
       {error && <div className={styles.error}>{error}</div>}
 
@@ -117,7 +119,7 @@ export default function CekAtap() {
 
           <div className={styles.card}>
             <h2 style={{ margin: 0, fontSize: 'var(--text-section)' }}>
-              {ACTION_LABELS[result.recommendation.action] ?? result.recommendation.action}
+              {t(lang, ACTION_LABEL_KEYS[result.recommendation.action] ?? result.recommendation.action)}
             </h2>
             <p style={{ fontSize: 'var(--text-body)', lineHeight: 'var(--leading-prose)' }}>
               {result.recommendation.reason}
@@ -130,18 +132,18 @@ export default function CekAtap() {
           </div>
 
           <div className={styles.card}>
-            <span className="kicker">YANG TERLIHAT DI FOTO</span>
+            <span className="kicker">{t(lang, 'roof.kicker')}</span>
             <div className={styles.row}>
-              <span>Bentuk atap</span>
-              <strong>{FORM_LABELS[result.roof.roof_form] ?? result.roof.roof_form}</strong>
+              <span>{t(lang, 'roof.form')}</span>
+              <strong>{t(lang, FORM_LABEL_KEYS[result.roof.roof_form] ?? result.roof.roof_form)}</strong>
             </div>
             <div className={styles.row}>
-              <span>Material</span>
-              <strong>{MATERIAL_LABELS[result.roof.material] ?? result.roof.material}</strong>
+              <span>{t(lang, 'roof.material')}</span>
+              <strong>{t(lang, MATERIAL_LABEL_KEYS[result.roof.material] ?? result.roof.material)}</strong>
             </div>
             <div className={styles.row}>
-              <span>Keyakinan analisis</span>
-              <strong>{formatPercent(result.roof.confidence, 0)}</strong>
+              <span>{t(lang, 'roof.confidence')}</span>
+              <strong>{formatPercent(result.roof.confidence, 0, lang)}</strong>
             </div>
             {result.roof.notes && (
               <p style={{ fontSize: 'var(--text-kicker)', color: 'var(--color-ink-secondary)' }}>

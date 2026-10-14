@@ -14,6 +14,7 @@ import { useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { AgentStep } from '@/lib/agent';
+import { t, type Lang } from '@/lib/i18n';
 import { ResultTable } from './ResultTable';
 import styles from './AgentPanel.module.css';
 
@@ -30,6 +31,7 @@ interface AgentPanelProps {
   messages: ChatMessage[];
   draft: string;
   busy: boolean;
+  lang?: Lang;
   onDraftChange: (draft: string) => void;
   onSend: () => void;
   onNewThread: () => void;
@@ -37,18 +39,28 @@ interface AgentPanelProps {
   onSelect: (kelId: string) => void;
 }
 
-function StepBlock({ steps, elapsedMs }: { steps: AgentStep[]; elapsedMs?: number }) {
+function StepBlock({
+  steps,
+  elapsedMs,
+  lang,
+}: {
+  steps: AgentStep[];
+  elapsedMs?: number;
+  lang: Lang;
+}) {
   const done = steps.filter((step) => step.status === 'done').length;
-  const seconds = elapsedMs ? (elapsedMs / 1000).toLocaleString('id-ID', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }) : null;
+  const seconds = elapsedMs
+    ? (elapsedMs / 1000).toLocaleString(lang === 'en' ? 'en-US' : 'id-ID', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      })
+    : null;
 
   return (
     <div className={styles.steps}>
       <div className={styles.stepsHead}>
-        {done} dari {steps.length} langkah selesai
-        {seconds ? ` · ${seconds} detik` : ''}
+        {t(lang, 'agent.steps.done', { done, total: steps.length })}
+        {seconds ? ` · ${t(lang, 'agent.steps.seconds', { seconds })}` : ''}
       </div>
       {steps.map((step, index) => (
         <div key={`${step.tool}-${index}`} className={styles.step}>
@@ -69,6 +81,7 @@ export function AgentPanel({
   messages,
   draft,
   busy,
+  lang = 'id',
   onDraftChange,
   onSend,
   onNewThread,
@@ -83,19 +96,17 @@ export function AgentPanel({
   }, [messages]);
 
   return (
-    <aside className={styles.panel} aria-label="Agen TEDUH">
+    <aside className={styles.panel} aria-label={t(lang, 'agent.aria')}>
       <div className={styles.header}>
         <div>
-          <div className={styles.headerTitle}>Agen TEDUH</div>
-          <div className={styles.headerSub}>
-            Setiap angka berasal dari data atau model, bukan karangan
-          </div>
+          <div className={styles.headerTitle}>{t(lang, 'agent.title')}</div>
+          <div className={styles.headerSub}>{t(lang, 'agent.subtitle')}</div>
         </div>
         <button
           type="button"
           className={styles.iconButton}
           onClick={onNewThread}
-          aria-label="Percakapan baru"
+          aria-label={t(lang, 'agent.newThread')}
         >
           <Pencil size={16} />
         </button>
@@ -110,7 +121,7 @@ export function AgentPanel({
           ) : (
             <div key={message.id}>
               {message.steps.length > 0 && (
-                <StepBlock steps={message.steps} elapsedMs={message.elapsedMs} />
+                <StepBlock steps={message.steps} elapsedMs={message.elapsedMs} lang={lang} />
               )}
               {message.error && <div className={styles.error}>{message.error}</div>}
               {message.text && (
@@ -133,6 +144,7 @@ export function AgentPanel({
                     key={`${step.tool}-card-${index}`}
                     tool={step.tool}
                     response={step.response!}
+                    lang={lang}
                     onHighlight={onHighlight}
                     onSelect={onSelect}
                   />
@@ -146,8 +158,8 @@ export function AgentPanel({
         <div className={styles.composerBox}>
           <textarea
             value={draft}
-            placeholder="Tanyakan tentang panas di wilayah Anda…"
-            aria-label="Pertanyaan untuk agen"
+            placeholder={t(lang, 'agent.placeholder')}
+            aria-label={t(lang, 'agent.composerLabel')}
             onChange={(event) => onDraftChange(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
@@ -159,7 +171,7 @@ export function AgentPanel({
           <a
             href="/cek-atap"
             className={styles.iconButton}
-            aria-label="Buka halaman Cek Atap"
+            aria-label={t(lang, 'agent.cekAtap')}
           >
             <Camera size={16} />
           </a>
@@ -168,7 +180,7 @@ export function AgentPanel({
             className={styles.send}
             disabled={!draft.trim() || busy}
             onClick={onSend}
-            aria-label="Kirim pertanyaan"
+            aria-label={t(lang, 'agent.send')}
           >
             {busy ? <Loader2 size={16} className={styles.spin} /> : <Send size={16} />}
           </button>

@@ -21,6 +21,8 @@ import { EMPTY_SCENARIO, ScenarioDock, type ScenarioState } from '@/components/S
 import { createSession, streamAgent, type AgentStep } from '@/lib/agent';
 import { fetchKelurahan, postSimulate } from '@/lib/api';
 import { formatNumber } from '@/lib/format';
+import { t } from '@/lib/i18n';
+import { useStoredLang } from '@/lib/useLang';
 // LayerId is defined in lib/layers, not lib/types: it is a presentation concern, not an
 // API shape.
 import { type LayerId } from '@/lib/layers';
@@ -50,7 +52,7 @@ export default function Home() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [layer, setLayer] = useState<LayerId>('hvi');
-  const [lang, setLang] = useState<'id' | 'en'>('id');
+  const [lang, setLang] = useStoredLang();
   const [query, setQuery] = useState('');
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -69,7 +71,7 @@ export default function Home() {
 
   const [scenario, setScenario] = useState<ScenarioState>(EMPTY_SCENARIO);
   const [scenarioStatus, setScenarioStatus] = useState(
-    'Belum ada simulasi. Atur intervensi, lalu tekan Simulasikan.',
+    t('id', 'scenario.status.empty'),
   );
   const [scenarioBusy, setScenarioBusy] = useState(false);
   const [simulation, setSimulation] = useState<SimulateResponse | null>(null);
@@ -177,6 +179,7 @@ export default function Home() {
           userId: USER_ID,
           sessionId: sessionRef.current,
           message: trimmed,
+          lang,
         })) {
           setMessages((previous) => {
             const next = [...previous];
@@ -225,7 +228,7 @@ export default function Home() {
           }
         }
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Agen tidak bisa dihubungi.';
+        const message = error instanceof Error ? error.message : t(lang, 'agent.unreachable');
         setMessages((previous) => {
           const next = [...previous];
           const last = next[next.length - 1];
@@ -236,7 +239,7 @@ export default function Home() {
         setChatBusy(false);
       }
     },
-    [chatBusy],
+    [chatBusy, lang],
   );
 
   const runSimulation = useCallback(async () => {
@@ -248,7 +251,7 @@ export default function Home() {
           ? [selectedId]
           : [];
     if (!targets.length) {
-      setScenarioStatus('Pilih kelurahan di peta atau minta agen menyusun prioritas dulu.');
+      setScenarioStatus(t(lang, 'scenario.status.pick'));
       return;
     }
 
@@ -279,7 +282,7 @@ export default function Home() {
     }
 
     setScenarioBusy(true);
-    setScenarioStatus('Menghitung…');
+    setScenarioStatus(t(lang, 'scenario.calculating'));
     try {
       const result = await postSimulate({ kel_ids: targets, interventions });
 
@@ -298,15 +301,18 @@ export default function Home() {
       );
       setScenarioStatus(
         treeRequested && treeArea <= 0
-          ? `Pohon tidak bisa ditanam — lahan terbangun penuh. Coba cool roof atau green roof.`
-          : `Perkiraan rata-rata ${formatNumber(mean, 2)} °C pada ${result.results.length} kelurahan · indikatif, suhu permukaan.`,
+          ? t(lang, 'scenario.status.treeBlocked')
+          : t(lang, 'scenario.status.result', {
+              mean: formatNumber(mean, 2, lang),
+              n: result.results.length,
+            }),
       );
     } catch (error) {
-      setScenarioStatus(error instanceof Error ? error.message : 'Simulasi gagal.');
+      setScenarioStatus(error instanceof Error ? error.message : t(lang, 'scenario.status.failed'));
     } finally {
       setScenarioBusy(false);
     }
-  }, [pickedIds, priorityIds, selectedId, scenario]);
+  }, [pickedIds, priorityIds, selectedId, scenario, lang]);
 
   const scopeLabel = selectedId
     ? (collection?.features.find((f) => f.properties.kel_id === selectedId)?.properties
@@ -314,12 +320,12 @@ export default function Home() {
     : 'DKI JAKARTA';
 
   const targetLabel = pickedIds.length
-    ? `Target: ${pickedIds.length} kelurahan dipilih`
+    ? t(lang, 'target.picked', { n: pickedIds.length })
     : priorityIds.length
-      ? `Target: ${priorityIds.length} kelurahan prioritas`
+      ? t(lang, 'target.priority', { n: priorityIds.length })
       : selectedId
-        ? 'Target: 1 kelurahan terpilih'
-        : 'Target: belum dipilih';
+        ? t(lang, 'target.single')
+        : t(lang, 'target.none');
 
   return (
     <div className={styles.shell}>
@@ -330,7 +336,9 @@ export default function Home() {
         onLangChange={setLang}
         query={query}
         onQueryChange={setQuery}
-        onSearchSubmit={(value) => send(`Tampilkan profil panas untuk ${value}.`)}
+        onSearchSubmit={(value) =>
+          send(lang === 'en' ? `Show the heat profile for ${value}.` : `Tampilkan profil panas untuk ${value}.`)
+        }
       />
 
       <div
@@ -359,6 +367,7 @@ export default function Home() {
 
             <MapOverlays
               layer={layer}
+              lang={lang}
               scopeLabel={scopeLabel}
               attribution={collection?.attribution ?? ''}
               priorityCount={showPriority ? priorityIds.length : 0}
@@ -369,6 +378,7 @@ export default function Home() {
 
             <KelurahanDrawer
               kelId={selectedId}
+              lang={lang}
               onClose={() => setSelectedId(null)}
               onAskAgent={send}
               width={drawerWidth}
@@ -388,7 +398,7 @@ export default function Home() {
               setBottomHeight(next);
               persist(SIZE_KEYS.bottom, next);
             }}
-            label="Ubah tinggi panel simulasi"
+            label={t(lang, 'resize.simulation')}
           />
 
           <div
@@ -402,6 +412,7 @@ export default function Home() {
               targetLabel={targetLabel}
               status={scenarioStatus}
               busy={scenarioBusy}
+              lang={lang}
               onSimulate={runSimulation}
               multiSelect={multiSelect}
               pickedCount={pickedIds.length}
@@ -414,6 +425,7 @@ export default function Home() {
                 <ResultTable
                   tool="simulate_intervention"
                   response={simulation as unknown as Record<string, unknown>}
+                  lang={lang}
                   onHighlight={(ids) => {
                     if (ids.length === 1) setHoverId(ids[0]);
                     else if (ids.length === 0) setHoverId(null);
@@ -438,7 +450,7 @@ export default function Home() {
             setAgentWidth(next);
             persist(SIZE_KEYS.agent, next);
           }}
-          label="Ubah lebar panel agen"
+          label={t(lang, 'resize.agent')}
         />
 
         <div ref={agentRef} className={styles.agentWrap}>
@@ -446,6 +458,7 @@ export default function Home() {
             messages={messages}
             draft={draft}
             busy={chatBusy}
+            lang={lang}
             onDraftChange={setDraft}
             onSend={() => send(draft)}
             onNewThread={() => {

@@ -7,7 +7,7 @@
 set -euo pipefail
 
 PROJECT="${GOOGLE_CLOUD_PROJECT:?GOOGLE_CLOUD_PROJECT belum diisi}"
-REGION="${GOOGLE_CLOUD_LOCATION:-asia-southeast2}"
+REGION="${GOOGLE_CLOUD_LOCATION:-asia-southeast1}"
 WEB_REGION="${TEDUH_WEB_REGION:-asia-southeast1}"
 API_SERVICE="teduh-api"
 WEB_SERVICE="teduh-web"

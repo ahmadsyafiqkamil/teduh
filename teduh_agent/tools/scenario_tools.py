@@ -34,6 +34,10 @@ INDICATIVE_NOTE = (
     "bersifat indikatif untuk penyaringan awal. Bandingkan dengan rentang literatur."
 )
 
+# i18n key the web uses to render the note in the active language, while `note` stays as the
+# authoritative Bahasa Indonesia fallback for the agent and any non-web consumer.
+INDICATIVE_NOTE_KEY = "note.indicative"
+
 
 @lru_cache(maxsize=1)
 def training_frame() -> pd.DataFrame:
@@ -181,6 +185,7 @@ def simulate_intervention(
         ],
         "evidence": evidence,
         "note": INDICATIVE_NOTE,
+        "note_key": INDICATIVE_NOTE_KEY,
         "map_highlight": list(kel_ids),
         "facts": facts,
     }

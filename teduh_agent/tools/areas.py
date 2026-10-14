@@ -17,7 +17,7 @@ import pandas as pd
 from google.adk.tools import ToolContext
 
 from model.explain import top_drivers
-from model.hvi import components, hvi, load_weights, rank
+from model.hvi import COMPONENT_COLUMNS, hvi, load_weights, rank
 from teduh_agent.facts import SOURCE_DATA, SOURCE_MODEL, fact, record
 from teduh_agent.store import get_store
 
@@ -231,6 +231,7 @@ def get_area_profile(kel_id: str, tool_context: ToolContext | None = None) -> di
         },
         "total_kelurahan": len(frame),
         "note": "Suhu permukaan (LST) dari Landsat 8/9, bukan suhu udara.",
+        "note_key": "note.lst_surface",
         "map_highlight": [kel_id],
         "facts": facts,
     }
@@ -287,7 +288,11 @@ def rank_priority_areas(
     store = get_store()
     active = load_weights(store.hvi_cfg) if weights is None else dict(weights)
     try:
-        scores = hvi(components(scoped), active)
+        # Stored H/E/S/A are already percentiles over the whole city (CONCEPT 7.4). Re-deriving
+        # them from `scoped` would re-percentile inside the scope, so the same kelurahan would
+        # score differently depending on the question asked, and the chat would contradict the
+        # map in the same frame. Custom weights still apply - to city-wide components.
+        scores = hvi(scoped[list(COMPONENT_COLUMNS)], active)
     except (KeyError, ValueError) as error:
         return {"error": f"Bobot HVI tidak valid: {error}", "facts": []}
 
@@ -400,6 +405,7 @@ def explain_drivers(kel_id: str, tool_context: ToolContext | None = None) -> dic
             "Kontribusi dari model LightGBM (SHAP) dan bersifat korelasional, "
             "bukan sebab-akibat."
         ),
+        "note_key": "note.shap_correlational",
         "map_highlight": [kel_id],
         "facts": facts,
     }

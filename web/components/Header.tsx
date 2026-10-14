@@ -10,14 +10,15 @@
 
 import { BookOpen, Search, TreeDeciduous } from 'lucide-react';
 import Link from 'next/link';
-import { LAYERS, LAYER_ORDER, type LayerId } from '@/lib/layers';
+import { LAYERS, LAYER_ORDER, layerCopy, type LayerId } from '@/lib/layers';
+import { t, type Lang } from '@/lib/i18n';
 import styles from './Header.module.css';
 
 interface HeaderProps {
   layer: LayerId;
   onLayerChange: (id: LayerId) => void;
-  lang: 'id' | 'en';
-  onLangChange: (lang: 'id' | 'en') => void;
+  lang: Lang;
+  onLangChange: (lang: Lang) => void;
   query: string;
   onQueryChange: (query: string) => void;
   onSearchSubmit: (query: string) => void;
@@ -41,11 +42,11 @@ export function Header({
         <span>
           <span className={styles.wordmark}>TEDUH</span>
           <br />
-          <span className={styles.coverage}>DKI Jakarta · kelurahan</span>
+          <span className={styles.coverage}>{t(lang, 'header.coverage')}</span>
         </span>
       </div>
 
-      <div className={styles.group} role="group" aria-label="Lapisan peta">
+      <div className={styles.group} role="group" aria-label={t(lang, 'header.layerGroup')}>
         {LAYER_ORDER.map((id) => (
           <button
             key={id}
@@ -59,7 +60,7 @@ export function Header({
               style={{ background: LAYERS[id].swatch }}
               aria-hidden="true"
             />
-            {LAYERS[id].label}
+            {layerCopy(LAYERS[id], lang).label}
           </button>
         ))}
       </div>
@@ -70,8 +71,8 @@ export function Header({
         <Search size={16} aria-hidden="true" />
         <input
           type="search"
-          placeholder="Cari kelurahan…"
-          aria-label="Cari kelurahan"
+          placeholder={t(lang, 'header.searchPlaceholder')}
+          aria-label={t(lang, 'header.searchLabel')}
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
           onKeyDown={(event) => {
@@ -80,7 +81,7 @@ export function Header({
         />
       </div>
 
-      <div className={styles.group} role="group" aria-label="Bahasa">
+      <div className={styles.group} role="group" aria-label={t(lang, 'header.langGroup')}>
         {(['id', 'en'] as const).map((code) => (
           <button
             key={code}
@@ -96,7 +97,7 @@ export function Header({
 
       <Link href="/sumber-data" className={styles.about}>
         <BookOpen size={16} stroke="var(--color-canopy)" aria-hidden="true" />
-        Tentang &amp; Sumber Data
+        {t(lang, 'header.about')}
       </Link>
     </header>
   );

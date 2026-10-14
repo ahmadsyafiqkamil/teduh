@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <head>
         {/* Two weights beyond the body weight only; design/README.md calls for 400-700 and
             nothing wider. preconnect because the font is above the fold. */}

@@ -13,6 +13,7 @@
  */
 
 import { formatNumber, formatPercent, formatUnit } from './format';
+import { t } from './i18n';
 
 export type LayerId = 'lst' | 'hvi' | 'veg' | 'pop' | 'dlst';
 
@@ -23,16 +24,21 @@ export const NO_DATA_COLOR = '#D6D0C4';
 
 export interface LayerDefinition {
   id: LayerId;
-  /** Header segmented-control label. */
+  /** Header segmented-control label (Indonesian, kept for the default lang). */
   label: string;
+  /** i18n key for the header label (see lib/i18n.ts). */
+  labelKey: string;
   /** 10x10 swatch beside the label. */
   swatch: string;
   /** GeoJSON property this layer paints. */
   property: string;
-  /** Map overlay title, top left. */
+  /** Map overlay title, top left (Indonesian). */
   title: string;
+  titleKey: string;
   legendTitle: string;
+  legendTitleKey: string;
   legendSubtitle: string;
+  legendSubtitleKey: string;
   palette: string[];
   /** Ascending thresholds; palette.length === breaks.length + 1. */
   breaks: number[];
@@ -49,12 +55,16 @@ export const LAYERS: Record<LayerId, LayerDefinition> = {
   lst: {
     id: 'lst',
     label: 'Suhu Permukaan',
+    labelKey: 'layer.lst.label',
     swatch: '#E0533D',
     property: 'lst_c_mean',
     title: 'Suhu permukaan per kelurahan',
+    titleKey: 'layer.lst.title',
     legendTitle: 'Suhu permukaan tanah (LST), °C',
+    legendTitleKey: 'layer.lst.legendTitle',
     legendSubtitle:
       'Median musim kemarau 2023–2025 · Landsat 8/9 · bukan suhu udara',
+    legendSubtitleKey: 'layer.lst.legendSubtitle',
     palette: ['#FFF5D6', '#FEE08B', '#FDB863', '#F4845F', '#E0533D', '#B5213A', '#6E0F2B'],
     // Quantiles of data/processed/kelurahan_metrics.parquet (Task M7-T2 Step 1):
     // [41.08, 41.69, 42.19, 42.69, 43.22, 43.67], rounded to the nearest 0.5 °C.
@@ -64,12 +74,16 @@ export const LAYERS: Record<LayerId, LayerDefinition> = {
   hvi: {
     id: 'hvi',
     label: 'Kerentanan (HVI)',
+    labelKey: 'layer.hvi.label',
     swatch: '#6B4FA0',
     property: 'hvi',
     title: 'Kerentanan panas per kelurahan',
+    titleKey: 'layer.hvi.title',
     legendTitle: 'Indeks Kerentanan Panas (HVI), 0–1',
+    legendTitleKey: 'layer.hvi.legendTitle',
     legendSubtitle:
       'Bahaya × keterpaparan, kepekaan (balita & lansia), dan kurangnya pohon',
+    legendSubtitleKey: 'layer.hvi.legendSubtitle',
     palette: ['#F2EEF7', '#CBBFE0', '#9B86C4', '#6B4FA0', '#3F1F6B'],
     breaks: [0.2, 0.4, 0.6, 0.8],
     format: (value) => formatNumber(value, 2),
@@ -77,11 +91,15 @@ export const LAYERS: Record<LayerId, LayerDefinition> = {
   veg: {
     id: 'veg',
     label: 'Vegetasi',
+    labelKey: 'layer.veg.label',
     swatch: '#5E9A6E',
     property: 'tree_frac_mean',
     title: 'Tutupan vegetasi per kelurahan',
+    titleKey: 'layer.veg.title',
     legendTitle: 'Tutupan vegetasi, % luas kelurahan',
+    legendTitleKey: 'layer.veg.legendTitle',
     legendSubtitle: 'ESA WorldCover v200, 10 m · tutupan pohon dan mangrove',
+    legendSubtitleKey: 'layer.veg.legendSubtitle',
     palette: ['#F1F5EC', '#CFE0C3', '#9DC39A', '#5E9A6E', '#2C6A4C'],
     // Stored as a fraction, so the design's "every 10%" is 0.1 here.
     breaks: [0.1, 0.2, 0.3, 0.4],
@@ -90,11 +108,15 @@ export const LAYERS: Record<LayerId, LayerDefinition> = {
   pop: {
     id: 'pop',
     label: 'Penduduk Rentan',
+    labelKey: 'layer.pop.label',
     swatch: '#6F6A60',
     property: 'pop_density',
     title: 'Kepadatan penduduk per kelurahan',
+    titleKey: 'layer.pop.title',
     legendTitle: 'Penduduk, jiwa per km²',
+    legendTitleKey: 'layer.pop.legendTitle',
     legendSubtitle: 'WorldPop 2025, 100 m · model constrained, tervalidasi ke Dukcapil',
+    legendSubtitleKey: 'layer.pop.legendSubtitle',
     palette: ['#F1EFEA', '#D5D0C6', '#A9A396', '#6F6A60', '#3A3833'],
     // Quantiles of data/processed/kelurahan_metrics.parquet (Task M7-T2 Step 1):
     // [15110.8, 18491.2, 21594.4, 25257.7], rounded to the nearest 1 000 jiwa/km².
@@ -104,11 +126,15 @@ export const LAYERS: Record<LayerId, LayerDefinition> = {
   dlst: {
     id: 'dlst',
     label: 'ΔLST Simulasi',
+    labelKey: 'layer.dlst.label',
     swatch: '#2B78A8',
     property: 'delta_lst_c',
     title: 'Perubahan suhu permukaan (ΔLST)',
+    titleKey: 'layer.dlst.title',
     legendTitle: 'Perubahan suhu permukaan (ΔLST), °C',
+    legendTitleKey: 'layer.dlst.legendTitle',
     legendSubtitle: 'Hasil simulasi, indikatif · makin pekat makin turun',
+    legendSubtitleKey: 'layer.dlst.legendSubtitle',
     palette: ['#E6F2F8', '#A9D0E6', '#5FA3CB', '#2B78A8', '#1D5F8A'],
     // Stored in display (descending) order: 0 on the left, stronger cooling to the right.
     breaks: [-0.2, -0.4, -0.6, -0.8],
@@ -116,6 +142,21 @@ export const LAYERS: Record<LayerId, LayerDefinition> = {
     descending: true,
   },
 };
+
+/** Translated display copy for a layer's labels, resolved via lib/i18n. */
+export function layerCopy(layer: LayerDefinition, lang: 'id' | 'en'): {
+  label: string;
+  title: string;
+  legendTitle: string;
+  legendSubtitle: string;
+} {
+  return {
+    label: t(lang, layer.labelKey),
+    title: t(lang, layer.titleKey),
+    legendTitle: t(lang, layer.legendTitleKey),
+    legendSubtitle: t(lang, layer.legendSubtitleKey),
+  };
+}
 
 export function colorForValue(layer: LayerDefinition, value: number | null): string {
   if (value === null || value === undefined || Number.isNaN(value)) return NO_DATA_COLOR;

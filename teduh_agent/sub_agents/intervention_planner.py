@@ -3,7 +3,7 @@
 from google.adk.agents import LlmAgent
 
 from teduh_agent.llm import resolve_model
-from teduh_agent.prompts import compose
+from teduh_agent.prompts import instruction_for
 from teduh_agent.tools.evidence import get_evidence
 from teduh_agent.tools.optimize import optimize_portfolio
 from teduh_agent.tools.scenario_tools import simulate_intervention
@@ -22,6 +22,6 @@ def build() -> LlmAgent:
         name=NAME,
         model=resolve_model(),
         description=DESCRIPTION,
-        instruction=compose("intervention_planner"),
+        instruction=instruction_for("intervention_planner"),
         tools=[simulate_intervention, optimize_portfolio, get_evidence],
     )

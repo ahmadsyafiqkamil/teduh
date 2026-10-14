@@ -15,7 +15,7 @@ import os
 from google.adk.agents import LlmAgent
 
 from teduh_agent.llm import resolve_model
-from teduh_agent.prompts import compose
+from teduh_agent.prompts import compose, instruction_for
 from teduh_agent.sub_agents import build_all
 from teduh_agent.tools import ALL_TOOLS
 
@@ -44,15 +44,19 @@ def build_root() -> LlmAgent:
             model=MODEL,
             description=DESCRIPTION,
             # Every specialist instruction folded into one, so no caveat is lost when the
-            # sub-agents are not there to carry it.
-            instruction="\n\n".join(
-                compose(name)
-                for name in (
-                    "heat_analyst",
-                    "intervention_planner",
-                    "policy_writer",
-                    "roof_inspector",
-                )
+            # sub-agents are not there to carry it. The dynamic provider appends the active
+            # language directive, exactly as the multi-agent path does.
+            instruction=instruction_for(
+                "single_agent",
+                base="\n\n".join(
+                    compose(name)
+                    for name in (
+                        "heat_analyst",
+                        "intervention_planner",
+                        "policy_writer",
+                        "roof_inspector",
+                    )
+                ),
             ),
             tools=ALL_TOOLS,
         )
@@ -61,7 +65,7 @@ def build_root() -> LlmAgent:
         name=NAME,
         model=MODEL,
         description=DESCRIPTION,
-        instruction=compose("coordinator"),
+        instruction=instruction_for("coordinator"),
         sub_agents=build_all(),
     )
 
