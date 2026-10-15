@@ -95,6 +95,12 @@ def build_candidates(kel_ids: list[str], allowed: list[str] | None = None) -> li
                     store.costs_cfg,
                     q99,
                 )
+                # A package that cools no vulnerable resident to the benefit threshold is not
+                # a viable recommendation: it also covers tree planting on fully built land,
+                # whose area is floating-point noise (~0 m2) and would otherwise surface as a
+                # "Rp 0" package.
+                if outcome.vulnerable_benefiting <= 0:
+                    continue
                 candidates.append(
                     Candidate(
                         kel_id=kel_id,
@@ -171,10 +177,17 @@ def solve(
     return chosen, solver.StatusName(status)
 
 
-def _candidate_areas(scope: str) -> list[str]:
-    """The highest-HVI areas in scope, capped so candidate generation stays fast."""
+def _candidate_areas(scope: str, kel_ids: list[str] | None = None) -> list[str]:
+    """The highest-HVI areas in scope, capped so candidate generation stays fast.
+
+    `kel_ids` is the explicit-list path from the slider dock; when supplied it wins over
+    `scope` and only those kelurahan are considered. The caller is responsible for having
+    validated the list first -- unknown ids are not looked up here.
+    """
     frame = directory()
-    if scope and scope.lower() != "all":
+    if kel_ids:
+        frame = frame.loc[[k for k in kel_ids if k in frame.index]]
+    elif scope and scope.lower() != "all":
         if scope in frame["kota_id"].values:
             frame = frame[frame["kota_id"] == scope]
         elif scope in frame["kec_id"].values:
@@ -196,6 +209,7 @@ def optimize_portfolio(
     budget_idr: int = 0,
     equity_share: float | None = None,
     allowed: list[str] | None = None,
+    kel_ids: list[str] | None = None,
     tool_context: ToolContext | None = None,
 ) -> dict:
     """Susun paket intervensi terbaik dalam batas anggaran, dengan kendala keadilan.
@@ -210,6 +224,7 @@ def optimize_portfolio(
         equity_share: porsi minimum anggaran untuk kuintil HVI teratas, 0 sampai 1.
             Kalau kosong, memakai 0,6 dari config.
         allowed: opsional, batasi jenis intervensi, misalnya ["cool_roof"].
+        kel_ids: opsional, daftar kelurahan eksplisit yang mengesampingkan `scope`.
 
     Returns:
         dict dengan `packages`, `total_cost_idr`, `equity_share_achieved`,
@@ -235,7 +250,16 @@ def optimize_portfolio(
         if unknown:
             return {"error": f"Jenis intervensi tidak dikenal: {', '.join(unknown)}", "facts": []}
 
-    areas = _candidate_areas(scope)
+    if kel_ids:
+        known = set(directory().index)
+        missing = [k for k in kel_ids if k not in known]
+        if missing:
+            return {
+                "error": f"Kelurahan tidak ada di data TEDUH: {', '.join(missing)}",
+                "facts": [],
+            }
+
+    areas = _candidate_areas(scope, kel_ids)
     if not areas:
         return {"error": f"Wilayah {scope!r} tidak ada di data TEDUH.", "facts": []}
 
@@ -254,6 +278,7 @@ def optimize_portfolio(
         }
 
     total_cost = sum(c.cost_idr for c in chosen)
+    unspent_idr = max(0, int(budget_idr) - total_cost)
     equitable_cost = sum(c.cost_idr for c in chosen if c.in_top_quintile)
     achieved = equitable_cost / total_cost if total_cost else 0.0
     names = directory()["kel_name"]
@@ -276,6 +301,7 @@ def optimize_portfolio(
     facts = [
         fact("opt.budget", "Anggaran yang tersedia", float(budget_idr), "IDR", SOURCE_MODEL),
         fact("opt.total_cost", "Total biaya portofolio", total_cost, "IDR", SOURCE_MODEL),
+        fact("opt.unspent", "Sisa anggaran yang tidak terpakai", unspent_idr, "IDR", SOURCE_MODEL),
         fact("opt.n_packages", "Jumlah paket terpilih", len(chosen), "paket", SOURCE_MODEL),
         fact("opt.equity_share", "Porsi anggaran untuk kuintil HVI teratas", achieved, "fraksi",
              SOURCE_MODEL),
@@ -289,11 +315,13 @@ def optimize_portfolio(
     return {
         "packages": packages,
         "total_cost_idr": total_cost,
+        "unspent_idr": unspent_idr,
         "budget_idr": float(budget_idr),
         "equity_share_requested": requested,
         "equity_share_achieved": achieved,
         "solver_status": status,
         "n_candidates": len(candidates),
+        "n_areas": len(areas),
         "note": (
             "Perkiraan biaya memakai harga satuan dari config/costs.yaml. "
             "Pendinginan adalah suhu permukaan dan bersifat indikatif."

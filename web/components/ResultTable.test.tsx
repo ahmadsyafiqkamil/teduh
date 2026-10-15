@@ -146,9 +146,42 @@ describe('ResultTable', () => {
     expect(screen.getByText(/100%/)).toBeInTheDocument();
   });
 
+  it('shows the unspent budget when some is left over', () => {
+    const withUnspent = { ...OPT_RESPONSE, unspent_idr: 1_050_000_000 };
+    render(<ResultTable tool="optimize_portfolio" response={withUnspent} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+    expect(screen.getByText('Sisa anggaran')).toBeInTheDocument();
+    expect(screen.getByText(/Rp 1\.050\.000\.000/)).toBeInTheDocument();
+  });
+
+  it('hides the unspent budget when the budget is fully used', () => {
+    render(<ResultTable tool="optimize_portfolio" response={OPT_RESPONSE} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+    expect(screen.queryByText('Sisa anggaran')).not.toBeInTheDocument();
+  });
+
   it('marks packages that land in the top HVI quintile', () => {
     render(<ResultTable tool="optimize_portfolio" response={OPT_RESPONSE} onHighlight={vi.fn()} onSelect={vi.fn()} />);
     expect(screen.getByText(/kuintil teratas/i)).toBeInTheDocument();
+  });
+
+  it('shows localized intervention and level labels per package', () => {
+    render(<ResultTable tool="optimize_portfolio" response={OPT_RESPONSE} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+    expect(screen.getByText(/Cool roof \(cat pemantul\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/intensitas sedang/i)).toBeInTheDocument();
+  });
+
+  it('reports per-package impact like a simulation row', () => {
+    render(<ResultTable tool="optimize_portfolio" response={OPT_RESPONSE} onHighlight={vi.fn()} onSelect={vi.fn()} />);
+    expect(screen.getByText('Perubahan suhu permukaan')).toBeInTheDocument();
+    expect(screen.getByText('Warga rentan merasakan pendinginan')).toBeInTheDocument();
+    expect(screen.getByText('Perkiraan biaya')).toBeInTheDocument();
+  });
+
+  it('selects a kelurahan when a package header is clicked', async () => {
+    const onSelect = vi.fn();
+    const user = userEvent.setup();
+    render(<ResultTable tool="optimize_portfolio" response={OPT_RESPONSE} onHighlight={vi.fn()} onSelect={onSelect} />);
+    await user.click(screen.getByRole('button', { name: /Kampung Rawa/ }));
+    expect(onSelect).toHaveBeenCalledWith('ID3173040002');
   });
 
   it('renders nothing for a tool with no card', () => {

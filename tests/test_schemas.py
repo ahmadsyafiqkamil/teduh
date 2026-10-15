@@ -105,3 +105,18 @@ def test_optimize_defaults_scope_to_all_and_equity_to_none():
     request = OptimizeRequest(budget_idr=2_000_000_000)
     assert request.scope == "all"
     assert request.equity_share is None
+
+
+@pytest.mark.unit
+def test_optimize_accepts_an_explicit_kel_id_list():
+    request = OptimizeRequest(
+        budget_idr=2_000_000_000, kel_ids=["ID3173040002", "ID3172030001"]
+    )
+    assert request.kel_ids == ["ID3173040002", "ID3172030001"]
+    assert request.scope == "all"
+
+
+@pytest.mark.unit
+def test_optimize_rejects_a_malformed_kel_id():
+    with pytest.raises(ValidationError):
+        OptimizeRequest(budget_idr=2_000_000_000, kel_ids=["bukan-id"])

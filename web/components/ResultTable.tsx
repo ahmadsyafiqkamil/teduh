@@ -270,6 +270,7 @@ function OptimizeCard({ response, lang, onSelect }: {
     level: string;
     cost_idr: number;
     delta_lst_c: number;
+    vulnerable_benefiting: number;
     in_top_hvi_quintile: boolean;
   }[];
 
@@ -300,6 +301,18 @@ function OptimizeCard({ response, lang, onSelect }: {
             align="end"
           />
         </div>
+        {((response.unspent_idr as number) ?? 0) > 0 && (
+          <div className={styles.metricLine}>
+            <span>{t(lang, 'result.optimize.unspent')}</span>
+            <SourceChip
+              value={formatIdr(response.unspent_idr as number, lang)}
+              kind="input"
+              source={t(lang, 'result.optimize.unspentSource')}
+              lang={lang}
+              align="end"
+            />
+          </div>
+        )}
         <div className={styles.metricLine}>
           <span>{t(lang, 'result.optimize.equity')}</span>
           <SourceChip
@@ -312,18 +325,56 @@ function OptimizeCard({ response, lang, onSelect }: {
         </div>
       </div>
 
+      {/* Each package reports the same impact metrics as a simulation row. A SourceChip is
+          itself a button, so the block cannot be a button: the header is the clickable
+          region and the metrics sit beside it. */}
       {packages.map((item) => (
-        <button
-          key={`${item.kel_id}-${item.intervention_type}`}
-          type="button"
-          className={styles.block}
-          style={{ textAlign: 'left', width: '100%', border: 0, background: 'none', cursor: 'pointer' }}
-          onClick={() => onSelect(item.kel_id)}
-        >
-          <strong>{item.kel_name}</strong> · {item.intervention_type} ({item.level}) ·{' '}
-          {formatIdr(item.cost_idr, lang)}
-          {item.in_top_hvi_quintile && ` · ${t(lang, 'result.optimize.quintile')}`}
-        </button>
+        <div key={`${item.kel_id}-${item.intervention_type}`} className={styles.block}>
+          <button
+            type="button"
+            className={styles.blockHead}
+            style={{ textAlign: 'left', width: '100%', border: 0, background: 'none', cursor: 'pointer', padding: 0 }}
+            onClick={() => onSelect(item.kel_id)}
+          >
+            {item.kel_name} · {t(lang, `intervention.${item.intervention_type}`)} (
+            {t(lang, `level.${item.level}`)})
+            {item.in_top_hvi_quintile && ` · ${t(lang, 'result.optimize.quintile')}`}
+          </button>
+
+          <div className={styles.metricLine}>
+            <span>{t(lang, 'result.simulate.deltaLst')}</span>
+            <SourceChip
+              value={`${item.delta_lst_c > 0 ? '+' : MINUS}${formatNumber(Math.abs(item.delta_lst_c), 2, lang)}`}
+              unit="°C"
+              kind="model"
+              source={MODEL_SOURCE}
+              lang={lang}
+              align="end"
+            />
+          </div>
+          <div className={styles.metricLine}>
+            <span>{t(lang, 'result.simulate.vulnerableBenefiting')}</span>
+            <SourceChip
+              value={formatNumber(item.vulnerable_benefiting, 0, lang)}
+              unit={lang === 'en' ? 'people' : 'jiwa'}
+              kind="model"
+              source={`${MODEL_SOURCE} ${lang === 'en' ? 'Cells with at least 0.5 °C cooling.' : 'Sel dengan pendinginan minimal 0,5 °C.'}`}
+              lang={lang}
+              align="end"
+            />
+          </div>
+          <div className={styles.metricLine}>
+            <span>{t(lang, 'result.simulate.cost')}</span>
+            <SourceChip
+              value={formatIdr(item.cost_idr, lang).replace('Rp ', '')}
+              unit=""
+              kind="asumsi"
+              source={t(lang, 'source.price')}
+              lang={lang}
+              align="end"
+            />
+          </div>
+        </div>
       ))}
 
       <div className={styles.footer}>

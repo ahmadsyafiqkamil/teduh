@@ -90,6 +90,7 @@ export function postSimulate(payload: {
 
 export function postOptimize(payload: {
   scope?: string;
+  kel_ids?: string[] | null;
   budget_idr: number;
   equity_share?: number | null;
   allowed?: string[] | null;

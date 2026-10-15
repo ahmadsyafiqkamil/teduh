@@ -187,6 +187,7 @@ def optimize(request: OptimizeRequest) -> Any:
     """Portfolio straight from the budget form. No LLM in this path."""
     result = optimize_portfolio(
         scope=request.scope,
+        kel_ids=request.kel_ids,
         budget_idr=request.budget_idr,
         equity_share=request.equity_share,
         allowed=request.allowed,

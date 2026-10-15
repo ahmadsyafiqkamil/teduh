@@ -76,6 +76,16 @@ class InterventionInput(BaseModel):
         return self
 
 
+def _well_formed_ids(value: list[str]) -> list[str]:
+    """Every kel_id must match the BPS P-code shape (shared by simulate and optimize)."""
+    import re
+
+    for kel_id in value:
+        if not re.match(KEL_ID_PATTERN, kel_id):
+            raise ValueError(f"kel_id tidak valid: {kel_id}")
+    return value
+
+
 class SimulateRequest(BaseModel):
     """Slider-driven scenario, no LLM involved."""
 
@@ -86,22 +96,30 @@ class SimulateRequest(BaseModel):
 
     @field_validator("kel_ids")
     @classmethod
-    def _well_formed_ids(cls, value: list[str]) -> list[str]:
-        import re
-
-        for kel_id in value:
-            if not re.match(KEL_ID_PATTERN, kel_id):
-                raise ValueError(f"kel_id tidak valid: {kel_id}")
-        return value
+    def _validate_kel_ids(cls, value: list[str]) -> list[str]:
+        return _well_formed_ids(value)
 
 
 class OptimizeRequest(BaseModel):
-    """Form-driven portfolio, no LLM involved."""
+    """Form-driven portfolio, no LLM involved.
+
+    `scope` ("all", kota/kecamatan/kelurahan) and `kel_ids` are alternative ways to bound the
+    portfolio. `kel_ids` wins when both are supplied: the slider dock sends an explicit list
+    of picked kelurahan, while the chat path keeps using `scope`.
+    """
 
     scope: str = "all"
+    kel_ids: list[str] | None = Field(default=None, max_length=MAX_KELURAHAN_PER_REQUEST)
     budget_idr: int = Field(gt=0, le=MAX_BUDGET_IDR)
     equity_share: float | None = Field(default=None, ge=0.0, le=1.0)
     allowed: list[str] | None = Field(default=None, max_length=MAX_INTERVENTIONS_PER_REQUEST)
+
+    @field_validator("kel_ids")
+    @classmethod
+    def _validate_kel_ids(cls, value: list[str] | None) -> list[str] | None:
+        if value is None:
+            return None
+        return _well_formed_ids(value)
 
     @field_validator("allowed")
     @classmethod

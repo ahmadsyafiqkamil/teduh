@@ -74,6 +74,7 @@ const id: Table = {
   'scenario.clearPicked': 'Bersihkan ({n})',
   'scenario.multiHint.on': 'Klik kelurahan di peta untuk menambah atau menghapus pilihan.',
   'scenario.multiHint.off': 'Nyalakan untuk memilih beberapa kelurahan secara manual.',
+  'scenario.clearResult': 'Hapus hasil',
   'scenario.status.empty': 'Belum ada simulasi. Atur intervensi, lalu tekan Simulasikan.',
   'scenario.status.pick':
     'Pilih kelurahan di peta atau minta agen menyusun prioritas dulu.',
@@ -82,6 +83,16 @@ const id: Table = {
     'Pohon tidak bisa ditanam — lahan terbangun penuh. Coba cool roof atau green roof.',
   'scenario.status.result':
     'Perkiraan rata-rata {mean} °C pada {n} kelurahan · indikatif, suhu permukaan.',
+  'scenario.modeSimulate': 'Simulasikan',
+  'scenario.modeOptimize': 'Optimalkan',
+  'scenario.equityLabel': 'Porsi keadilan (0–1)',
+  'scenario.equityHelp':
+    'Porsi minimum anggaran ke kelurahan paling rentan. Kosongkan untuk 0,6.',
+  'scenario.optimizeStatus.empty': 'Atur anggaran, lalu tekan Optimalkan.',
+  'scenario.optimizeStatus.result': 'Portofolio tersusun: {n} paket · total {cost}.',
+  'scenario.optimizeStatus.needBudget': 'Masukkan anggaran terlebih dahulu.',
+  'scenario.optimizeStatus.trimmed':
+    'Ditampilkan {n} kelurahan HVI-teratas dari pilihan Anda.',
 
   // Target labels
   'target.picked': 'Target: {n} kelurahan dipilih',
@@ -204,9 +215,19 @@ const id: Table = {
   'result.optimize.totalCost': 'Total biaya',
   'result.optimize.budget': 'Anggaran tersedia',
   'result.optimize.budgetSource': 'Anggaran yang Anda masukkan.',
+  'result.optimize.unspent': 'Sisa anggaran',
+  'result.optimize.unspentSource': 'Anggaran yang tidak terpakai oleh paket terpilih.',
   'result.optimize.equity': 'Porsi untuk kelurahan paling rentan',
   'result.optimize.equitySource': '{source} Kendala minimum {share}.',
   'result.optimize.quintile': 'kuintil teratas',
+
+  // Intervention and level labels (used by the optimize package blocks)
+  'intervention.cool_roof': 'Cool roof (cat pemantul)',
+  'intervention.green_roof': 'Green roof (atap hijau)',
+  'intervention.tree_planting': 'Tanam pohon',
+  'level.low': 'intensitas rendah',
+  'level.medium': 'intensitas sedang',
+  'level.high': 'intensitas tinggi',
   'result.brief.badge': 'Policy brief',
   'result.brief.downloadPdf': 'Unduh PDF',
   'result.brief.downloadMd': 'Unduh Markdown',
@@ -374,6 +395,7 @@ const en: Table = {
   'scenario.clearPicked': 'Clear ({n})',
   'scenario.multiHint.on': 'Click kelurahan on the map to add or remove them.',
   'scenario.multiHint.off': 'Turn on to select several kelurahan manually.',
+  'scenario.clearResult': 'Clear result',
   'scenario.status.empty': 'No simulation yet. Set interventions, then press Simulate.',
   'scenario.status.pick': 'Select a kelurahan on the map or ask the agent to rank priorities first.',
   'scenario.status.failed': 'Simulation failed.',
@@ -381,6 +403,16 @@ const en: Table = {
     'No room to plant trees — the area is almost fully built up. Try cool roof or green roof.',
   'scenario.status.result':
     'Estimated average {mean} °C across {n} kelurahan · indicative, surface temperature.',
+  'scenario.modeSimulate': 'Simulate',
+  'scenario.modeOptimize': 'Optimize',
+  'scenario.equityLabel': 'Equity share (0–1)',
+  'scenario.equityHelp':
+    'Minimum budget share to the most vulnerable kelurahan. Leave empty for 0.6.',
+  'scenario.optimizeStatus.empty': 'Set a budget, then press Optimize.',
+  'scenario.optimizeStatus.result': 'Portfolio built: {n} packages · total {cost}.',
+  'scenario.optimizeStatus.needBudget': 'Enter a budget first.',
+  'scenario.optimizeStatus.trimmed':
+    'Showing the {n} highest-HVI kelurahan from your selection.',
 
   'target.picked': 'Target: {n} kelurahan selected',
   'target.priority': 'Target: {n} priority kelurahan',
@@ -496,9 +528,19 @@ const en: Table = {
   'result.optimize.totalCost': 'Total cost',
   'result.optimize.budget': 'Available budget',
   'result.optimize.budgetSource': 'The budget you entered.',
+  'result.optimize.unspent': 'Unspent budget',
+  'result.optimize.unspentSource': 'Budget not consumed by the chosen packages.',
   'result.optimize.equity': 'Share for the most vulnerable kelurahan',
   'result.optimize.equitySource': '{source} Minimum constraint {share}.',
   'result.optimize.quintile': 'top quintile',
+
+  // Intervention and level labels (used by the optimize package blocks)
+  'intervention.cool_roof': 'Cool roof (reflective coating)',
+  'intervention.green_roof': 'Green roof',
+  'intervention.tree_planting': 'Tree planting',
+  'level.low': 'low intensity',
+  'level.medium': 'medium intensity',
+  'level.high': 'high intensity',
   'result.brief.badge': 'Policy brief',
   'result.brief.downloadPdf': 'Download PDF',
   'result.brief.downloadMd': 'Download Markdown',

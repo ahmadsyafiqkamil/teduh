@@ -17,10 +17,15 @@ import { MapOverlays } from '@/components/MapOverlays';
 import { MapView } from '@/components/MapView';
 import { ResizeHandle } from '@/components/ResizeHandle';
 import { ResultTable } from '@/components/ResultTable';
-import { EMPTY_SCENARIO, ScenarioDock, type ScenarioState } from '@/components/ScenarioDock';
+import {
+  EMPTY_SCENARIO,
+  ScenarioDock,
+  type ScenarioMode,
+  type ScenarioState,
+} from '@/components/ScenarioDock';
 import { createSession, streamAgent, type AgentStep } from '@/lib/agent';
-import { fetchKelurahan, postSimulate } from '@/lib/api';
-import { formatNumber } from '@/lib/format';
+import { fetchKelurahan, postOptimize, postSimulate } from '@/lib/api';
+import { formatIdr, formatNumber } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { useStoredLang } from '@/lib/useLang';
 // LayerId is defined in lib/layers, not lib/types: it is a presentation concern, not an
@@ -37,7 +42,7 @@ import {
   readSize,
   writeSize,
 } from '@/lib/resize';
-import type { KelurahanCollection, ScenarioResult, SimulateResponse } from '@/lib/types';
+import type { KelurahanCollection, OptimizeResponse, ScenarioResult, SimulateResponse } from '@/lib/types';
 import styles from './page.module.css';
 
 const USER_ID = 'perencana';
@@ -76,6 +81,12 @@ export default function Home() {
   const [scenarioBusy, setScenarioBusy] = useState(false);
   const [simulation, setSimulation] = useState<SimulateResponse | null>(null);
   const [simulationDeltas, setSimulationDeltas] = useState<Record<string, number>>({});
+
+  // Two-mode dock: "Simulasikan" (sliders) vs "Optimalkan" (budget). Each keeps its own
+  // result so switching modes never shows a stale card from the other question.
+  const [scenarioMode, setScenarioMode] = useState<ScenarioMode>('simulate');
+  const [optimization, setOptimization] = useState<OptimizeResponse | null>(null);
+  const [optimizeBusy, setOptimizeBusy] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
@@ -242,14 +253,17 @@ export default function Home() {
     [chatBusy, lang],
   );
 
+  // One source of truth for "what is currently targeted", shared by simulate and optimize
+  // so the two modes can never act on different kelurahan. Order matches the target label.
+  const currentTargets = useMemo<string[]>(() => {
+    if (pickedIds.length) return pickedIds;
+    if (priorityIds.length) return priorityIds;
+    if (selectedId) return [selectedId];
+    return [];
+  }, [pickedIds, priorityIds, selectedId]);
+
   const runSimulation = useCallback(async () => {
-    let targets = pickedIds.length
-      ? pickedIds
-      : priorityIds.length
-        ? priorityIds
-        : selectedId
-          ? [selectedId]
-          : [];
+    let targets = currentTargets;
     if (!targets.length) {
       setScenarioStatus(t(lang, 'scenario.status.pick'));
       return;
@@ -312,7 +326,85 @@ export default function Home() {
     } finally {
       setScenarioBusy(false);
     }
-  }, [pickedIds, priorityIds, selectedId, scenario, lang]);
+  }, [currentTargets, scenario, lang]);
+
+  const changeScenarioMode = useCallback(
+    (next: ScenarioMode) => {
+      setScenarioMode(next);
+      setScenarioStatus(
+        next === 'optimize'
+          ? t(lang, 'scenario.optimizeStatus.empty')
+          : t(lang, 'scenario.status.empty'),
+      );
+    },
+    [lang],
+  );
+
+  const runOptimize = useCallback(async () => {
+    if (scenario.budget === null || scenario.budget <= 0) {
+      setScenarioStatus(t(lang, 'scenario.optimizeStatus.needBudget'));
+      return;
+    }
+
+    // Same target as simulate (currentTargets); fall back to the whole city only when
+    // nothing at all is targeted.
+    const targets = currentTargets;
+    const kel_ids = targets.length ? targets : null;
+
+    setOptimizeBusy(true);
+    setScenarioStatus(t(lang, 'scenario.calculating'));
+    try {
+      const result = await postOptimize({
+        kel_ids,
+        budget_idr: scenario.budget,
+        equity_share: scenario.equityShare,
+      });
+      setOptimization(result);
+
+      // Drive the map exactly like the agent's optimize path: highlight every kelurahan the
+      // portfolio touches, so the answer and the map never show different areas.
+      const highlight = result.map_highlight ?? result.packages.map((p) => p.kel_id);
+      if (highlight.length) {
+        setPriorityIds([...new Set(highlight)]);
+        setShowPriority(true);
+      }
+
+      const base = t(lang, 'scenario.optimizeStatus.result', {
+        n: result.packages.length,
+        cost: formatIdr(result.total_cost_idr, lang),
+      });
+      // The engine caps candidate generation at the 40 highest-HVI areas; tell the planner
+      // when their explicit list was trimmed so it never reads as a silent drop.
+      const nAreas = result.n_areas;
+      let next = base;
+      if (kel_ids !== null && nAreas !== undefined && kel_ids.length > nAreas) {
+        next = `${base} ${t(lang, 'scenario.optimizeStatus.trimmed', { n: nAreas })}`;
+      }
+      setScenarioStatus(next);
+    } catch (error) {
+      setScenarioStatus(
+        error instanceof Error ? error.message : t(lang, 'scenario.status.failed'),
+      );
+    } finally {
+      setOptimizeBusy(false);
+    }
+  }, [scenario.budget, scenario.equityShare, currentTargets, lang]);
+
+  const clearResult = useCallback(() => {
+    if (scenarioMode === 'simulate') {
+      setSimulation(null);
+      setSimulationDeltas({});
+      if (layer === 'dlst') setLayer('hvi');
+      setScenarioStatus(t(lang, 'scenario.status.empty'));
+    } else {
+      setOptimization(null);
+      setPriorityIds([]);
+      setShowPriority(false);
+      setScenarioStatus(t(lang, 'scenario.optimizeStatus.empty'));
+    }
+  }, [scenarioMode, layer, lang]);
+
+  const hasResult = scenarioMode === 'simulate' ? simulation !== null : optimization !== null;
 
   const scopeLabel = selectedId
     ? (collection?.features.find((f) => f.properties.kel_id === selectedId)?.properties
@@ -409,22 +501,46 @@ export default function Home() {
             <ScenarioDock
               state={scenario}
               onChange={setScenario}
+              mode={scenarioMode}
+              onModeChange={changeScenarioMode}
               targetLabel={targetLabel}
               status={scenarioStatus}
-              busy={scenarioBusy}
+              busy={scenarioBusy || optimizeBusy}
               lang={lang}
               onSimulate={runSimulation}
+              onOptimize={runOptimize}
               multiSelect={multiSelect}
               pickedCount={pickedIds.length}
               onToggleMultiSelect={toggleMultiSelect}
               onClearPicked={clearPicked}
+              hasResult={hasResult}
+              onClearResult={clearResult}
             />
 
-            {simulation && (
+            {scenarioMode === 'simulate' && simulation && (
               <div className={styles.simulationCard}>
                 <ResultTable
                   tool="simulate_intervention"
                   response={simulation as unknown as Record<string, unknown>}
+                  lang={lang}
+                  onHighlight={(ids) => {
+                    if (ids.length === 1) setHoverId(ids[0]);
+                    else if (ids.length === 0) setHoverId(null);
+                    else {
+                      setPriorityIds([...new Set(ids)]);
+                      setShowPriority(true);
+                    }
+                  }}
+                  onSelect={setSelectedId}
+                />
+              </div>
+            )}
+
+            {scenarioMode === 'optimize' && optimization && (
+              <div className={styles.simulationCard}>
+                <ResultTable
+                  tool="optimize_portfolio"
+                  response={optimization as unknown as Record<string, unknown>}
                   lang={lang}
                   onHighlight={(ids) => {
                     if (ids.length === 1) setHoverId(ids[0]);

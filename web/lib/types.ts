@@ -149,10 +149,15 @@ export interface PortfolioPackage {
 export interface OptimizeResponse {
   packages: PortfolioPackage[];
   total_cost_idr: number;
+  /** Budget not consumed by the chosen packages (0 when the budget is fully used). */
+  unspent_idr?: number;
   budget_idr: number;
   equity_share_requested: number;
   equity_share_achieved: number;
   solver_status: string;
+  n_candidates: number;
+  /** Number of kelurahan actually considered, after the 40-area HVI cap (optional field). */
+  n_areas?: number;
   note: string;
   note_key?: string;
   map_highlight: string[];

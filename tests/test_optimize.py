@@ -31,13 +31,19 @@ def candidates():
 # --- candidate generation ------------------------------------------------------------
 
 @pytest.mark.integration
-def test_candidates_cover_every_intervention_and_level(candidates):
-    from model.scenario import INTERVENTION_TYPES, LEVELS
+def test_candidates_exclude_interventions_that_benefit_no_vulnerable_resident(candidates):
+    # A package that cools no vulnerable resident to the benefit threshold (>= 0.5 °C) is
+    # dropped at generation time, never offered to the solver.
+    assert candidates
+    assert all(c.vulnerable_benefiting > 0 for c in candidates)
 
-    expected = len({"ID3173040002", "ID3172030001", "ID3172070002"}) * sum(
-        len(LEVELS[itype]) for itype in INTERVENTION_TYPES
-    )
-    assert len(candidates) == expected
+
+@pytest.mark.integration
+def test_candidates_keep_cool_roof_for_every_kelurahan(candidates):
+    # Cool roof clears the benefit threshold in these dense kelurahan, so its three levels
+    # survive for every area -- the filter must not over-prune a genuinely useful package.
+    cool_roofs = {c.kel_id for c in candidates if c.intervention_type == "cool_roof"}
+    assert cool_roofs == {"ID3173040002", "ID3172030001", "ID3172070002"}
 
 
 @pytest.mark.integration
@@ -118,6 +124,18 @@ def test_tool_defaults_the_equity_share_to_the_config_value():
 
 
 @pytest.mark.integration
+def test_tool_reports_unspent_budget():
+    budget = 20_000_000_000
+    result = optimize_portfolio("ID3173", budget)
+    if "error" in result:
+        pytest.skip(result["error"])
+    # Unspent is the budget minus the actual spend, never negative.
+    assert result["unspent_idr"] == pytest.approx(budget - result["total_cost_idr"])
+    assert result["unspent_idr"] >= 0
+    assert {"opt.unspent"} <= {f["id"] for f in result["facts"]}
+
+
+@pytest.mark.integration
 def test_tool_emits_facts_for_the_budget_and_the_totals():
     result = optimize_portfolio("ID3173", BUDGET_2B)
     if "error" in result:
@@ -162,6 +180,35 @@ def test_tool_highlights_the_selected_kelurahan():
     if "error" in result:
         pytest.skip(result["error"])
     assert set(result["map_highlight"]) == {p["kel_id"] for p in result["packages"]}
+
+
+@pytest.mark.integration
+def test_tool_accepts_an_explicit_list_of_kelurahan():
+    # An explicit list must confine the solver to those areas, same guarantee as a scope.
+    result = optimize_portfolio(
+        kel_ids=["ID3173040002", "ID3172030001"], budget_idr=BUDGET_2B, equity_share=0.0
+    )
+    if "error" in result:
+        pytest.skip(result["error"])
+    ids = {p["kel_id"] for p in result["packages"]}
+    assert ids <= {"ID3173040002", "ID3172030001"}
+
+
+@pytest.mark.integration
+def test_tool_rejects_unknown_kelurahan_in_the_explicit_list():
+    result = optimize_portfolio(kel_ids=["ID9999999999"], budget_idr=BUDGET_2B)
+    assert "error" in result
+    assert result["facts"] == []
+
+
+@pytest.mark.integration
+def test_tool_reports_the_number_of_areas_considered():
+    result = optimize_portfolio(
+        kel_ids=["ID3173040002"], budget_idr=BUDGET_2B, equity_share=0.0
+    )
+    if "error" in result:
+        pytest.skip(result["error"])
+    assert result["n_areas"] == 1
 
 
 @pytest.mark.unit
