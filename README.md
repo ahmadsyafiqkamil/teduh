@@ -27,10 +27,8 @@ source.
 Cloud Run, with on-screen annotations. **3 minutes 26 seconds**, 1198×720, H.264/AAC, 13.8 MB.
 
 [![Demo video](https://img.youtube.com/vi/6eDuZJqVK7A/0.jpg)](https://youtu.be/6eDuZJqVK7A?si=uasUPShFLBrPG_Wa)
-> **Klik gambar di atas untuk memutar video demo di YouTube.**  
-> Jika tidak dapat memuat video, [klik di sini untuk membuka link YouTube](https://youtu.be/6eDuZJqVK7A?si=uasUPShFLBrPG_Wa).
-
-
+> **Click the image above to watch the demo video on YouTube.**  
+> If the video does not load, [click here to open the YouTube link](https://youtu.be/6eDuZJqVK7A?si=uasUPShFLBrPG_Wa).
 
 What the video walks through, in order:
 
