@@ -26,6 +26,8 @@ source.
 **[`teduh-demo-annotated.mp4`](teduh-demo-annotated.mp4)** — a screen recording of the app running on
 Cloud Run, with on-screen annotations. **3 minutes 26 seconds**, 1198×720, H.264/AAC, 13.8 MB.
 
+<video src="teduh-demo-annotated.mp4" width="100%" controls></video>
+
 What the video walks through, in order:
 
 1. The heat and vulnerability map across Jakarta's 264 sub-districts — LST, anomaly, HVI, NDVI layers.
