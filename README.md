@@ -30,7 +30,7 @@ Cloud Run, with on-screen annotations. **3 minutes 26 seconds**, 1198×720, H.26
 > **Klik gambar di atas untuk memutar video demo di YouTube.**  
 > Jika tidak dapat memuat video, [klik di sini untuk membuka link YouTube](https://youtu.be/6eDuZJqVK7A?si=uasUPShFLBrPG_Wa).
 
-[YouTube demo video (`6eDuZJqVK7A`)](https://youtu.be/6eDuZJqVK7A?si=uasUPShFLBrPG_Wa)
+
 
 What the video walks through, in order:
 
